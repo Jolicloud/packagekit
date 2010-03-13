@@ -73,10 +73,6 @@ else:
         pklog.debug("Use XAPIAN for the search")
         XAPIAN_SUPPORT = True
 
-STDOUT_ENCODING = sys.stdout.encoding or sys.getfilesystemencoding()
-FS_ENCODING = sys.getfilesystemencoding()
-DEFAULT_ENCODING = locale.getpreferredencoding()
-
 # SoftwareProperties is required to proivde information about repositories
 try:
     import softwareproperties.SoftwareProperties
@@ -162,11 +158,17 @@ HREF_CVE="http://web.nvd.nist.gov/view/vuln/detail?vulnId=%s"
 
 SYNAPTIC_PIN_FILE = "/var/lib/synaptic/preferences"
 
+DEFAULT_ENCODING = "UTF-8"
+
 # Required to get translated descriptions
 try:
     locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pklog.debug("Failed to unset LC_ALL")
+
+# Allows to write unicode to stdout
+import codecs
+sys.stdout = codecs.getwriter(DEFAULT_ENCODING)(sys.stdout)
 
 # Required to parse RFC822 time stamps
 try:
@@ -541,7 +543,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
 
     # Methods ( client -> engine -> backend )
 
-    def search_files(self, filters, filenames_string):
+    def search_file(self, filters, filenames_string):
         """Search for files in packages.
 
         Works only for installed file if apt-file isn't installed.
@@ -602,7 +604,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     self._emit_visible_package(filters, pkg)
                     break
 
-    def search_groups(self, filters, group):
+    def search_group(self, filters, group):
         """
         Implement the apt2-search-group functionality
         """
@@ -616,7 +618,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             if self._get_package_group(pkg) == group:
                 self._emit_visible_package(filters, pkg)
 
-    def search_names(self, filters, search):
+    def search_name(self, filters, search):
         """
         Implement the apt2-search-name functionality
         """
@@ -627,10 +629,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self.allow_cancel(True)
 
         for pkg_name in self._cache.keys():
-            for pkg_name2 in search:
-                if pkg_name2 in pkg_name:
-                    self._emit_all_visible_pkg_versions(filters,
-                                                        self._cache[pkg_name])
+            if search in pkg_name:
+                self._emit_all_visible_pkg_versions(filters,
+                                                    self._cache[pkg_name])
 
     def search_details(self, filters, values):
         """
@@ -675,7 +676,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     txt += pkg.candidate._translated_records.long_desc.lower()
                 except AttributeError:
                     pass
-                if matches(values, unicode(txt, DEFAULT_ENCODING, "replace")):
+                if matches(values, txt.decode(DEFAULT_ENCODING, "replace")):
                     self._emit_visible_package(filters, pkg)
 
     def get_distro_upgrades(self):
@@ -749,7 +750,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self.percentage(None)
         self._check_init(progress=False)
         # Start with a safe upgrade
-        self._cache.upgrade(distUpgrade = True)
+        self._cache.upgrade()
         upgrades_safe = self._cache.getChanges()
         resolver = apt.cache.ProblemResolver(self._cache)
         for upgrade in upgrades_safe:
@@ -855,7 +856,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             obsoletes = ""
             vendor_url = ""
             restart = "none"
-            update_text = ""
+            update_text = u""
             state = ""
             issued = ""
             updated = ""
@@ -867,29 +868,27 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             changelog_raw = pkg.getChangelog()
             # The internal download error string of python-apt ist not
             # provided as unicode object
-            try:
+            if not isinstance(changelog_raw, unicode):
                 changelog_raw = changelog_raw.decode(DEFAULT_ENCODING)
-            except:
-                pass
             # Convert the changelog to markdown syntax
-            changelog = ""
+            changelog = u""
             for line in changelog_raw.split("\n"):
                 if line == "":
                     changelog += " \n"
                 else:
-                    changelog += "    %s  \n" % line
+                    changelog += u"    %s  \n" % line
                 if line.startswith(pkg.candidate.source_name):
                     match = re.match(r"(?P<source>.+) \((?P<version>.*)\) "
                                       "(?P<dist>.+); urgency=(?P<urgency>.+)",
                                      line)
-                    update_text += "%s\n%s\n\n" % (match.group("version"),
-                                                   "=" * \
-                                                   len(match.group("version")))
+                    update_text += u"%s\n%s\n\n" % (match.group("version"),
+                                                    "=" * \
+                                                    len(match.group("version")))
                 elif line.startswith("  "):
-                    update_text += "  %s  \n" % line
+                    update_text += u"  %s  \n" % line
                 elif line.startswith(" --"):
                     #FIXME: Add %z for the time zone - requires Python 2.6
-                    update_text += "  \n"
+                    update_text += u"  \n"
                     match = re.match("^ -- (?P<maintainer>.+) (?P<mail><.+>)  "
                                      "(?P<date>.+) (?P<offset>[-\+][0-9]+)$",
                                      line)
@@ -905,9 +904,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             cve_url = ";;".join(get_cve_urls(changelog))
             self.update_detail(pkg_id, updates, obsoletes, vendor_url,
                                bugzilla_url, cve_url, restart,
-                               format_string(update_text),
-                               format_string(changelog), state, issued,
-                               updated)
+                               update_text.replace("\n", ";"),
+                               changelog.replace("\n", ";"),
+                               state, issued, updated)
 
     def get_details(self, pkg_ids):
         """
@@ -930,8 +929,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                 license = "unknown"
             group = self._get_package_group(pkg)
             self.details(pkg_id, license, group,
-                         format_string(pkg.description),
-                         pkg.homepage, pkg.packageSize)
+                         pkg.description.replace("\n", ";"),
+                         pkg.homepage.decode(DEFAULT_ENCODING),
+                         pkg.packageSize)
 
     @lock_cache
     def update_system(self, only_trusted):
@@ -1092,8 +1092,10 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                comp.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_download_state(comp)[0]
-            if not FILTER_DEVELOPMENT in filtes:
-                self.repo_detail(repo_id, description, enabled)
+            if not FILTER_DEVELOPMENT in filter_list:
+                self.repo_detail(repo_id,
+                                 description.decode(DEFAULT_ENCODING),
+                                 enabled)
         # Emit distro's virtual update repositories
         for template in repos.distro.source_template.children:
             repo_id = "%s_child_%s" % (repos.distro.id, template.name)
@@ -1103,8 +1105,10 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                template.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_child_state(template)[0]
-            if not FILTER_DEVELOPMENT in filters:
-                self.repo_detail(repo_id, description, enabled)
+            if not FILTER_DEVELOPMENT in filter_list:
+                self.repo_detail(repo_id,
+                                 description.decode(DEFAULT_ENCODING),
+                                 enabled)
         # Emit distro's cdrom sources
         for source in repos.get_cdrom_sources():
             if FILTER_NOT_DEVELOPMENT in filters and \
@@ -1115,15 +1119,17 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             description = re.sub(r"</?b>", "", repos.render_source(source))
             repo_id = "cdrom_%s_%s" % (source.uri, source.dist)
             repo_id.join(map(lambda c: "_%s" % c, source.comps))
-            self.repo_detail(repo_id, description, enabled)
+            self.repo_detail(repo_id, description.decode(DEFAULT_ENCODING),
+                             enabled)
         # Emit distro's virtual source code repositoriy
         if not FILTER_NOT_DEVELOPMENT in filters:
             repo_id = "%s_source" % repos.distro.id
             enabled = repos.get_source_code_state() or False
             #FIXME: no translation :(
-            description = "%s %s - Source code" % (repos.distro.id, 
+            description = "%s %s - Source code" % (repos.distro.id,
                                                    repos.distro.release)
-            self.repo_detail(repo_id, description, enabled)
+            self.repo_detail(repo_id, description.decode(DEFAULT_ENCODING),
+                             enabled)
         # Emit third party repositories
         for source in repos.get_isv_sources():
             if FILTER_NOT_DEVELOPMENT in filters and \
@@ -1134,7 +1140,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             description = re.sub(r"</?b>", "", repos.render_source(source))
             repo_id = "isv_%s_%s" % (source.uri, source.dist)
             repo_id.join(map(lambda c: "_%s" % c, source.comps))
-            self.repo_detail(repo_id, description, enabled)
+            self.repo_detail(repo_id, description.decode(DEFAULT_ENCODING),
+                             enabled)
 
     def repo_enable(self, repo_id, enable):
         """
@@ -1563,14 +1570,14 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                 if not self._is_package_visible(pkg, filters):
                     return
             else:
-                summary = ""
+                summary = u""
             if base_dependency.relation:
                 version = "%s%s" % (base_dependency.relation,
                                     base_dependency.version)
             else:
                 version = base_dependency.version
             self.package("%s;%s;;" % (base_dependency.name, version),
-                         INFO_BLOCKED, summary)
+                         INFO_BLOCKED, unicode(summary, DEFAULT_ENCODING))
 
         def check_dependency(pkg, base_dep):
             """Check if the given apt.package.Package can satisfy the
@@ -1939,7 +1946,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     info = INFO_COLLECTION_AVAILABLE
                 else:
                     info = INFO_AVAILABLE
-        self.package(id, info, version.summary)
+        self.package(id, info, unicode(version.summary, DEFAULT_ENCODING))
 
     def _emit_all_visible_pkg_versions(self, filters, pkg):
         """Emit all available versions of a package."""
