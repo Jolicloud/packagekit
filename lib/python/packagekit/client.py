@@ -27,7 +27,6 @@ to search for packages, install packages or codecs.
 #    Tim Lauridsen <timlau@fedoraproject.org>
 #    Sebastian Heinlein <devel@glatzor.de>
 
-import locale
 import os
 
 import dbus
@@ -166,10 +165,6 @@ class PackageKitTransaction:
                 raise PackageKitError(self._error_code, self._error_details)
             return self.result
 
-    def set_locale(self, code):
-        '''Set the language to the given locale code'''
-        return self._iface.SetLocale(code)
-
     def cancel(self):
         '''Cancel the transaction'''
         return self._iface.Cancel()
@@ -216,7 +211,6 @@ class PackageKitClient:
         '''
         self.pk_control = None
         self.bus = dbus.SystemBus()
-        self._locale = locale.getdefaultlocale()[0]
 
     def suggest_daemon_quit(self):
         '''Ask the PackageKit daemon to shutdown.'''
@@ -386,10 +380,6 @@ class PackageKitClient:
         return self._run_transaction("WhatProvides", [filters, enum, search], 
                                      exit_handler)
 
-    def set_locale(self, code):
-        '''Set the language of the client'''
-        self._locale = code
-
     def accept_eula(self, eula_id, exit_handler=None):
         '''Accept the given end user licence aggreement'''
         return self._run_transaction("AcceptEula", [eula_id], exit_handler)
@@ -437,8 +427,6 @@ class PackageKitClient:
                                                    tid, False),
                                'org.freedesktop.PackageKit.Transaction')
         trans = PackageKitTransaction(tid, iface)
-        if self._locale:
-            trans.set_locale(self._locale)
         trans.set_method(method_name, *args)
         if exit_handler:
             trans._exit_handler = exit_handler
