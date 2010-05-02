@@ -232,9 +232,9 @@ class PackageKitClient:
         return self._run_transaction("GetDetails", [package_ids],
                                      exit_handler)
 
-    def search_name(self, search, filters=FILTER_NONE, exit_handler=None):
+    def search_names(self, search, filters=FILTER_NONE, exit_handler=None):
         '''Search for packages by name'''
-        return self._run_transaction("SearchName", [filters, search],
+        return self._run_transaction("SearchNames", [filters, search],
                                      exit_handler)
 
     def search_group(self, search, filters=FILTER_NONE, exit_handler=None):
