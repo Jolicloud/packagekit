@@ -545,7 +545,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         # installed files. But still search for installed files additionally
         # to make sure that we provide up-to-date results
         if os.path.exists("/usr/bin/apt-file") and \
-           FILTER_INSTALLED not in filters.split(";"):
+           FILTER_INSTALLED not in filters:
             #FIXME: Make use of rapt-file on Debian if the network is available
             #FIXME: Show a warning to the user if the apt-file cache is several
             #       weeks old
@@ -1068,7 +1068,6 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                 self.error(ERROR_INTERNAL_ERROR,
                            "Please make sure that python-software-properties is"
                            "correctly installed.")
-        filter_list = filters.split(";")
         repos = PackageKitSoftwareProperties()
         # Emit distro components as virtual repositories
         for comp in repos.distro.source_template.components:
@@ -1079,7 +1078,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                comp.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_download_state(comp)[0]
-            if not FILTER_DEVELOPMENT in filter_list:
+            if not FILTER_DEVELOPMENT in filtes:
                 self.repo_detail(repo_id, description, enabled)
         # Emit distro's virtual update repositories
         for template in repos.distro.source_template.children:
@@ -1090,11 +1089,11 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                template.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_child_state(template)[0]
-            if not FILTER_DEVELOPMENT in filter_list:
+            if not FILTER_DEVELOPMENT in filters:
                 self.repo_detail(repo_id, description, enabled)
         # Emit distro's cdrom sources
         for source in repos.get_cdrom_sources():
-            if FILTER_NOT_DEVELOPMENT in filter_list and \
+            if FILTER_NOT_DEVELOPMENT in filters and \
                source.type in ("deb-src", "rpm-src"):
                 continue
             enabled = not source.disabled
@@ -1104,7 +1103,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             repo_id.join(map(lambda c: "_%s" % c, source.comps))
             self.repo_detail(repo_id, description, enabled)
         # Emit distro's virtual source code repositoriy
-        if not FILTER_NOT_DEVELOPMENT in filter_list:
+        if not FILTER_NOT_DEVELOPMENT in filters:
             repo_id = "%s_source" % repos.distro.id
             enabled = repos.get_source_code_state() or False
             #FIXME: no translation :(
@@ -1113,7 +1112,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             self.repo_detail(repo_id, description, enabled)
         # Emit third party repositories
         for source in repos.get_isv_sources():
-            if FILTER_NOT_DEVELOPMENT in filter_list and \
+            if FILTER_NOT_DEVELOPMENT in filters and \
                source.type in ("deb-src", "rpm-src"):
                 continue
             enabled = not source.disabled
@@ -1539,8 +1538,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             """Send a blocked package signal for the given
             apt.package.BaseDependency.
             """
-            filters_lst = filters.split(";")
-            if FILTER_INSTALLED in filters_lst:
+            if FILTER_INSTALLED in filters:
                 return
             if pkg:
                 summary = pkg.summary
@@ -1988,9 +1986,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         """
         Return True if the package should be shown in the user interface
         """
-        if filters == FILTER_NONE:
+        if filters == [FILTER_NONE]:
             return True
-        for filter in filters.split(";"):
+        for filter in filters:
             if (filter == FILTER_INSTALLED and not pkg.isInstalled) or \
                (filter == FILTER_NOT_INSTALLED and pkg.isInstalled) or \
                (filter == FILTER_SUPPORTED and not \
