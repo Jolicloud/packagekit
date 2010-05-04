@@ -528,7 +528,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
 
     # Methods ( client -> engine -> backend )
 
-    def search_file(self, filters, filenames_string):
+    def search_files(self, filters, filenames_string):
         """Search for files in packages.
 
         Works only for installed file if apt-file isn't installed.
@@ -589,7 +589,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     self._emit_visible_package(filters, pkg)
                     break
 
-    def search_group(self, filters, group):
+    def search_groups(self, filters, group):
         """
         Implement the apt2-search-group functionality
         """
@@ -603,7 +603,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             if self._get_package_group(pkg) == group:
                 self._emit_visible_package(filters, pkg)
 
-    def search_name(self, filters, search):
+    def search_names(self, filters, search):
         """
         Implement the apt2-search-name functionality
         """
@@ -614,9 +614,10 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self.allow_cancel(True)
 
         for pkg_name in self._cache.keys():
-            if search in pkg_name:
-                self._emit_all_visible_pkg_versions(filters,
-                                                    self._cache[pkg_name])
+            for pkg_name2 in search:
+                if pkg_name2 in pkg_name:
+                    self._emit_all_visible_pkg_versions(filters,
+                                                        self._cache[pkg_name])
 
     def search_details(self, filters, values):
         """
@@ -735,7 +736,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self.percentage(None)
         self._check_init(progress=False)
         # Start with a safe upgrade
-        self._cache.upgrade()
+        self._cache.upgrade(distUpgrade = True)
         upgrades_safe = self._cache.getChanges()
         resolver = apt.cache.ProblemResolver(self._cache)
         for upgrade in upgrades_safe:

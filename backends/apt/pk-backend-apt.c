@@ -364,15 +364,19 @@ backend_search_group (PkBackend *backend, PkBitfield filters, const gchar *searc
 }
 
 /**
- * pk_backend_search_name:
+ * pk_backend_search_names:
  */
 static void
-backend_search_name (PkBackend *backend, PkBitfield filters, const gchar *search)
+backend_search_names (PkBackend *backend, PkBitfield filters, gchar **values)
 {
+	gchar *search;
 	gchar *filters_text;
 	filters_text = pk_filter_bitfield_to_string (filters);
-	pk_backend_spawn_helper (spawn, "aptBackend.py", "search-name", filters_text, search, NULL);
+	search = g_strjoinv ("&", values);
+	pk_backend_spawn_helper (spawn, "aptBackend.py", "search-names", filters_text, search, NULL);
+
 	g_free (filters_text);
+	g_free (search);
 }
 
 /**
@@ -570,7 +574,7 @@ PK_BACKEND_OPTIONS (
 	backend_search_details,			/* search_details */
 	backend_search_file,			/* search_file */
 	backend_search_group,			/* search_group */
-	backend_search_name,			/* search_name */
+	backend_search_names,			/* search_name */
 	backend_update_packages,		/* update_packages */
 	backend_update_system,			/* update_system */
 	backend_what_provides,			/* what_provides */

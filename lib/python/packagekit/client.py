@@ -399,7 +399,7 @@ class PackageKitClient:
         if not isinstance(obj, list):
             obj = [obj]
         for o in obj:
-            if isinstance(o, PackageKitPackage):
+            if isinstance(o, PackageKitPackage) or issubclass(o.__class__, PackageKitPackage):
                 ids.append(o.id)
             elif isinstance(o, str) and len(o.split(";")) == 4:
                 ids.append(o)

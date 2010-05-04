@@ -319,7 +319,7 @@ class PackageKitBaseBackend:
 # Backend Action Methods
 #
 
-    def search_name(self, filters, values):
+    def search_names(self, filters, values):
         '''
         Implement the {backend}-search-name functionality
         Needed to be implemented in a sub class
@@ -333,14 +333,14 @@ class PackageKitBaseBackend:
         '''
         self.error(ERROR_NOT_SUPPORTED, "This function is not implemented in this backend", exit=False)
 
-    def search_group(self, filters, values):
+    def search_groups(self, filters, values):
         '''
         Implement the {backend}-search-group functionality
         Needed to be implemented in a sub class
         '''
         self.error(ERROR_NOT_SUPPORTED, "This function is not implemented in this backend", exit=False)
 
-    def search_file(self, filters, values):
+    def search_files(self, filters, values):
         '''
         Implement the {backend}-search-file functionality
         Needed to be implemented in a sub class
@@ -656,20 +656,20 @@ class PackageKitBaseBackend:
             values = _to_unicode(args[1]).split(PACKAGE_IDS_DELIM)
             self.search_details(options, values)
             self.finished()
-        elif cmd == 'search-file':
+        elif cmd == 'search-files':
             options = args[0]
             values = args[1].split(PACKAGE_IDS_DELIM)
-            self.search_file(options, values)
+            self.search_files(options, values)
             self.finished()
-        elif cmd == 'search-group':
+        elif cmd == 'search-groups':
             options = args[0]
             values = args[1].split(PACKAGE_IDS_DELIM)
             self.search_group(options, values)
             self.finished()
-        elif cmd == 'search-name':
+        elif cmd == 'search-names':
             options = args[0]
             values = _to_unicode(args[1]).split(PACKAGE_IDS_DELIM)
-            self.search_name(options, values)
+            self.search_names(options, values)
             self.finished()
         elif cmd == 'signature-install':
             package = args[0]
