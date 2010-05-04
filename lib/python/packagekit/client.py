@@ -258,10 +258,10 @@ class PackageKitClient:
         return self._run_transaction("InstallPackages",
                                      [only_trusted, package_ids], exit_handler)
 
-    def update_packages(self, packages, exit_handler=None):
+    def update_packages(self, packages, only_trusted=True, exit_handler=None):
         '''Update the packages of the given package ids'''
         package_ids = self._to_package_id_list(packages)
-        return self._run_transaction("UpdatePackages", [package_ids], 
+        return self._run_transaction("UpdatePackages", [only_trusted, package_ids], 
                                      exit_handler)
 
     def remove_packages(self, packages, allow_deps=False, auto_remove=True,
