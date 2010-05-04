@@ -39,6 +39,9 @@ from misc import *
 
 __api_version__ = '0.1.2'
 
+PACKAGEKIT_INTERFACE = 'org.freedesktop.PackageKit'
+TRANSACTION_INTERFACE = 'org.freedesktop.PackageKit.Transaction'
+
 class PackageKitError(Exception):
     '''PackageKit error.
 
@@ -70,6 +73,7 @@ class PackageKitTransaction:
         self.result = []
         # Connect the signal handlers to the DBus iface
         self._iface = iface
+        self._props = dbus.Interface(self._iface, dbus_interface=dbus.PROPERTIES_IFACE)
         for sig, cb in [('Finished', self._on_finished),
                         ('ErrorCode', self._on_error),
                         ('StatusChanged', self._on_status),
@@ -169,13 +173,20 @@ class PackageKitTransaction:
         '''Cancel the transaction'''
         return self._iface.Cancel()
 
-    def get_status(self):
+    @property
+    def status(self):
         '''Get the status of the transaction'''
-        return self._status
+        return self._props.Get(TRANSACTION_INTERFACE, "Status")
 
-    def get_progress(self):
+    @property
+    def percentage(self):
         '''Get the progress of the transaction'''
-        return self._iface.GetProgress()
+        return self._props.Get(TRANSACTION_INTERFACE, "Percentage")
+
+    @property
+    def subpercentage(self):
+        '''Get the progress of the transaction'''
+        return self._props.Get(TRANSACTION_INTERFACE, "Subpercentage")
 
     def get_finished_state(self):
         '''Return the finished status'''
@@ -417,15 +428,15 @@ class PackageKitClient:
                 e._dbus_error_name == 'org.freedesktop.DBus.Error.ServiceUnknown'):
                 # first initialization (lazy) or timeout
                 self.pk_control = dbus.Interface(self.bus.get_object(
-                        'org.freedesktop.PackageKit',
+                        PACKAGEKIT_INTERFACE,
                         '/org/freedesktop/PackageKit',
-                    False), 'org.freedesktop.PackageKit')
+                    False), PACKAGEKIT_INTERFACE)
                 tid = self.pk_control.GetTid()
             else:
                 raise
-        iface = dbus.Interface(self.bus.get_object('org.freedesktop.PackageKit',
+        iface = dbus.Interface(self.bus.get_object(PACKAGEKIT_INTERFACE,
                                                    tid, False),
-                               'org.freedesktop.PackageKit.Transaction')
+                               TRANSACTION_INTERFACE)
         trans = PackageKitTransaction(tid, iface)
         trans.set_method(method_name, *args)
         if exit_handler:
