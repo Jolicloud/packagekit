@@ -152,21 +152,6 @@ Description: Advanced library for accessing PackageKit using GLib
  It makes use of only async D-Bus calls and provides high level tasks which
  peform the "transaction dance".
 
-Package: libpackagekit-glib-dev
-Section: libdevel
-Architecture: any
-Depends: ${shlibs:Depends}, 
-         ${misc:Depends},
-	 libpackagekit-glib-14 (= ${binary:Version})
-Conflicts: packagekit-dev (<= 0.3.3-0ubuntu1), libpackagekit-dev
-Replaces: packagekit-dev
-Description: Library for accessing PackageKit using GLib (development files)
- PackageKit allows to perform simple software management tasks over a DBus 
- interface e.g. refreshing the cache, updating, installing and removing 
- software packages or searching for multimedia codecs and file handlers.
- .
- This package provides the header files and documentation for GLib.
-
 Package: libpackagekit-glib2-dev
 Section: libdevel
 Architecture: any
