@@ -1,0 +1,4 @@
+vendor.patch
+defaults.patch
+fix_progress_crash.patch
+#fix_upgrade_distro.diff

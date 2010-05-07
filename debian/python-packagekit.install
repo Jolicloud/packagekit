@@ -1,0 +1,11 @@
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/__init__.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/backend.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/client.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/enums.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/filter.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/frontend.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/misc.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/package.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/pkdbus.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/pkexceptions.py
+debian/tmp/usr/lib/python2.*/*-packages/packagekit/progress.py

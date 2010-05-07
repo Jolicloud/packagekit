@@ -1,0 +1,2 @@
+debian/tmp/usr/share/PackageKit/helpers/smart/smartBackend.py
+debian/tmp/usr/lib/packagekit-backend/libpk_backend_smart.so
