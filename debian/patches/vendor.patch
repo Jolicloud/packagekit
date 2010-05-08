@@ -1,0 +1,35 @@
+diff --git a/etc/Vendor.conf b/etc/Vendor.conf
+index ed1f5a9..281f944 100644
+--- a/etc/Vendor.conf
++++ b/etc/Vendor.conf
+@@ -12,7 +12,7 @@
+ # If the value is set to 'none' then no link is shown.
+ #
+ # default=http://www.packagekit.org/pk-package-not-found.html
+-DefaultUrl=http://www.packagekit.org/pk-package-not-found.html
++DefaultUrl=https://help.ubuntu.com/community/Repositories/
+ 
+ # The URL which is shown to the user when a codec could not be found.
+ # It should explain why certain codecs cannot be used, and perhaps show
+@@ -21,7 +21,7 @@ DefaultUrl=http://www.packagekit.org/pk-package-not-found.html
+ # If the value is set to 'none' then the value of DefaultUrl is used.
+ #
+ # default=none
+-CodecUrl=none
++CodecUrl=https://shop.canonical.com/index.php?cPath=19&osCsid=f1e370ea7563ed5e654c10450364ff24
+ 
+ # The URL which is shown to the user when hardware drivers could not be found.
+ # It should explain why some hardware is not supported, and links to futher
+@@ -54,10 +54,10 @@ MimeUrl=none
+ # The vendor name shown for the 'vendor' group
+ #
+ # default=My Vendor
+-VendorName=My Vendor
++VendorName=Jolicloud
+ 
+ # The vendor icon name shown for the 'vendor' group
+ #
+ # default=emblem-favorite
+-VendorIcon=emblem-favorite
++VendorIcon=distributor-logo
+ 
