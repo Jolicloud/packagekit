@@ -1,0 +1,239 @@
+Source: packagekit
+Section: admin
+Priority: extra
+Maintainer: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Sebastian Heinlein <devel@glatzor.de>
+Build-Depends: debhelper (>= 5), 
+	       cdbs,
+	       quilt,
+	       libpam0g-dev, 
+	       libglib2.0-dev, 
+	       libdbus-glib-1-dev (>=0.76),
+	       libnm-glib-dev,
+	       network-manager-dev,
+	       libpolkit-gobject-1-dev,
+	       libpolkit-backend-1-dev,
+	       policykit-1,
+	       libapt-pkg-dev,
+	       autotools-dev,
+	       libtool,
+	       libsqlite3-dev,
+	       python-dev,
+	       python-central (>= 0.5),
+	       python-apt (>=0.7.13.2),
+	       docbook-utils,
+	       gtk-doc-tools,
+	       xmlto,
+	       xulrunner-dev (>= 1.9.1),
+	       libgtk2.0-dev,
+	       libdbus-glib-1-dev,
+	       update-manager-core, 
+	       python-software-properties,
+	       libgstreamer-plugins-base0.10-dev,
+	       libarchive-dev,
+	       libcppunit-dev,
+	       libqt4-dev,
+	       libxt-dev,
+	       pm-utils
+Standards-Version: 3.8.3
+XS-Python-Version: current
+Homepage: http://www.packagekit.org
+Vcs-Bzr: https://code.launchpad.net/~packagekit/packagekit/ubuntu-lucid
+Vcs-Browser: http://bazaar.launchpad.net/~packagekit/packagekit/ubuntu-lucid/files
+
+Package: packagekit
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends}, 
+	 ${python:Depends},
+	 libpackagekit-glib2-14 (= ${binary:Version}),
+	 dbus,
+	 packagekit-backend-aptcc | packagekit-backend-apt | packagekit-backend-smart
+Description: provides a software installation daemon
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ The work is done by backends which make use of the package manager shipped by
+ the corresponding distribution. PackageKit is not meant to replace
+ advanced tools like Synaptic.
+ .
+ The main benefits are:
+  - unified interface on several distributions
+  - fine grained privilleges by using PolicyKit
+  - independecy from a running desktop session during the processing
+
+Package: python-packagekit
+Architecture: all
+Section: python
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 ${python:Depends},
+	 python-gobject,
+	 python-dbus
+XB-Python-Version: ${python:Versions}
+Conflicts: packagekit (<< 0.3.11)
+Description: PackageKit Python bindings
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides Python bindings for PackageKit
+ 
+Package: gstreamer0.10-packagekit
+Architecture: any
+Section: libs
+Conflicts: gnome-app-install (<< 0.5.12)
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 packagekit (= ${binary:Version})
+Description: GStreamer plugin to install codecs using PackageKit
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides a plugin for the GStreamer multimedia framework
+ to search and to install audio and video codecs.
+
+Package: mozilla-packagekit
+Architecture: any
+Section: web
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 packagekit (= ${binary:Version}),
+	 firefox-3.5 | abrowser-3.5 | www-browser
+Breaks: firefox-3.0
+Description: software installation plugin
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides a browser plugin.
+
+Package: libpackagekit-qt-14
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+Conflicts: packagekit (<= 0.3.3-0ubuntu1)
+Breaks: kpackagekit (<= 0.4)
+Description: Library for accessing PackageKit using Qt.
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides a library to access PackageKit using Qt.
+
+Package: libpackagekit-glib-14
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+Conflicts: packagekit (<= 0.3.3-0ubuntu1)
+Description: Library for accessing PackageKit using GLib
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides a library to access PackageKit using GLib.
+
+Package: libpackagekit-glib2-14
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+Conflicts: packagekit (<= 0.3.3-0ubuntu1)
+Description: Advanced library for accessing PackageKit using GLib
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides an advanced library to access PackageKit using GLib.
+ It makes use of only async D-Bus calls and provides high level tasks which
+ peform the "transaction dance".
+
+Package: libpackagekit-glib2-dev
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 libpackagekit-glib2-14 (= ${binary:Version})
+Conflicts: packagekit-dev (<= 0.3.3-0ubuntu1), libpackagekit-dev
+Replaces: packagekit-dev
+Description: Rewritten library for PackageKit using GLib (development files)
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This provides an advanced library to access PackageKit using GLib.
+ It makes use of only async D-Bus calls and provides high level tasks which
+ peform the "transaction dance".
+ .
+ This package provides the header files and documentation for the advanced
+ PackageKit library based on GLib. It makes use of only async D-Bus calls 
+ and provides high level tasks which peform the "transaction dance".
+ 
+Package: libpackagekit-qt-dev
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 libpackagekit-qt-14 (= ${binary:Version})
+Description: Library for accessing PackageKit using Qt (development files)
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package provides the header files for Qt.
+
+Package: packagekit-backend-apt
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 ${python:Depends},
+	 python-packagekit (= ${source:Version}),
+	 app-install-data,
+	 python-apt (>=0.7.13.2),
+	 python-gdbm,
+	 update-manager-core, 
+	 python-software-properties
+XB-Python-Version: ${python:Versions}
+Conflicts: packagekit (<< 0.3)
+Recommends: apt-xapian-index
+Description: APT backend for packagekit
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package allows packagekit to use APT which is the default package management 
+ tool of Debian and Ubuntu.
+ .
+ This backend uses python-apt to interface with APT.
+
+Package: packagekit-backend-smart
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+	 ${python:Depends},
+	 python-packagekit (= ${source:Version}),
+	 smartpm-core
+XB-Python-Version: ${python:Versions}
+Description: Smart backend for packagekit
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface  e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This package allows to use the smart package manager.
+
+Package: packagekit-backend-aptcc
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends},
+Description: Alternative APT backend for packagekit written in C++
+ PackageKit allows to perform simple software management tasks over a DBus 
+ interface e.g. refreshing the cache, updating, installing and removing 
+ software packages or searching for multimedia codecs and file handlers.
+ .
+ This backend uses libapt to interface with APT and is writtin in C++ to
+ target systems with low memory.
+
