@@ -48,7 +48,7 @@ Depends: ${shlibs:Depends},
 	 ${python:Depends},
 	 libpackagekit-glib2-14 (= ${binary:Version}),
 	 dbus,
-	 packagekit-backend-apt | packagekit-backend-smart
+	 packagekit-backend-aptcc | packagekit-backend-apt | packagekit-backend-smart
 Description: provides a software installation daemon
  PackageKit allows to perform simple software management tasks over a DBus 
  interface e.g. refreshing the cache, updating, installing and removing 
@@ -205,8 +205,10 @@ Description: APT backend for packagekit
  interface e.g. refreshing the cache, updating, installing and removing 
  software packages or searching for multimedia codecs and file handlers.
  .
- This package allows to use APT which is the default package management tool 
- of Debian and Ubuntu.
+ This package allows packagekit to use APT which is the default package management 
+ tool of Debian and Ubuntu.
+ .
+ This backend uses python-apt to interface with APT.
 
 Package: packagekit-backend-smart
 Architecture: any
@@ -232,6 +234,6 @@ Description: Alternative APT backend for packagekit written in C++
  interface e.g. refreshing the cache, updating, installing and removing 
  software packages or searching for multimedia codecs and file handlers.
  .
- This package provides an alternative backend which is writtin in C++ to
+ This backend uses libapt to interface with APT and is writtin in C++ to
  target systems with low memory.
 

@@ -6,7 +6,7 @@ include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-docbook-docs --enable-gtk-doc \
 			     --enable-apt --enable-aptcc --enable-smart \
-	                     --with-default-backend=apt \
+	                     --with-default-backend=aptcc \
 			     --disable-gtk-module \
 			     --disable-service-packs \
 			     --enable-strict=no
