@@ -4,6 +4,8 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 
+DEB_CONFIGURE_SCRIPT := ./autogen.sh
+
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-docbook-docs --enable-gtk-doc \
 			     --enable-apt --enable-aptcc --enable-smart \
 	                     --with-default-backend=aptcc \
