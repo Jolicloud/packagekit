@@ -24,7 +24,7 @@
  * @short_description: Metadata file common functionality
  *
  * This provides an abstract metadata class.
- * It is implemented by #ZifMdFilelists, #ZifMdMaster and #ZifMdPrimary.
+ * It is implemented by #ZifMdFilelistsSql, #ZifMdMaster and #ZifMdPrimary.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,7 +41,6 @@
 #include "zif-config.h"
 
 #include "egg-debug.h"
-#include "egg-string.h"
 
 #define ZIF_MD_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), ZIF_TYPE_MD, ZifMdPrivate))
 
@@ -380,11 +379,11 @@ zif_md_set_id (ZifMd *md, const gchar *id)
 }
 
 /**
- * zif_md_set_id:
+ * zif_md_set_store_remote:
  * @md: the #ZifMd object
- * @id: the repository id, e.g. "fedora"
+ * @remote: the #ZifStoreRemote that created this metadata object
  *
- * Sets the repository ID for this metadata.
+ * Sets the remote store for this metadata.
  *
  * Return value: %TRUE for success, %FALSE for failure
  *
@@ -400,6 +399,23 @@ zif_md_set_store_remote (ZifMd *md, ZifStoreRemote *remote)
 	/* do not take a reference, else the parent device never goes away */
 	md->priv->remote = remote;
 	return TRUE;
+}
+
+/**
+ * zif_md_get_store_remote:
+ * @md: the #ZifMd object
+ *
+ * Gets the remote store for this metadata.
+ *
+ * Return value: A #ZifStoreRemote or %NULL for unset
+ *
+ * Since: 0.0.1
+ **/
+ZifStoreRemote *
+zif_md_get_store_remote (ZifMd *md)
+{
+	g_return_val_if_fail (ZIF_IS_MD (md), NULL);
+	return md->priv->remote;
 }
 
 /**
@@ -632,7 +648,7 @@ zif_md_unload (ZifMd *md, GCancellable *cancellable, ZifCompletion *completion, 
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_md_resolve (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_resolve (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
 	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
@@ -647,9 +663,45 @@ zif_md_resolve (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCo
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->resolve (md, search, cancellable, completion, error);
+out:
+	return array;
+}
+
+/**
+ * zif_md_search_file:
+ * @md: the #ZifMd object
+ * @search: the search term, e.g. "/usr/bin/powertop"
+ * @cancellable: a #GCancellable which is used to cancel tasks, or %NULL
+ * @completion: a #ZifCompletion to use for progress reporting
+ * @error: a #GError which is used on failure, or %NULL
+ *
+ * Gets a list of all packages that contain the file.
+ * Results are pkgId's descriptors, i.e. 64 bit hashes as test.
+ *
+ * Return value: a string list of pkgId's
+ *
+ * Since: 0.0.1
+ **/
+GPtrArray *
+zif_md_search_file (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+{
+	GPtrArray *array = NULL;
+	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
+
+	g_return_val_if_fail (ZIF_IS_MD (md), NULL);
+	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+	/* no support */
+	if (klass->search_file == NULL) {
+		g_set_error_literal (error, ZIF_MD_ERROR, ZIF_MD_ERROR_NO_SUPPORT,
+				     "operation cannot be performed on this md");
+		goto out;
+	}
+
+	/* do subclassed action */
+	array = klass->search_file (md, search, cancellable, completion, error);
 out:
 	return array;
 }
@@ -669,7 +721,7 @@ out:
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_md_search_name (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_search_name (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
 	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
@@ -684,7 +736,6 @@ zif_md_search_name (ZifMd *md, const gchar *search, GCancellable *cancellable, Z
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->search_name (md, search, cancellable, completion, error);
 out:
@@ -706,7 +757,7 @@ out:
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_md_search_details (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_search_details (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
 	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
@@ -721,7 +772,6 @@ zif_md_search_details (ZifMd *md, const gchar *search, GCancellable *cancellable
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->search_details (md, search, cancellable, completion, error);
 out:
@@ -743,7 +793,7 @@ out:
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_md_search_group (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_search_group (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
 	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
@@ -758,7 +808,6 @@ zif_md_search_group (ZifMd *md, const gchar *search, GCancellable *cancellable, 
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->search_group (md, search, cancellable, completion, error);
 out:
@@ -780,7 +829,7 @@ out:
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_md_search_pkgid (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_search_pkgid (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
 	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
@@ -795,7 +844,6 @@ zif_md_search_pkgid (ZifMd *md, const gchar *search, GCancellable *cancellable, 
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->search_pkgid (md, search, cancellable, completion, error);
 out:
@@ -817,7 +865,7 @@ out:
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_md_what_provides (ZifMd *md, const gchar *search,
+zif_md_what_provides (ZifMd *md, gchar **search,
 		      GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
@@ -833,7 +881,6 @@ zif_md_what_provides (ZifMd *md, const gchar *search,
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->what_provides (md, search, cancellable, completion, error);
 out:
@@ -870,9 +917,80 @@ zif_md_find_package (ZifMd *md, const gchar *package_id, GCancellable *cancellab
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->find_package (md, package_id, cancellable, completion, error);
+out:
+	return array;
+}
+
+/**
+ * zif_md_get_changelog:
+ * @md: the #ZifMd object
+ * @pkgid: the internal pkgid to match
+ * @cancellable: a #GCancellable which is used to cancel tasks, or %NULL
+ * @completion: a #ZifCompletion to use for progress reporting
+ * @error: a #GError which is used on failure, or %NULL
+ *
+ * Gets the changelog data for a specific package
+ *
+ * Return value: an array of #ZifChangeset's
+ *
+ * Since: 0.0.1
+ **/
+GPtrArray *
+zif_md_get_changelog (ZifMd *md, const gchar *pkgid, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+{
+	GPtrArray *array = NULL;
+	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
+
+	g_return_val_if_fail (ZIF_IS_MD (md), NULL);
+	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+	/* no support */
+	if (klass->get_changelog == NULL) {
+		g_set_error_literal (error, ZIF_MD_ERROR, ZIF_MD_ERROR_NO_SUPPORT,
+				     "operation cannot be performed on this md");
+		goto out;
+	}
+
+	/* do subclassed action */
+	array = klass->get_changelog (md, pkgid, cancellable, completion, error);
+out:
+	return array;
+}
+
+/**
+ * zif_md_get_files:
+ * @md: the #ZifMd object
+ * @package: the %ZifPackage
+ * @cancellable: a #GCancellable which is used to cancel tasks, or %NULL
+ * @completion: a #ZifCompletion to use for progress reporting
+ * @error: a #GError which is used on failure, or %NULL
+ *
+ * Gets the file list for a specific package.
+ *
+ * Return value: an array of strings, free with g_ptr_array_unref()
+ *
+ * Since: 0.0.1
+ **/
+GPtrArray *
+zif_md_get_files (ZifMd *md, ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+{
+	GPtrArray *array = NULL;
+	ZifMdClass *klass = ZIF_MD_GET_CLASS (md);
+
+	g_return_val_if_fail (ZIF_IS_MD (md), NULL);
+	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+	/* no support */
+	if (klass->get_files == NULL) {
+		g_set_error_literal (error, ZIF_MD_ERROR, ZIF_MD_ERROR_NO_SUPPORT,
+				     "operation cannot be performed on this md");
+		goto out;
+	}
+
+	/* do subclassed action */
+	array = klass->get_files (md, package, cancellable, completion, error);
 out:
 	return array;
 }
@@ -906,7 +1024,6 @@ zif_md_get_packages (ZifMd *md, GCancellable *cancellable, ZifCompletion *comple
 		goto out;
 	}
 
-	
 	/* do subclassed action */
 	array = klass->get_packages (md, cancellable, completion, error);
 out:

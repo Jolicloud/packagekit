@@ -20,7 +20,7 @@
  */
 
 /**
- * SECTION:zif-md-filelists
+ * SECTION:zif-md-filelists-sql
  * @short_description: File list metadata functionality
  *
  * Provide access to the file list metadata.
@@ -38,19 +38,19 @@
 #include <gio/gio.h>
 
 #include "zif-md.h"
-#include "zif-md-filelists.h"
+#include "zif-md-filelists-sql.h"
+#include "zif-package-remote.h"
 
 #include "egg-debug.h"
-#include "egg-string.h"
 
-#define ZIF_MD_FILELISTS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), ZIF_TYPE_MD_FILELISTS, ZifMdFilelistsPrivate))
+#define ZIF_MD_FILELISTS_SQL_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), ZIF_TYPE_MD_FILELISTS_SQL, ZifMdFilelistsSqlPrivate))
 
 /**
- * ZifMdFilelistsPrivate:
+ * ZifMdFilelistsSqlPrivate:
  *
- * Private #ZifMdFilelists data
+ * Private #ZifMdFilelistsSql data
  **/
-struct _ZifMdFilelistsPrivate
+struct _ZifMdFilelistsSqlPrivate
 {
 	gboolean		 loaded;
 	sqlite3			*db;
@@ -59,31 +59,31 @@ struct _ZifMdFilelistsPrivate
 typedef struct {
 	gchar			*filename;
 	GPtrArray		*array;
-} ZifMdFilelistsData;
+} ZifMdFilelistsSqlData;
 
-G_DEFINE_TYPE (ZifMdFilelists, zif_md_filelists, ZIF_TYPE_MD)
+G_DEFINE_TYPE (ZifMdFilelistsSql, zif_md_filelists_sql, ZIF_TYPE_MD)
 
 /**
- * zif_md_filelists_unload:
+ * zif_md_filelists_sql_unload:
  **/
 static gboolean
-zif_md_filelists_unload (ZifMd *md, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_filelists_sql_unload (ZifMd *md, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret = FALSE;
 	return ret;
 }
 
 /**
- * zif_md_filelists_load:
+ * zif_md_filelists_sql_load:
  **/
 static gboolean
-zif_md_filelists_load (ZifMd *md, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_filelists_sql_load (ZifMd *md, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	const gchar *filename;
 	gint rc;
-	ZifMdFilelists *filelists = ZIF_MD_FILELISTS (md);
+	ZifMdFilelistsSql *filelists = ZIF_MD_FILELISTS_SQL (md);
 
-	g_return_val_if_fail (ZIF_IS_MD_FILELISTS (md), FALSE);
+	g_return_val_if_fail (ZIF_IS_MD_FILELISTS_SQL (md), FALSE);
 
 	/* already loaded */
 	if (filelists->priv->loaded)
@@ -115,10 +115,10 @@ out:
 }
 
 /**
- * zif_store_remote_sqlite_get_id_cb:
+ * zif_md_filelists_sql_sqlite_get_id_cb:
  **/
 static gint
-zif_md_filelists_sqlite_get_id_cb (void *data, gint argc, gchar **argv, gchar **col_name)
+zif_md_filelists_sql_sqlite_get_id_cb (void *data, gint argc, gchar **argv, gchar **col_name)
 {
 	gchar **pkgid = (gchar **) data;
 	*pkgid = g_strdup (argv[0]);
@@ -126,16 +126,16 @@ zif_md_filelists_sqlite_get_id_cb (void *data, gint argc, gchar **argv, gchar **
 }
 
 /**
- * zif_md_filelists_sqlite_get_files_cb:
+ * zif_md_filelists_sql_sqlite_get_pkgkey_cb:
  **/
 static gint
-zif_md_filelists_sqlite_get_files_cb (void *data, gint argc, gchar **argv, gchar **col_name)
+zif_md_filelists_sql_sqlite_get_pkgkey_cb (void *data, gint argc, gchar **argv, gchar **col_name)
 {
 	gint i;
 	gchar **filenames = NULL;
 	gchar **filenames_r = NULL;
 	gchar **id_r = NULL;
-	ZifMdFilelistsData *fldata = (ZifMdFilelistsData *) data;
+	ZifMdFilelistsSqlData *fldata = (ZifMdFilelistsSqlData *) data;
 
 	/* get pointers to the arguments */
 	for (i=0;i<argc;i++) {
@@ -166,21 +166,109 @@ out:
 }
 
 /**
- * zif_md_filelists_search_file:
- * @md: the #ZifMdFilelists object
- * @search: the full path that should be searched for
- * @cancellable: a #GCancellable which is used to cancel tasks, or %NULL
- * @completion: a #ZifCompletion to use for progress reporting
- * @error: a #GError which is used on failure, or %NULL
- *
- * Gets a list of all packages that contain the file.
- * Results are pkgId's descriptors, i.e. 64 bit hashes as test.
- *
- * Return value: a string list of pkgId's
+ * zif_md_filelists_sql_sqlite_get_files_cb:
  **/
-GPtrArray *
-zif_md_filelists_search_file (ZifMdFilelists *md, const gchar *search,
-			      GCancellable *cancellable, ZifCompletion *completion, GError **error)
+static gint
+zif_md_filelists_sql_sqlite_get_files_cb (void *data, gint argc, gchar **argv, gchar **col_name)
+{
+	gint i;
+	gchar **filename = NULL;
+	gchar **dirname = NULL;
+	GPtrArray **array = (GPtrArray **) data;
+
+	/* get pointers to the arguments */
+	for (i=0;i<argc;i++) {
+		if (g_strcmp0 (col_name[i], "filenames") == 0)
+			filename = &argv[i];
+		else if (g_strcmp0 (col_name[i], "dirname") == 0)
+			dirname = &argv[i];
+	}
+
+	/* check for invalid entries */
+	if (filename == NULL || dirname == NULL) {
+		egg_warning ("failed on %p, %p", filename, dirname);
+		return 0;
+	}
+
+	/* add complete path */
+	g_ptr_array_add (*array, g_strdup (g_build_filename (*dirname, *filename, NULL)));
+	return 0;
+}
+
+/**
+ * zif_md_filelists_sql_get_files:
+ **/
+static GPtrArray *
+zif_md_filelists_sql_get_files (ZifMd *md, ZifPackage *package,
+				GCancellable *cancellable, ZifCompletion *completion, GError **error)
+{
+	gchar *statement = NULL;
+	gint rc;
+	gboolean ret;
+	const gchar *pkgid;
+	gchar *pkgkey = NULL;
+	GError *error_local = NULL;
+	gchar *error_msg = NULL;
+	GPtrArray *array = NULL;
+	GPtrArray *files = NULL;
+	ZifMdFilelistsSql *md_filelists_sql = ZIF_MD_FILELISTS_SQL (md);
+
+	/* if not already loaded, load */
+	if (!md_filelists_sql->priv->loaded) {
+		ret = zif_md_load (md, cancellable, completion, &error_local);
+		if (!ret) {
+			g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_FAILED_TO_LOAD,
+				     "failed to load store file: %s", error_local->message);
+			g_error_free (error_local);
+			goto out;
+		}
+	}
+
+	/* get pkgkey from pkgid */
+	pkgid = zif_package_remote_get_pkgid (ZIF_PACKAGE_REMOTE (package));
+	statement = g_strdup_printf ("SELECT pkgKey FROM packages WHERE pkgId = '%s' LIMIT 1", pkgid);
+	rc = sqlite3_exec (md_filelists_sql->priv->db, statement, zif_md_filelists_sql_sqlite_get_id_cb, &pkgkey, &error_msg);
+	g_free (statement);
+	if (rc != SQLITE_OK) {
+		g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
+			     "SQL error (failed to get packages): %s", error_msg);
+		sqlite3_free (error_msg);
+		goto out;
+	}
+
+	/* failed */
+	if (pkgkey == NULL) {
+		g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
+			     "failed to get pkgkey for %s", pkgid);
+		goto out;
+	}
+
+	/* get files for pkgkey */
+	files = g_ptr_array_new_with_free_func (g_free);
+	statement = g_strdup_printf ("SELECT dirname, filenames FROM filelist WHERE pkgKey = '%s'", pkgkey);
+	rc = sqlite3_exec (md_filelists_sql->priv->db, statement, zif_md_filelists_sql_sqlite_get_files_cb, &files, &error_msg);
+	g_free (statement);
+	if (rc != SQLITE_OK) {
+		g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
+			     "SQL error (failed to get packages): %s", error_msg);
+		sqlite3_free (error_msg);
+		goto out;
+	}
+
+	/* success */
+	array = g_ptr_array_ref (files);
+out:
+	if (files != NULL)
+		g_ptr_array_unref (files);
+	return array;
+}
+
+/**
+ * zif_md_filelists_sql_search_file:
+ **/
+static GPtrArray *
+zif_md_filelists_sql_search_file (ZifMd *md, gchar **search,
+				  GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	GPtrArray *array = NULL;
 	gchar *statement = NULL;
@@ -191,14 +279,15 @@ zif_md_filelists_search_file (ZifMdFilelists *md, const gchar *search,
 	GError *error_local = NULL;
 	gchar *filename = NULL;
 	gchar *dirname = NULL;
-	ZifMdFilelistsData *data = NULL;
+	ZifMdFilelistsSql *md_filelists_sql = ZIF_MD_FILELISTS_SQL (md);
+	ZifMdFilelistsSqlData *data = NULL;
 
-	g_return_val_if_fail (ZIF_IS_MD_FILELISTS (md), NULL);
+	g_return_val_if_fail (ZIF_IS_MD_FILELISTS_SQL (md), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
 	/* if not already loaded, load */
-	if (!md->priv->loaded) {
-		ret = zif_md_load (ZIF_MD (md), cancellable, completion, &error_local);
+	if (!md_filelists_sql->priv->loaded) {
+		ret = zif_md_load (md, cancellable, completion, &error_local);
 		if (!ret) {
 			g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_FAILED_TO_LOAD,
 				     "failed to load store file: %s", error_local->message);
@@ -208,18 +297,18 @@ zif_md_filelists_search_file (ZifMdFilelists *md, const gchar *search,
 	}
 
 	/* split the search term into directory and filename */
-	dirname = g_path_get_dirname (search);
-	filename = g_path_get_basename (search);
+	dirname = g_path_get_dirname (search[0]);
+	filename = g_path_get_basename (search[0]);
 	egg_debug ("dirname=%s, filename=%s", dirname, filename);
 
 	/* create data struct we can pass to the callback */
-	data = g_new0 (ZifMdFilelistsData, 1);
-	data->filename = g_path_get_basename (search);
+	data = g_new0 (ZifMdFilelistsSqlData, 1);
+	data->filename = g_path_get_basename (search[0]);
 	data->array = g_ptr_array_new ();
 
 	/* populate _array with guint pkgKey */
 	statement = g_strdup_printf ("SELECT filenames, pkgKey FROM filelist WHERE dirname = '%s'", dirname);
-	rc = sqlite3_exec (md->priv->db, statement, zif_md_filelists_sqlite_get_files_cb, data, &error_msg);
+	rc = sqlite3_exec (md_filelists_sql->priv->db, statement, zif_md_filelists_sql_sqlite_get_pkgkey_cb, data, &error_msg);
 	g_free (statement);
 	if (rc != SQLITE_OK) {
 		g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
@@ -237,7 +326,7 @@ zif_md_filelists_search_file (ZifMdFilelists *md, const gchar *search,
 		/* convert the pkgKey to a pkgId */
 		key = GPOINTER_TO_UINT (g_ptr_array_index (data->array, i));
 		statement = g_strdup_printf ("SELECT pkgId FROM packages WHERE pkgKey = %i LIMIT 1", key);
-		rc = sqlite3_exec (md->priv->db, statement, zif_md_filelists_sqlite_get_id_cb, &pkgid, &error_msg);
+		rc = sqlite3_exec (md_filelists_sql->priv->db, statement, zif_md_filelists_sql_sqlite_get_id_cb, &pkgid, &error_msg);
 		g_free (statement);
 		if (rc != SQLITE_OK) {
 			g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
@@ -268,62 +357,64 @@ out:
 }
 
 /**
- * zif_md_filelists_finalize:
+ * zif_md_filelists_sql_finalize:
  **/
 static void
-zif_md_filelists_finalize (GObject *object)
+zif_md_filelists_sql_finalize (GObject *object)
 {
-	ZifMdFilelists *md;
+	ZifMdFilelistsSql *md;
 
 	g_return_if_fail (object != NULL);
-	g_return_if_fail (ZIF_IS_MD_FILELISTS (object));
-	md = ZIF_MD_FILELISTS (object);
+	g_return_if_fail (ZIF_IS_MD_FILELISTS_SQL (object));
+	md = ZIF_MD_FILELISTS_SQL (object);
 
 	sqlite3_close (md->priv->db);
 
-	G_OBJECT_CLASS (zif_md_filelists_parent_class)->finalize (object);
+	G_OBJECT_CLASS (zif_md_filelists_sql_parent_class)->finalize (object);
 }
 
 /**
- * zif_md_filelists_class_init:
+ * zif_md_filelists_sql_class_init:
  **/
 static void
-zif_md_filelists_class_init (ZifMdFilelistsClass *klass)
+zif_md_filelists_sql_class_init (ZifMdFilelistsSqlClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	ZifMdClass *md_class = ZIF_MD_CLASS (klass);
-	object_class->finalize = zif_md_filelists_finalize;
+	object_class->finalize = zif_md_filelists_sql_finalize;
 
 	/* map */
-	md_class->load = zif_md_filelists_load;
-	md_class->unload = zif_md_filelists_unload;
-	g_type_class_add_private (klass, sizeof (ZifMdFilelistsPrivate));
+	md_class->load = zif_md_filelists_sql_load;
+	md_class->unload = zif_md_filelists_sql_unload;
+	md_class->search_file = zif_md_filelists_sql_search_file;
+	md_class->get_files = zif_md_filelists_sql_get_files;
+	g_type_class_add_private (klass, sizeof (ZifMdFilelistsSqlPrivate));
 }
 
 /**
- * zif_md_filelists_init:
+ * zif_md_filelists_sql_init:
  **/
 static void
-zif_md_filelists_init (ZifMdFilelists *md)
+zif_md_filelists_sql_init (ZifMdFilelistsSql *md)
 {
-	md->priv = ZIF_MD_FILELISTS_GET_PRIVATE (md);
+	md->priv = ZIF_MD_FILELISTS_SQL_GET_PRIVATE (md);
 	md->priv->loaded = FALSE;
 	md->priv->db = NULL;
 }
 
 /**
- * zif_md_filelists_new:
+ * zif_md_filelists_sql_new:
  *
- * Return value: A new #ZifMdFilelists class instance.
+ * Return value: A new #ZifMdFilelistsSql class instance.
  *
  * Since: 0.0.1
  **/
-ZifMdFilelists *
-zif_md_filelists_new (void)
+ZifMdFilelistsSql *
+zif_md_filelists_sql_new (void)
 {
-	ZifMdFilelists *md;
-	md = g_object_new (ZIF_TYPE_MD_FILELISTS, NULL);
-	return ZIF_MD_FILELISTS (md);
+	ZifMdFilelistsSql *md;
+	md = g_object_new (ZIF_TYPE_MD_FILELISTS_SQL, NULL);
+	return ZIF_MD_FILELISTS_SQL (md);
 }
 
 /***************************************************************************
@@ -333,17 +424,18 @@ zif_md_filelists_new (void)
 #include "egg-test.h"
 
 void
-zif_md_filelists_test (EggTest *test)
+zif_md_filelists_sql_test (EggTest *test)
 {
-	ZifMdFilelists *md;
+	ZifMdFilelistsSql *md;
 	gboolean ret;
 	GError *error = NULL;
 	GPtrArray *array;
 	const gchar *pkgid;
 	GCancellable *cancellable;
 	ZifCompletion *completion;
+	const gchar *data[] = { "/usr/bin/gnome-power-manager", NULL };
 
-	if (!egg_test_start (test, "ZifMdFilelists"))
+	if (!egg_test_start (test, "ZifMdFilelistsSql"))
 		return;
 
 	/* use */
@@ -352,7 +444,7 @@ zif_md_filelists_test (EggTest *test)
 
 	/************************************************************/
 	egg_test_title (test, "get store_remote md");
-	md = zif_md_filelists_new ();
+	md = zif_md_filelists_sql_new ();
 	egg_test_assert (test, md != NULL);
 
 	/************************************************************/
@@ -421,7 +513,7 @@ zif_md_filelists_test (EggTest *test)
 
 	/************************************************************/
 	egg_test_title (test, "search for files");
-	array = zif_md_filelists_search_file (md, "/usr/bin/gnome-power-manager", cancellable, completion, &error);
+	array = zif_md_filelists_sql_search_file (ZIF_MD (md), (gchar**)data, cancellable, completion, &error);
 	if (array != NULL)
 		egg_test_success (test, NULL);
 	else

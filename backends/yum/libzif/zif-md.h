@@ -66,37 +66,37 @@ struct _ZifMdClass
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*search_file)		(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*search_name)		(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*search_details)	(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*search_group)	(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*search_pkgid)	(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*what_provides)	(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
 	GPtrArray	*(*resolve)		(ZifMd			*md,
-						 const gchar		*search,
+						 gchar			**search,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
@@ -106,6 +106,16 @@ struct _ZifMdClass
 						 GError			**error);
 	GPtrArray	*(*find_package)	(ZifMd			*md,
 						 const gchar		*package_id,
+						 GCancellable		*cancellable,
+						 ZifCompletion		*completion,
+						 GError			**error);
+	GPtrArray	*(*get_changelog)	(ZifMd			*md,
+						 const gchar		*pkgid,
+						 GCancellable		*cancellable,
+						 ZifCompletion		*completion,
+						 GError			**error);
+	GPtrArray	*(*get_files)		(ZifMd			*md,
+						 ZifPackage		*package,
 						 GCancellable		*cancellable,
 						 ZifCompletion		*completion,
 						 GError			**error);
@@ -147,6 +157,7 @@ gboolean	 zif_md_set_mdtype			(ZifMd		*md,
 							 ZifMdType	 type);
 gboolean	 zif_md_set_store_remote		(ZifMd		*md,
 							 ZifStoreRemote	*remote);
+ZifStoreRemote	*zif_md_get_store_remote		(ZifMd		*md);
 gboolean	 zif_md_set_id				(ZifMd		*md,
 							 const gchar	*id);
 gboolean	 zif_md_set_filename			(ZifMd		*md,
@@ -187,37 +198,37 @@ gboolean	 zif_md_file_check			(ZifMd		*md,
 							 gboolean	 use_uncompressed,
 							 GError		**error);
 GPtrArray	*zif_md_search_file			(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
 GPtrArray	*zif_md_search_name			(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
 GPtrArray	*zif_md_search_details			(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
 GPtrArray	*zif_md_search_group			(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
 GPtrArray	*zif_md_search_pkgid			(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
 GPtrArray	*zif_md_what_provides			(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
 GPtrArray	*zif_md_resolve				(ZifMd		*md,
-							 const gchar	*search,
+							 gchar		**search,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);
@@ -227,6 +238,16 @@ GPtrArray	*zif_md_get_packages			(ZifMd		*md,
 							 GError		**error);
 GPtrArray	*zif_md_find_package			(ZifMd		*md,
 							 const gchar	*package_id,
+							 GCancellable	*cancellable,
+							 ZifCompletion	*completion,
+							 GError		**error);
+GPtrArray	*zif_md_get_changelog			(ZifMd		*md,
+							 const gchar	*pkgid,
+							 GCancellable	*cancellable,
+							 ZifCompletion	*completion,
+							 GError		**error);
+GPtrArray	*zif_md_get_files			(ZifMd		*md,
+							 ZifPackage	*package,
 							 GCancellable	*cancellable,
 							 ZifCompletion	*completion,
 							 GError		**error);

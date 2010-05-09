@@ -34,8 +34,11 @@
 #include <zypp/media/MediaManager.h>
 #include <zypp/Resolvable.h>
 #include <zypp/ResPool.h>
+#include <zypp/PoolQuery.h>
 #include <zypp/ResFilters.h>
+#include <packagekit-glib2/pk-enum.h>
 
+#include <iterator>
 #include <list>
 #include <set>
 
@@ -119,11 +122,6 @@ PkGroupEnum get_enum_group (std::string group);
 std::vector<zypp::sat::Solvable> * zypp_get_packages_by_name (const gchar *package_name, const zypp::ResKind kind, gboolean include_local);
 
 /**
- * Returns a list of packages that match the specified term in its name or description.
- */
-std::vector<zypp::sat::Solvable> * zypp_get_packages_by_details (const gchar *search_term, gboolean include_local);
-
-/**
  * Returns a list of packages that owns the specified file.
  */
 std::vector<zypp::sat::Solvable> * zypp_get_packages_by_file (const gchar *search_file);
@@ -137,7 +135,7 @@ zypp::sat::Solvable zypp_get_package_by_id (const gchar *package_id);
  * Build a package_id from the specified resolvable.  The returned
  * gchar * should be freed with g_free ().
  */
-gchar * zypp_build_package_id_from_resolvable (zypp::sat::Solvable resolvable);
+gchar * zypp_build_package_id_from_resolvable (const zypp::sat::Solvable &resolvable);
 
 /**
   * Get the RepoInfo
@@ -166,14 +164,11 @@ gboolean zypp_signature_required (PkBackend *backend, const std::string &file, c
 zypp::PoolItem zypp_find_arch_update_item (const zypp::ResPool & pool, zypp::PoolItem item);
 
 /**
-  * Returns a set of all packages the could be updated (you're able to exclude a repo)
+  * Return the best, most friendly selection of update patches and packages that
+  * we can find. Also manages _updating_self to prioritise critical infrastructure
+  * updates.
   */
-std::set<zypp::PoolItem> * zypp_get_updates (std::string repo);
-
-/**
-  * Returns a set of all patches the could be installed
-  */
-std::set<zypp::PoolItem> * zypp_get_patches ();
+std::set<zypp::PoolItem> * zypp_get_updates ();
 
 /**
   * Sets the restart flag of a patch
@@ -181,11 +176,19 @@ std::set<zypp::PoolItem> * zypp_get_patches ();
 gboolean zypp_get_restart (PkRestartEnum &restart, zypp::Patch::constPtr patch);
 
 /**
-  * perform changes in pool to the system
+  * simulate, or perform changes in pool to the system
   */
 gboolean zypp_perform_execution (PkBackend *backend, PerformType type, gboolean force);
 
-void zypp_emit_packages_in_list (PkBackend *backend, std::vector<zypp::sat::Solvable> *v, PkBitfield filters);
+/**
+ * should we omit a solvable from a result because of filtering ?
+ */
+gboolean zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item);
+
+/**
+ * apply filters to a list.
+ */
+void     zypp_emit_filtered_packages_in_list (PkBackend *backend, const std::vector<zypp::sat::Solvable> &list);
 
 /**
   * convert a std::set<zypp::sat::Solvable to gchar ** array
@@ -201,6 +204,33 @@ gchar * zypp_build_package_id_capabilities (zypp::Capabilities caps);
   * refresh the enabled repositories
   */
 gboolean zypp_refresh_cache (PkBackend *backend, gboolean force);
+
+/**
+  * helper to simplify returning errors
+  */
+gboolean zypp_backend_finished_error (PkBackend  *backend, PkErrorEnum err_code,
+				      const char *format, ...);
+
+/**
+  * helper to emit pk package signals for a backend for a zypp solvable
+  */
+void     zypp_backend_package (PkBackend *backend, PkInfoEnum info,
+			       const zypp::sat::Solvable &pkg,
+			       const char *opt_summary);
+
+/**
+  * helper to emit pk package status signals based on a ResPool object
+  */
+gboolean zypp_backend_pool_item_notify (PkBackend  *backend,
+					const zypp::PoolItem &item,
+					gboolean sanity_check = FALSE);
+
+/**
+  * helper to compare a version + architecture, with source arch mangling.
+  */
+gboolean zypp_ver_and_arch_equal (const zypp::sat::Solvable &pkg,
+				   const char *name, const char *arch);
+
 
 #endif // _ZYPP_UTILS_H_
 

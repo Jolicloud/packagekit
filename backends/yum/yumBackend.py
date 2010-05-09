@@ -233,6 +233,15 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
         except PkError, e:
             self.error(e.code, e.details)
 
+        # load the config file
+        config = ConfigParser.ConfigParser()
+        try:
+            config.read('/etc/PackageKit/Yum.conf')
+            self.system_packages = config.get('Backend', 'SystemPackages').split(';')
+            self.infra_packages = config.get('Backend', 'InfrastructurePackages').split(';')
+        except Exception, e:
+            raise PkError(ERROR_REPO_CONFIGURATION_ERROR, "Failed to load Yum.conf: %s" % _to_unicode(e))
+
         # get the lock early
         if lock:
             self.doLock()
@@ -343,7 +352,7 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
                 # give up, and print process information
                 if retries > 100:
                     msg = "The other process has the command line '%s' (PID %i)" % (cmdline, e.pid)
-                    self.error(ERROR_CANNOT_GET_LOCK, "Yum is locked by another application. %s" % msg)
+                    self.error(ERROR_CANNOT_GET_LOCK, "Yum is locked by another application. %s" % _to_unicode(msg))
 
     def unLock(self):
         ''' Unlock Yum'''
@@ -833,6 +842,8 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
             cats = self.yumbase.comps.categories
         except yum.Errors.RepoError, e:
             self.error(ERROR_NO_CACHE, "failed to get comps list: %s" %_to_unicode(e), exit=False)
+        except yum.Errors.GroupsError, e:
+            self.error(ERROR_GROUP_LIST_INVALID, "Failed to get groups list: %s" %_to_unicode(e), exit=False)
         except exceptions.IOError, e:
             self.error(ERROR_NO_SPACE_ON_DEVICE, "Disk error: %s" % _to_unicode(e))
         except Exception, e:
@@ -2325,8 +2336,7 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
             else:
                 for txmbr in self.yumbase.tsInfo:
                     pkg = txmbr.po
-                    system_packages = ['yum', 'rpm', 'glibc', 'PackageKit']
-                    if pkg.name in system_packages:
+                    if pkg.name in self.system_packages:
                         self.error(ERROR_CANNOT_REMOVE_SYSTEM_PACKAGE, "The package %s is essential to correct operation and cannot be removed using this tool." % pkg.name, exit=False)
                         return
             try:
@@ -2552,17 +2562,21 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
         # some packages should be updated before the others
         infra_pkgs = []
         for pkg in pkgs:
-            infra_packages = ['PackageKit', 'yum', 'rpm']
-            if pkg.name in infra_packages or pkg.name.partition('-')[0] in infra_packages:
+            if pkg.name in self.infra_packages or pkg.name.partition('-')[0] in self.infra_packages:
                 infra_pkgs.append(pkg)
-        if len(infra_pkgs) > len(pkgs):
-            self.message(MESSAGE_OTHER_UPDATES_HELD_BACK, "Infrastructure packages take priority")
         if len(infra_pkgs) > 0:
-            msg = []
-            for pkg in infra_pkgs:
-                msg.append(pkg.name)
-            self.message(MESSAGE_BACKEND_ERROR, "The packages '%s' will be updated before other packages" % msg)
+            if len(infra_pkgs) < len(pkgs):
+                msg = []
+                for pkg in infra_pkgs:
+                    msg.append(pkg.name)
+                self.message(MESSAGE_OTHER_UPDATES_HELD_BACK, "Infrastructure packages take priority. " \
+                             "The packages '%s' will be updated before other packages" % msg)
             pkgs = infra_pkgs
+
+        # get the list of installed updates as this is needed for get_applicable_notices()
+        installed_dict = {}
+        for pkgtup_updated, pkgtup_installed in self.yumbase.up.getUpdatesTuples():
+            installed_dict[pkgtup_installed[0]] = pkgtup_installed
 
         md = self.updateMetadata
         for pkg in unique(pkgs):
@@ -2579,14 +2593,18 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
                 except Exception, e:
                     self.error(ERROR_INTERNAL_ERROR, _format_str(traceback.format_exc()))
 
-                # Get info about package in updates info
-                notices = md.get_applicable_notices(pkg.pkgtup)
+                # fall back to this if there is no installed update or there is no metadata
                 status = INFO_NORMAL
-                if notices:
-                    for (pkgtup, notice) in notices:
-                        status = self._get_status(notice)
-                        if status == INFO_SECURITY:
-                            break
+
+                # Get info about package in updates info (using the installed update of this name)
+                if installed_dict.has_key(pkg.name):
+                    pkgtup = installed_dict[pkg.name]
+                    notices = md.get_applicable_notices(pkgtup)
+                    if notices:
+                        for (pkgtup, notice) in notices:
+                            status = self._get_status(notice)
+                            if status == INFO_SECURITY:
+                                break
                 pkgfilter.add_custom(pkg, status)
 
         package_list = pkgfilter.post_process()

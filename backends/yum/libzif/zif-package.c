@@ -93,33 +93,27 @@ zif_package_error_quark (void)
  *
  * Compares one package versions against each other.
  *
- * Return value: 1 for a>b, 0 for a==b, -1 for b>a
+ * Return value: 1 for a>b, 0 for a==b, -1 for b>a, or G_MAXINT for error
  *
  * Since: 0.0.1
  **/
 gint
 zif_package_compare (ZifPackage *a, ZifPackage *b)
 {
-	const gchar *package_ida;
-	const gchar *package_idb;
 	gchar **splita;
 	gchar **splitb;
-	gint val = 0;
+	gint val = G_MAXINT;
 
-	g_return_val_if_fail (ZIF_IS_PACKAGE (a), 0);
-	g_return_val_if_fail (ZIF_IS_PACKAGE (b), 0);
+	g_return_val_if_fail (ZIF_IS_PACKAGE (a), G_MAXINT);
+	g_return_val_if_fail (ZIF_IS_PACKAGE (b), G_MAXINT);
 
-	/* shallow copy */
-	package_ida = zif_package_get_id (a);
-	package_idb = zif_package_get_id (b);
-	splita = pk_package_id_split (package_ida);
-	splitb = pk_package_id_split (package_idb);
+	/* no-copy */
+	splita = a->priv->package_id_split;
+	splitb = b->priv->package_id_split;
 
 	/* check name the same */
-	if (g_strcmp0 (splita[PK_PACKAGE_ID_NAME], splitb[PK_PACKAGE_ID_NAME]) != 0) {
-		egg_warning ("comparing between %s and %s", package_ida, package_idb);
+	if (g_strcmp0 (splita[PK_PACKAGE_ID_NAME], splitb[PK_PACKAGE_ID_NAME]) != 0)
 		goto out;
-	}
 
 	/* do a version compare */
 	val = zif_compare_evr (splita[PK_PACKAGE_ID_VERSION], splitb[PK_PACKAGE_ID_VERSION]);
@@ -128,8 +122,6 @@ zif_package_compare (ZifPackage *a, ZifPackage *b)
 	if (val == 0)
 		val = g_strcmp0 (splitb[PK_PACKAGE_ID_ARCH], splita[PK_PACKAGE_ID_ARCH]);
 out:
-	g_strfreev (splita);
-	g_strfreev (splitb);
 	return val;
 }
 
@@ -140,7 +132,7 @@ out:
  *
  * Returns the newest package from a list.
  *
- * Return value: a single %ZifPackage, or %NULL in the case of an error
+ * Return value: a single %ZifPackage, or %NULL in the case of an error. Use g_object_unref() when done.
  *
  * Since: 0.0.1
  **/
@@ -474,27 +466,32 @@ zif_package_is_devel (ZifPackage *package)
 gboolean
 zif_package_is_gui (ZifPackage *package)
 {
+	gboolean ret = FALSE;
 	guint i;
 	const ZifDepend *depend;
 	GPtrArray *array;
+	ZifCompletion *completion_tmp;
 
 	g_return_val_if_fail (ZIF_IS_PACKAGE (package), FALSE);
 	g_return_val_if_fail (package->priv->package_id_split != NULL, FALSE);
 
 	/* get list of requires */
-	array = zif_package_get_requires (package, NULL);
+	completion_tmp = zif_completion_new ();
+	array = zif_package_get_requires (package, NULL, completion_tmp, NULL);
 	if (array == NULL)
 		goto out;
 	for (i=0; i<array->len; i++) {
 		depend = g_ptr_array_index (array, i);
-		if (g_strstr_len (depend->name, -1, "gtk") != NULL)
-			return TRUE;
-		if (g_strstr_len (depend->name, -1, "kde") != NULL)
-			return TRUE;
+		if (g_strstr_len (depend->name, -1, "gtk") != NULL ||
+		    g_strstr_len (depend->name, -1, "kde") != NULL) {
+			ret = TRUE;
+			break;
+		}
 	}
 	g_ptr_array_unref (array);
 out:
-	return FALSE;
+	g_object_unref (completion_tmp);
+	return ret;
 }
 
 /**
@@ -694,7 +691,7 @@ zif_package_get_package_id (ZifPackage *package)
  *
  * Return value: The #ZifPackageEnsureType represented as a string
  **/
-static const gchar *
+const gchar *
 zif_package_ensure_type_to_string (ZifPackageEnsureType type)
 {
 	if (type == ZIF_PACKAGE_ENSURE_TYPE_FILES)
@@ -726,7 +723,8 @@ zif_package_ensure_type_to_string (ZifPackageEnsureType type)
  * zif_package_ensure_data:
  **/
 static gboolean
-zif_package_ensure_data (ZifPackage *package, ZifPackageEnsureType type, GError **error)
+zif_package_ensure_data (ZifPackage *package, ZifPackageEnsureType type,
+			 GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret = FALSE;
 	ZifPackageClass *klass = ZIF_PACKAGE_GET_CLASS (package);
@@ -741,7 +739,7 @@ zif_package_ensure_data (ZifPackage *package, ZifPackageEnsureType type, GError 
 		goto out;
 	}
 
-	ret = klass->ensure_data (package, type, error);
+	ret = klass->ensure_data (package, type, cancellable, completion, error);
 out:
 	return ret;
 }
@@ -753,12 +751,12 @@ out:
  *
  * Gets the package summary.
  *
- * Return value: the reference counted #ZifString or %NULL, use zif_string_unref() when done
+ * Return value: the const string or %NULL
  *
  * Since: 0.0.1
  **/
-ZifString *
-zif_package_get_summary (ZifPackage *package, GError **error)
+const gchar *
+zif_package_get_summary (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -768,13 +766,13 @@ zif_package_get_summary (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->summary == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_SUMMARY, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_SUMMARY, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
 
-	/* return refcounted */
-	return zif_string_ref (package->priv->summary);
+	/* return const string */
+	return zif_string_get_value (package->priv->summary);
 }
 
 /**
@@ -784,12 +782,12 @@ zif_package_get_summary (ZifPackage *package, GError **error)
  *
  * Gets the package description.
  *
- * Return value: the reference counted #ZifString or %NULL, use zif_string_unref() when done
+ * Return value: the const string or %NULL
  *
  * Since: 0.0.1
  **/
-ZifString *
-zif_package_get_description (ZifPackage *package, GError **error)
+const gchar *
+zif_package_get_description (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -799,13 +797,13 @@ zif_package_get_description (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->description == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_DESCRIPTION, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_DESCRIPTION, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
 
-	/* return refcounted */
-	return zif_string_ref (package->priv->description);
+	/* return const string */
+	return zif_string_get_value (package->priv->description);
 }
 
 /**
@@ -815,12 +813,12 @@ zif_package_get_description (ZifPackage *package, GError **error)
  *
  * Gets the package licence.
  *
- * Return value: the reference counted #ZifString or %NULL, use zif_string_unref() when done
+ * Return value: the const string or %NULL
  *
  * Since: 0.0.1
  **/
-ZifString *
-zif_package_get_license (ZifPackage *package, GError **error)
+const gchar *
+zif_package_get_license (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -830,13 +828,13 @@ zif_package_get_license (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->license == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_LICENCE, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_LICENCE, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
 
-	/* return refcounted */
-	return zif_string_ref (package->priv->license);
+	/* return const string */
+	return zif_string_get_value (package->priv->license);
 }
 
 /**
@@ -846,12 +844,12 @@ zif_package_get_license (ZifPackage *package, GError **error)
  *
  * Gets the homepage URL for the package.
  *
- * Return value: the reference counted #ZifString or %NULL, use zif_string_unref() when done
+ * Return value: the const string or %NULL
  *
  * Since: 0.0.1
  **/
-ZifString *
-zif_package_get_url (ZifPackage *package, GError **error)
+const gchar *
+zif_package_get_url (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -861,13 +859,13 @@ zif_package_get_url (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->url == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_URL, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_URL, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
 
-	/* return refcounted */
-	return zif_string_ref (package->priv->url);
+	/* return const string */
+	return zif_string_get_value (package->priv->url);
 }
 
 /**
@@ -877,12 +875,12 @@ zif_package_get_url (ZifPackage *package, GError **error)
  *
  * Gets the remote filename for the package, e.g. Packages/net-snmp-5.4.2-3.fc10.i386.rpm
  *
- * Return value: the reference counted #ZifString or %NULL, use zif_string_unref() when done
+ * Return value: the const string or %NULL
  *
  * Since: 0.0.1
  **/
-ZifString *
-zif_package_get_filename (ZifPackage *package, GError **error)
+const gchar *
+zif_package_get_filename (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	g_return_val_if_fail (ZIF_IS_PACKAGE (package), NULL);
 	g_return_val_if_fail (package->priv->package_id_split != NULL, NULL);
@@ -902,8 +900,8 @@ zif_package_get_filename (ZifPackage *package, GError **error)
 		return NULL;
 	}
 
-	/* return refcounted */
-	return zif_string_ref (package->priv->location_href);
+	/* return const string */
+	return zif_string_get_value (package->priv->location_href);
 }
 
 /**
@@ -913,12 +911,12 @@ zif_package_get_filename (ZifPackage *package, GError **error)
  *
  * Gets the category the packag is in.
  *
- * Return value: the reference counted #ZifString or %NULL, use zif_string_unref() when done
+ * Return value: the const string or %NULL
  *
  * Since: 0.0.1
  **/
-ZifString *
-zif_package_get_category (ZifPackage *package, GError **error)
+const gchar *
+zif_package_get_category (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -928,13 +926,13 @@ zif_package_get_category (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->category == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_CATEGORY, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_CATEGORY, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
 
-	/* return refcounted */
-	return zif_string_ref (package->priv->category);
+	/* return const string */
+	return zif_string_get_value (package->priv->category);
 }
 
 /**
@@ -949,7 +947,7 @@ zif_package_get_category (ZifPackage *package, GError **error)
  * Since: 0.0.1
  **/
 PkGroupEnum
-zif_package_get_group (ZifPackage *package, GError **error)
+zif_package_get_group (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -958,7 +956,7 @@ zif_package_get_group (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->group == PK_GROUP_ENUM_UNKNOWN) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_GROUP, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_GROUP, cancellable, completion, error);
 		if (!ret)
 			return PK_GROUP_ENUM_UNKNOWN;
 	}
@@ -982,7 +980,7 @@ zif_package_get_group (ZifPackage *package, GError **error)
  * Since: 0.0.1
  **/
 guint64
-zif_package_get_size (ZifPackage *package, GError **error)
+zif_package_get_size (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -990,7 +988,7 @@ zif_package_get_size (ZifPackage *package, GError **error)
 	g_return_val_if_fail (error == NULL || *error == NULL, 0);
 
 	if (package->priv->size == 0) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_SIZE, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_SIZE, cancellable, completion, error);
 		if (!ret)
 			return 0;
 	}
@@ -1012,17 +1010,16 @@ zif_package_get_size (ZifPackage *package, GError **error)
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_package_get_files (ZifPackage *package, GError **error)
+zif_package_get_files (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
 	g_return_val_if_fail (ZIF_IS_PACKAGE (package), NULL);
-	g_return_val_if_fail (package->priv->package_id_split != NULL, NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
 	/* not exists */
 	if (package->priv->files == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_FILES, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_FILES, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
@@ -1043,7 +1040,7 @@ zif_package_get_files (ZifPackage *package, GError **error)
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_package_get_requires (ZifPackage *package, GError **error)
+zif_package_get_requires (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -1053,7 +1050,7 @@ zif_package_get_requires (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->requires == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_REQUIRES, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_REQUIRES, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}
@@ -1074,7 +1071,7 @@ zif_package_get_requires (ZifPackage *package, GError **error)
  * Since: 0.0.1
  **/
 GPtrArray *
-zif_package_get_provides (ZifPackage *package, GError **error)
+zif_package_get_provides (ZifPackage *package, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gboolean ret;
 
@@ -1084,7 +1081,7 @@ zif_package_get_provides (ZifPackage *package, GError **error)
 
 	/* not exists */
 	if (package->priv->provides == NULL) {
-		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_PROVIDES, error);
+		ret = zif_package_ensure_data (package, ZIF_PACKAGE_ENSURE_TYPE_PROVIDES, cancellable, completion, error);
 		if (!ret)
 			return NULL;
 	}

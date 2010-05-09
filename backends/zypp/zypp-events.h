@@ -114,7 +114,7 @@ struct ZyppBackendReceiver
 		first_dash_found = FALSE;
 		for (tmp--; tmp != basename; tmp--) {
 			if (tmp [0] == '-') {
-				if (first_dash_found == FALSE) {
+				if (!first_dash_found) {
 					first_dash_found = TRUE;
 					continue;
 				} else {
@@ -244,7 +244,7 @@ struct RemoveResolvableReportReceiver : public zypp::callback::ReceiveReport<zyp
 	virtual void finish (zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason)
 	{
 		if (_package_id != NULL) {
-			pk_backend_package (_backend, PK_INFO_ENUM_AVAILABLE, _package_id, "");
+			pk_backend_package (_backend, PK_INFO_ENUM_FINISHED, _package_id, "");
 			clear_package_id ();
 		}
 	}

@@ -42,7 +42,6 @@
 #include "zif-package-remote.h"
 
 #include "egg-debug.h"
-#include "egg-string.h"
 
 #define ZIF_MD_PRIMARY_SQL_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), ZIF_TYPE_MD_PRIMARY_SQL, ZifMdPrimarySqlPrivate))
 
@@ -60,6 +59,7 @@ struct _ZifMdPrimarySqlPrivate
 typedef struct {
 	const gchar		*id;
 	GPtrArray		*packages;
+	ZifMdPrimarySql		*md;
 } ZifMdPrimarySqlData;
 
 G_DEFINE_TYPE (ZifMdPrimarySql, zif_md_primary_sql, ZIF_TYPE_MD)
@@ -109,7 +109,8 @@ zif_md_primary_sql_load (ZifMd *md, GCancellable *cancellable, ZifCompletion *co
 	}
 
 	/* we don't need to keep syncing */
-	sqlite3_exec (primary_sql->priv->db, "PRAGMA synchronous=OFF", NULL, NULL, NULL);
+	sqlite3_exec (primary_sql->priv->db, "PRAGMA synchronous=OFF;", NULL, NULL, NULL);
+
 	primary_sql->priv->loaded = TRUE;
 out:
 	return primary_sql->priv->loaded;
@@ -123,22 +124,33 @@ zif_md_primary_sql_sqlite_create_package_cb (void *data, gint argc, gchar **argv
 {
 	ZifMdPrimarySqlData *fldata = (ZifMdPrimarySqlData *) data;
 	ZifPackageRemote *package;
+	ZifStoreRemote *store_remote;
 
 	package = zif_package_remote_new ();
+	store_remote = zif_md_get_store_remote (ZIF_MD (fldata->md));
+	if (store_remote != NULL) {
+		/* this is not set in a test harness */
+		zif_package_remote_set_store_remote (package, store_remote);
+	} else {
+		egg_warning ("no remote store for %s", argv[1]);
+	}
 	zif_package_remote_set_from_repo (package, argc, col_name, argv, fldata->id, NULL);
 	g_ptr_array_add (fldata->packages, package);
 
 	return 0;
 }
 
+#define ZIF_MD_PRIMARY_SQL_HEADER "SELECT pkgId, name, arch, version, " \
+				  "epoch, release, summary, description, url, " \
+				  "rpm_license, rpm_group, size_package, location_href FROM packages"
+
 /**
  * zif_md_primary_sql_search:
  **/
 static GPtrArray *
-zif_md_primary_sql_search (ZifMdPrimarySql *md, const gchar *pred,
+zif_md_primary_sql_search (ZifMdPrimarySql *md, const gchar *statement,
 			   GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *statement = NULL;
 	gchar *error_msg = NULL;
 	gint rc;
 	gboolean ret;
@@ -159,16 +171,13 @@ zif_md_primary_sql_search (ZifMdPrimarySql *md, const gchar *pred,
 
 	/* create data struct we can pass to the callback */
 	data = g_new0 (ZifMdPrimarySqlData, 1);
+	data->md = md;
 	data->id = zif_md_get_id (ZIF_MD (md));
 	data->packages = g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
-
-	statement = g_strdup_printf ("SELECT pkgId, name, arch, version, "
-				     "epoch, release, summary, description, url, "
-				     "rpm_license, rpm_group, size_package, location_href FROM packages %s", pred);
 	rc = sqlite3_exec (md->priv->db, statement, zif_md_primary_sql_sqlite_create_package_cb, data, &error_msg);
 	if (rc != SQLITE_OK) {
 		g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
-			     "SQL error: %s\n", error_msg);
+			     "SQL error, failed to execute '%s': %s\n", statement, error_msg);
 		sqlite3_free (error_msg);
 		g_ptr_array_unref (data->packages);
 		goto out;
@@ -177,28 +186,76 @@ zif_md_primary_sql_search (ZifMdPrimarySql *md, const gchar *pred,
 	array = data->packages;
 out:
 	g_free (data);
-	g_free (statement);
 	return array;
+}
+
+/**
+ * zif_md_primary_sql_strreplace:
+ **/
+static gchar *
+zif_md_primary_sql_strreplace (const gchar *text, const gchar *find, const gchar *replace)
+{
+	gchar **array;
+	gchar *retval;
+
+	/* split apart and rejoin with new delimiter */
+	array = g_strsplit (text, find, 0);
+	retval = g_strjoinv (replace, array);
+	g_strfreev (array);
+	return retval;
+}
+
+/**
+ * zif_md_primary_sql_get_statement_for_pred:
+ **/
+static gchar *
+zif_md_primary_sql_get_statement_for_pred (const gchar *pred, gchar **search)
+{
+	guint i;
+	const guint max_items = 20;
+	GString *statement;
+	gchar *temp;
+
+	/* search with predicate */
+	statement = g_string_new ("BEGIN;\n");
+	for (i=0; search[i] != NULL; i++) {
+		if (i % max_items == 0)
+			g_string_append (statement, ZIF_MD_PRIMARY_SQL_HEADER " WHERE ");
+		temp = zif_md_primary_sql_strreplace (pred, "###", search[i]);
+		g_string_append (statement, temp);
+		if (i % max_items == max_items - 1)
+			g_string_append (statement, ";\n");
+		else
+			g_string_append (statement, " OR ");
+		g_free (temp);
+	}
+
+	/* remove trailing OR entry */
+	if (g_str_has_suffix (statement->str, " OR ")) {
+		g_string_set_size (statement, statement->len - 4);
+		g_string_append (statement, ";\n");
+	}
+	g_string_append (statement, "END;");
+	return g_string_free (statement, FALSE);
 }
 
 /**
  * zif_md_primary_sql_resolve:
  **/
 static GPtrArray *
-zif_md_primary_sql_resolve (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_primary_sql_resolve (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
 
 	g_return_val_if_fail (ZIF_IS_MD_PRIMARY_SQL (md), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-	/* search with predicate */
-	pred = g_strdup_printf ("WHERE name = '%s'", search);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
-
+	/* simple name match */
+	statement = zif_md_primary_sql_get_statement_for_pred ("name = '###'", search);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 	return array;
 }
 
@@ -206,19 +263,19 @@ zif_md_primary_sql_resolve (ZifMd *md, const gchar *search, GCancellable *cancel
  * zif_md_primary_sql_search_name:
  **/
 static GPtrArray *
-zif_md_primary_sql_search_name (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_primary_sql_search_name (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
 
 	g_return_val_if_fail (ZIF_IS_MD_PRIMARY_SQL (md), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-	/* search with predicate */
-	pred = g_strdup_printf ("WHERE name LIKE '%%%s%%'", search);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
+	/* fuzzy name match */
+	statement = zif_md_primary_sql_get_statement_for_pred ("name LIKE '%%###%%'", search);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 
 	return array;
 }
@@ -227,19 +284,21 @@ zif_md_primary_sql_search_name (ZifMd *md, const gchar *search, GCancellable *ca
  * zif_md_primary_sql_search_details:
  **/
 static GPtrArray *
-zif_md_primary_sql_search_details (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_primary_sql_search_details (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
 
 	g_return_val_if_fail (ZIF_IS_MD_PRIMARY_SQL (md), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-	/* search with predicate */
-	pred = g_strdup_printf ("WHERE name LIKE '%%%s%%' OR summary LIKE '%%%s%%' OR description LIKE '%%%s%%'", search, search, search);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
+	/* fuzzy details match */
+	statement = zif_md_primary_sql_get_statement_for_pred ("name LIKE '%%###%%' OR "
+							       "summary LIKE '%%###%%' OR "
+							       "description LIKE '%%###%%'", search);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 
 	return array;
 }
@@ -248,19 +307,19 @@ zif_md_primary_sql_search_details (ZifMd *md, const gchar *search, GCancellable 
  * zif_md_primary_sql_search_group:
  **/
 static GPtrArray *
-zif_md_primary_sql_search_group (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_primary_sql_search_group (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
 
 	g_return_val_if_fail (ZIF_IS_MD_PRIMARY_SQL (md), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-	/* search with predicate */
-	pred = g_strdup_printf ("WHERE rpm_group = '%s'", search);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
+	/* simple group match */
+	statement = zif_md_primary_sql_get_statement_for_pred ("rpm_group = '###'", search);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 
 	return array;
 }
@@ -269,19 +328,19 @@ zif_md_primary_sql_search_group (ZifMd *md, const gchar *search, GCancellable *c
  * zif_md_primary_sql_search_pkgid:
  **/
 static GPtrArray *
-zif_md_primary_sql_search_pkgid (ZifMd *md, const gchar *search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_primary_sql_search_pkgid (ZifMd *md, gchar **search, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
 
 	g_return_val_if_fail (ZIF_IS_MD_PRIMARY_SQL (md), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-	/* search with predicate */
-	pred = g_strdup_printf ("WHERE pkgid = '%s'", search);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
+	/* simple pkgid match */
+	statement = zif_md_primary_sql_get_statement_for_pred ("pkgid = '###'", search);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 
 	return array;
 }
@@ -291,9 +350,9 @@ zif_md_primary_sql_search_pkgid (ZifMd *md, const gchar *search, GCancellable *c
  **/
 static GPtrArray *
 zif_md_primary_sql_search_pkgkey (ZifMd *md, guint pkgkey,
-			      GCancellable *cancellable, ZifCompletion *completion, GError **error)
+				  GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
 
@@ -301,10 +360,9 @@ zif_md_primary_sql_search_pkgkey (ZifMd *md, guint pkgkey,
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
 	/* search with predicate */
-	pred = g_strdup_printf ("WHERE pkgKey = '%i'", pkgkey);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
-
+	statement = g_strdup_printf (ZIF_MD_PRIMARY_SQL_HEADER " WHERE pkgKey = '%i'", pkgkey);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 	return array;
 }
 
@@ -316,17 +374,17 @@ zif_md_primary_sql_sqlite_pkgkey_cb (void *data, gint argc, gchar **argv, gchar 
 {
 	gint i;
 	guint pkgkey;
-	gboolean ret;
+	gchar *endptr = NULL;
 	GPtrArray *array = (GPtrArray *) data;
 
 	/* get the ID */
 	for (i=0; i<argc; i++) {
 		if (g_strcmp0 (col_name[i], "pkgKey") == 0) {
-			ret = egg_strtouint (argv[i], &pkgkey);
-			if (ret)
-				g_ptr_array_add (array, GUINT_TO_POINTER (pkgkey));
+			pkgkey = g_ascii_strtoull (argv[i], &endptr, 10);
+			if (argv[i] == endptr)
+				egg_warning ("failed to parse pkgKey %s", argv[i]);
 			else
-				egg_warning ("could not parse pkgKey '%s'", argv[i]);
+				g_ptr_array_add (array, GUINT_TO_POINTER (pkgkey));
 		} else {
 			egg_warning ("unrecognized: %s=%s", col_name[i], argv[i]);
 		}
@@ -338,8 +396,8 @@ zif_md_primary_sql_sqlite_pkgkey_cb (void *data, gint argc, gchar **argv, gchar 
  * zif_md_primary_sql_what_provides:
  **/
 static GPtrArray *
-zif_md_primary_sql_what_provides (ZifMd *md, const gchar *search,
-			      GCancellable *cancellable, ZifCompletion *completion, GError **error)
+zif_md_primary_sql_what_provides (ZifMd *md, gchar **search,
+				  GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
 	gchar *statement = NULL;
 	gchar *error_msg = NULL;
@@ -379,7 +437,7 @@ zif_md_primary_sql_what_provides (ZifMd *md, const gchar *search,
 
 	/* create data struct we can pass to the callback */
 	pkgkey_array = g_ptr_array_new ();
-	statement = g_strdup_printf ("SELECT pkgKey FROM provides WHERE name = '%s'", search);
+	statement = g_strdup_printf ("SELECT pkgKey FROM provides WHERE name = '%s'", search[0]);
 	rc = sqlite3_exec (md_primary_sql->priv->db, statement, zif_md_primary_sql_sqlite_pkgkey_cb, pkgkey_array, &error_msg);
 	if (rc != SQLITE_OK) {
 		g_set_error (error, ZIF_MD_ERROR, ZIF_MD_ERROR_BAD_SQL,
@@ -403,7 +461,7 @@ zif_md_primary_sql_what_provides (ZifMd *md, const gchar *search,
 
 		/* get packages for pkgKey */
 		completion_loop = zif_completion_get_child (completion_local);
-		array_tmp = zif_md_primary_sql_search_pkgkey (md, pkgkey, cancellable, completion, error);
+		array_tmp = zif_md_primary_sql_search_pkgkey (md, pkgkey, cancellable, completion_loop, error);
 		if (array_tmp == NULL) {
 			g_ptr_array_unref (array);
 			array = NULL;
@@ -422,6 +480,9 @@ zif_md_primary_sql_what_provides (ZifMd *md, const gchar *search,
 
 		/* clear array */
 		g_ptr_array_unref (array_tmp);
+
+		/* this section done */
+		zif_completion_done (completion_local);
 	}
 
 	/* this section done */
@@ -439,7 +500,7 @@ out:
 static GPtrArray *
 zif_md_primary_sql_find_package (ZifMd *md, const gchar *package_id, GCancellable *cancellable, ZifCompletion *completion, GError **error)
 {
-	gchar *pred;
+	gchar *statement;
 	GPtrArray *array;
 	gchar **split;
 	ZifMdPrimarySql *md_primary_sql = ZIF_MD_PRIMARY_SQL (md);
@@ -449,9 +510,10 @@ zif_md_primary_sql_find_package (ZifMd *md, const gchar *package_id, GCancellabl
 
 	/* search with predicate, TODO: search version (epoch+release) */
 	split = pk_package_id_split (package_id);
-	pred = g_strdup_printf ("WHERE name = '%s' AND arch = '%s'", split[PK_PACKAGE_ID_NAME], split[PK_PACKAGE_ID_ARCH]);
-	array = zif_md_primary_sql_search (md_primary_sql, pred, cancellable, completion, error);
-	g_free (pred);
+	statement = g_strdup_printf (ZIF_MD_PRIMARY_SQL_HEADER " WHERE name = '%s' AND arch = '%s'",
+				     split[PK_PACKAGE_ID_NAME], split[PK_PACKAGE_ID_ARCH]);
+	array = zif_md_primary_sql_search (md_primary_sql, statement, cancellable, completion, error);
+	g_free (statement);
 	g_strfreev (split);
 
 	return array;
@@ -470,7 +532,7 @@ zif_md_primary_sql_get_packages (ZifMd *md, GCancellable *cancellable, ZifComple
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
 	/* search with predicate */
-	array = zif_md_primary_sql_search (md_primary_sql, "", cancellable, completion, error);
+	array = zif_md_primary_sql_search (md_primary_sql, ZIF_MD_PRIMARY_SQL_HEADER, cancellable, completion, error);
 	return array;
 }
 
@@ -555,9 +617,10 @@ zif_md_primary_sql_test (EggTest *test)
 	GError *error = NULL;
 	GPtrArray *array;
 	ZifPackage *package;
-	ZifString *summary;
+	const gchar *summary;
 	GCancellable *cancellable;
 	ZifCompletion *completion;
+	gchar *data[] = { "gnome-power-manager", "gnome-color-manager", NULL };
 
 	if (!egg_test_start (test, "ZifMdPrimarySql"))
 		return;
@@ -636,8 +699,8 @@ zif_md_primary_sql_test (EggTest *test)
 	egg_test_assert (test, md->priv->loaded);
 
 	/************************************************************/
-	egg_test_title (test, "search for files");
-	array = zif_md_primary_sql_resolve (md, "gnome-power-manager", cancellable, completion, &error);
+	egg_test_title (test, "resolve");
+	array = zif_md_primary_sql_resolve (ZIF_MD (md), data, cancellable, completion, &error);
 	if (array != NULL)
 		egg_test_success (test, NULL);
 	else
@@ -650,12 +713,12 @@ zif_md_primary_sql_test (EggTest *test)
 	/************************************************************/
 	egg_test_title (test, "correct value");
 	package = g_ptr_array_index (array, 0);
-	summary = zif_package_get_summary (package, NULL);
-	if (g_strcmp0 (zif_string_get_value (summary), "GNOME Power Manager") == 0)
+	zif_completion_reset (completion);
+	summary = zif_package_get_summary (package, NULL, completion, NULL);
+	if (g_strcmp0 (summary, "GNOME Power Manager") == 0)
 		egg_test_success (test, NULL);
 	else
-		egg_test_failed (test, "failed to get correct summary '%s'", zif_string_get_value (summary));
-	zif_string_unref (summary);
+		egg_test_failed (test, "failed to get correct summary '%s'", summary);
 	g_ptr_array_unref (array);
 
 	g_object_unref (cancellable);

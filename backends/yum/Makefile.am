@@ -1,6 +1,7 @@
 helperdir = $(datadir)/PackageKit/helpers/yum
 dist_helper_DATA = 			\
 	yum-comps-groups.conf		\
+	licenses.txt			\
 	yumBackend.py			\
 	yumComps.py			\
 	yumMediaManager.py		\
@@ -29,8 +30,6 @@ libpk_backend_yum_la_CFLAGS = $(PK_PLUGIN_CFLAGS) $(WARNINGFLAGS_C)
 libpk_backend_yum_la_SOURCES += 				\
 	libzif/egg-debug.c					\
 	libzif/egg-debug.h					\
-	libzif/egg-string.c					\
-	libzif/egg-string.h					\
 	libzif/zif.h						\
 	libzif/zif-lock.c					\
 	libzif/zif-lock.h					\
@@ -54,10 +53,14 @@ libpk_backend_yum_la_SOURCES += 				\
 	libzif/zif-store-remote.h				\
 	libzif/zif-md.c						\
 	libzif/zif-md.h						\
-	libzif/zif-md-filelists.c				\
-	libzif/zif-md-filelists.h				\
+	libzif/zif-md-filelists-sql.c				\
+	libzif/zif-md-filelists-sql.h				\
+	libzif/zif-md-filelists-xml.c				\
+	libzif/zif-md-filelists-xml.h				\
 	libzif/zif-md-primary-sql.c				\
 	libzif/zif-md-primary-sql.h				\
+	libzif/zif-md-other-sql.c				\
+	libzif/zif-md-other-sql.h				\
 	libzif/zif-md-primary-xml.c				\
 	libzif/zif-md-primary-xml.h				\
 	libzif/zif-md-metalink.c				\
@@ -72,6 +75,8 @@ libpk_backend_yum_la_SOURCES += 				\
 	libzif/zif-store-array.h				\
 	libzif/zif-repos.c					\
 	libzif/zif-repos.h					\
+	libzif/zif-changeset.c					\
+	libzif/zif-changeset.h					\
 	libzif/zif-utils.c					\
 	libzif/zif-utils.h					\
 	libzif/zif-groups.c					\

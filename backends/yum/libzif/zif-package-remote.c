@@ -35,12 +35,12 @@
 #include <stdlib.h>
 
 #include "egg-debug.h"
-#include "egg-string.h"
 
 #include "zif-utils.h"
 #include "zif-package-remote.h"
 #include "zif-groups.h"
 #include "zif-string.h"
+#include "zif-store-remote.h"
 
 #define ZIF_PACKAGE_REMOTE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), ZIF_TYPE_PACKAGE_REMOTE, ZifPackageRemotePrivate))
 
@@ -52,7 +52,8 @@
 struct _ZifPackageRemotePrivate
 {
 	ZifGroups		*groups;
-	gchar			*sql_id;
+	ZifStoreRemote		*store_remote;
+	gchar			*pkgid;
 };
 
 G_DEFINE_TYPE (ZifPackageRemote, zif_package_remote, ZIF_TYPE_PACKAGE)
@@ -83,7 +84,7 @@ zif_package_remote_set_from_repo (ZifPackageRemote *pkg, guint length, gchar **t
 	const gchar *arch = NULL;
 	gchar *package_id;
 	ZifString *string;
-	gboolean ret;
+	gchar *endptr = NULL;
 
 	g_return_val_if_fail (ZIF_IS_PACKAGE_REMOTE (pkg), FALSE);
 	g_return_val_if_fail (type != NULL, FALSE);
@@ -95,8 +96,8 @@ zif_package_remote_set_from_repo (ZifPackageRemote *pkg, guint length, gchar **t
 		if (g_strcmp0 (type[i], "name") == 0) {
 			name = data[i];
 		} else if (g_strcmp0 (type[i], "epoch") == 0) {
-			ret = egg_strtouint (data[i], &epoch);
-			if (!ret)
+			epoch = g_ascii_strtoull (data[i], &endptr, 10);
+			if (data[i] == endptr)
 				egg_warning ("failed to parse epoch %s", data[i]);
 		} else if (g_strcmp0 (type[i], "version") == 0) {
 			version = data[i];
@@ -127,7 +128,7 @@ zif_package_remote_set_from_repo (ZifPackageRemote *pkg, guint length, gchar **t
 		} else if (g_strcmp0 (type[i], "size_package") == 0) {
 			zif_package_set_size (ZIF_PACKAGE (pkg), atoi (data[i]));
 		} else if (g_strcmp0 (type[i], "pkgId") == 0) {
-			pkg->priv->sql_id = g_strdup (data[i]);
+			pkg->priv->pkgid = g_strdup (data[i]);
 		} else if (g_strcmp0 (type[i], "location_href") == 0) {
 			string = zif_string_new (data[i]);
 			zif_package_set_location_href (ZIF_PACKAGE (pkg), string);
@@ -145,6 +146,97 @@ zif_package_remote_set_from_repo (ZifPackageRemote *pkg, guint length, gchar **t
 }
 
 /**
+ * zif_package_remote_get_pkgid:
+ * @pkg: the #ZifPackageRemote object
+ *
+ * Gets the pkgid used internally to track the package item.
+ *
+ * Return value: the pkgid hash.
+ *
+ * Since: 0.0.1
+ **/
+const gchar *
+zif_package_remote_get_pkgid (ZifPackageRemote *pkg)
+{
+	g_return_val_if_fail (ZIF_IS_PACKAGE_REMOTE (pkg), NULL);
+	return pkg->priv->pkgid;
+}
+
+/**
+ * zif_package_remote_set_pkgid:
+ * @pkg: the #ZifPackageRemote object
+ * @pkgid: the pkgid hash.
+ *
+ * Sets the pkgid used internally to track the package item.
+ *
+ * Return value: the pkgid hash.
+ *
+ * Since: 0.0.1
+ **/
+void
+zif_package_remote_set_pkgid (ZifPackageRemote *pkg, const gchar *pkgid)
+{
+	g_return_if_fail (ZIF_IS_PACKAGE_REMOTE (pkg));
+	g_return_if_fail (pkgid != NULL);
+	g_return_if_fail (pkg->priv->pkgid == NULL);
+	pkg->priv->pkgid = g_strdup (pkgid);
+}
+
+/**
+ * zif_package_remote_set_store_remote:
+ * @pkg: the #ZifPackageRemote object
+ * @store: the #ZifStoreRemote that created this package
+ *
+ * Sets the store used to create this package, which we may need of we ever
+ * need to ensure() data at runtime.
+ *
+ * Return value: the pkgid hash.
+ *
+ * Since: 0.0.1
+ **/
+void
+zif_package_remote_set_store_remote (ZifPackageRemote *pkg, ZifStoreRemote *store)
+{
+	g_return_if_fail (ZIF_IS_PACKAGE_REMOTE (pkg));
+	g_return_if_fail (ZIF_IS_STORE_REMOTE (store));
+	g_return_if_fail (pkg->priv->store_remote == NULL);
+	pkg->priv->store_remote = g_object_ref (store);
+}
+
+/*
+ * zif_package_remote_ensure_data:
+ */
+static gboolean
+zif_package_remote_ensure_data (ZifPackage *pkg, ZifPackageEnsureType type, GCancellable *cancellable, ZifCompletion *completion, GError **error)
+{
+	gboolean ret = TRUE;
+	GPtrArray *array = NULL;
+	ZifPackageRemote *pkg_remote = ZIF_PACKAGE_REMOTE (pkg);
+
+	if (type == ZIF_PACKAGE_ENSURE_TYPE_FILES) {
+
+		/* get the file list for this package */
+		array = zif_store_remote_get_files (pkg_remote->priv->store_remote, pkg, cancellable, completion, error);
+		if (array == NULL) {
+			ret = FALSE;
+			goto out;
+		}
+
+		/* set for this package */
+		zif_package_set_files (pkg, array);
+	} else {
+		g_set_error (error, 1, 0,
+			     "Getting ensure type '%s' not supported on a ZifPackageRemote",
+			     zif_package_ensure_type_to_string (type));
+		ret = FALSE;
+	}
+out:
+	if (array != NULL)
+		g_ptr_array_unref (array);
+	return ret;
+}
+
+/**
  * zif_package_remote_finalize:
  **/
 static void
@@ -156,8 +248,10 @@ zif_package_remote_finalize (GObject *object)
 	g_return_if_fail (ZIF_IS_PACKAGE_REMOTE (object));
 	pkg = ZIF_PACKAGE_REMOTE (object);
 
-	g_free (pkg->priv->sql_id);
+	g_free (pkg->priv->pkgid);
 	g_object_unref (pkg->priv->groups);
+	if (pkg->priv->store_remote != NULL)
+		g_object_unref (pkg->priv->store_remote);
 
 	G_OBJECT_CLASS (zif_package_remote_parent_class)->finalize (object);
 }
@@ -169,7 +263,9 @@ static void
 zif_package_remote_class_init (ZifPackageRemoteClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	ZifPackageClass *package_class = ZIF_PACKAGE_CLASS (klass);
 	object_class->finalize = zif_package_remote_finalize;
+	package_class->ensure_data = zif_package_remote_ensure_data;
 	g_type_class_add_private (klass, sizeof (ZifPackageRemotePrivate));
 }
 
@@ -180,7 +276,8 @@ static void
 zif_package_remote_init (ZifPackageRemote *pkg)
 {
 	pkg->priv = ZIF_PACKAGE_REMOTE_GET_PRIVATE (pkg);
-	pkg->priv->sql_id = NULL;
+	pkg->priv->pkgid = NULL;
+	pkg->priv->store_remote = NULL;
 	pkg->priv->groups = zif_groups_new ();
 }
 

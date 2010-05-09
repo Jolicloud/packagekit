@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (C) 2008 Richard Hughes <richard@hughsie.com>
 #
 # Some material taken from yum-cron, Copyright 2007 Alec Habig <ahabig@umn.edu>
@@ -16,14 +16,15 @@ if [ "$ENABLED" = "no" ]; then
 	exit 1
 fi
 
-# set default for SYSTEMNAME
-[ -z "$SYSTEMNAME" ]  && SYSTEMNAME=$(hostname)
+# set default for SYSTEM_NAME
+[ -z "$SYSTEM_NAME" ] && SYSTEM_NAME=$(hostname)
 
 PKTMP=$(mktemp /var/run/packagekit-cron.XXXXXX)
 PKCON_OPTIONS="--background --noninteractive --plain"
 
 # wait a random amount of time to avoid hammering the servers
-sleep $RANDOM
+[ -z "$SLEEP_MAX" ] && SLEEP_MAX=$RANDOM
+sleep $(( $RANDOM % $SLEEP_MAX + 1 ))
 
 # do action
 if [ "$CHECK_ONLY" = "yes" ]; then
@@ -38,7 +39,7 @@ fi
 if [ $PKCON_RETVAL -ne 5 ]; then
 	# send email
 	if [ -n "$MAILTO" ]; then
-		mail -s "System updates available: $SYSTEMNAME" $MAILTO < $PKTMP
+		mail -s "System updates available: $SYSTEM_NAME" $MAILTO < $PKTMP
 	else
 		# default behavior is to use cron's internal mailing of output from cron-script
 		cat $PKTMP

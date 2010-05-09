@@ -97,6 +97,7 @@ struct _PkBackendPrivate
 	gchar			*name;
 	gchar			*proxy_ftp;
 	gchar			*proxy_http;
+	gchar			*root;
 	gpointer		 file_changed_data;
 	guint			 download_files;
 	guint			 last_percentage;
@@ -563,6 +564,36 @@ pk_backend_get_proxy_ftp (PkBackend *backend)
 {
 	g_return_val_if_fail (PK_IS_BACKEND (backend), NULL);
 	return g_strdup (backend->priv->proxy_ftp);
+}
+
+/**
+ * pk_backend_set_root:
+ **/
+gboolean
+pk_backend_set_root (PkBackend	*backend, const gchar *root)
+{
+	g_return_val_if_fail (PK_IS_BACKEND (backend), FALSE);
+
+	/* NULL is actually the default, which is '/' */
+	if (root == NULL)
+		root = "/";
+
+	g_free (backend->priv->root);
+	backend->priv->root = g_strdup (root);
+	egg_debug ("install root now %s", backend->priv->root);
+	return TRUE;
+}
+
+/**
+ * pk_backend_get_root:
+ *
+ * Return value: root to use for installing, or %NULL
+ **/
+const gchar *
+pk_backend_get_root (PkBackend *backend)
+{
+	g_return_val_if_fail (PK_IS_BACKEND (backend), NULL);
+	return backend->priv->root;
 }
 
 /**
@@ -2446,6 +2477,7 @@ pk_backend_finalize (GObject *object)
 	pk_backend_reset (backend);
 	g_free (backend->priv->proxy_http);
 	g_free (backend->priv->proxy_ftp);
+	g_free (backend->priv->root);
 	g_free (backend->priv->name);
 	g_free (backend->priv->locale);
 	g_free (backend->priv->frontend_socket);
@@ -2806,6 +2838,7 @@ pk_backend_install_packages (PkBackend *backend, gboolean only_trusted, gchar **
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_INSTALL_PACKAGES);
 	pk_store_set_bool (backend->priv->store, "only_trusted", only_trusted);
 	pk_store_set_strv (backend->priv->store, "package_ids", package_ids);
+	pk_backend_set_bool (backend, "hint:simulate", FALSE);
 	backend->priv->desc->install_packages (backend, only_trusted, package_ids);
 }
 
@@ -2832,6 +2865,7 @@ pk_backend_install_files (PkBackend *backend, gboolean only_trusted, gchar **ful
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_INSTALL_FILES);
 	pk_store_set_bool (backend->priv->store, "only_trusted", only_trusted);
 	pk_store_set_strv (backend->priv->store, "full_paths", full_paths);
+	pk_backend_set_bool (backend, "hint:simulate", FALSE);
 	backend->priv->desc->install_files (backend, only_trusted, full_paths);
 }
 
@@ -2858,6 +2892,7 @@ pk_backend_remove_packages (PkBackend *backend, gchar **package_ids, gboolean al
 	pk_store_set_strv (backend->priv->store, "package_ids", package_ids);
 	pk_store_set_bool (backend->priv->store, "allow_deps", allow_deps);
 	pk_store_set_bool (backend->priv->store, "autoremove", autoremove);
+	pk_backend_set_bool (backend, "hint:simulate", FALSE);
 	backend->priv->desc->remove_packages (backend, package_ids, allow_deps, autoremove);
 }
 
@@ -2948,6 +2983,7 @@ pk_backend_update_packages (PkBackend *backend, gboolean only_trusted, gchar **p
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_UPDATE_PACKAGES);
 	pk_store_set_bool (backend->priv->store, "only_trusted", only_trusted);
 	pk_store_set_strv (backend->priv->store, "package_ids", package_ids);
+	pk_backend_set_bool (backend, "hint:simulate", FALSE);
 	backend->priv->desc->update_packages (backend, only_trusted, package_ids);
 }
 
@@ -2960,6 +2996,7 @@ pk_backend_update_system (PkBackend *backend, gboolean only_trusted)
 	g_return_if_fail (PK_IS_BACKEND (backend));
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_UPDATE_SYSTEM);
 	pk_store_set_bool (backend->priv->store, "only_trusted", only_trusted);
+	pk_backend_set_bool (backend, "hint:simulate", FALSE);
 	backend->priv->desc->update_system (backend, only_trusted);
 }
 
@@ -3037,6 +3074,7 @@ pk_backend_simulate_install_files (PkBackend *backend, gchar **full_paths)
 	g_return_if_fail (PK_IS_BACKEND (backend));
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_SIMULATE_INSTALL_FILES);
 	pk_store_set_strv (backend->priv->store, "full_paths", full_paths);
+	pk_backend_set_bool (backend, "hint:simulate", TRUE);
 	backend->priv->desc->simulate_install_files (backend, full_paths);
 }
 
@@ -3049,6 +3087,7 @@ pk_backend_simulate_install_packages (PkBackend *backend, gchar **package_ids)
 	g_return_if_fail (PK_IS_BACKEND (backend));
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_SIMULATE_INSTALL_PACKAGES);
 	pk_store_set_strv (backend->priv->store, "package_ids", package_ids);
+	pk_backend_set_bool (backend, "hint:simulate", TRUE);
 	backend->priv->desc->simulate_install_packages (backend, package_ids);
 }
 
@@ -3062,6 +3101,7 @@ pk_backend_simulate_remove_packages (PkBackend *backend, gchar **package_ids, gb
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_SIMULATE_REMOVE_PACKAGES);
 	pk_store_set_strv (backend->priv->store, "package_ids", package_ids);
 	pk_store_set_bool (backend->priv->store, "autoremove", autoremove);
+	pk_backend_set_bool (backend, "hint:simulate", TRUE);
 	backend->priv->desc->simulate_remove_packages (backend, package_ids, autoremove);
 }
 
@@ -3074,6 +3114,7 @@ pk_backend_simulate_update_packages (PkBackend *backend, gchar **package_ids)
 	g_return_if_fail (PK_IS_BACKEND (backend));
 	pk_backend_set_role_internal (backend, PK_ROLE_ENUM_SIMULATE_UPDATE_PACKAGES);
 	pk_store_set_strv (backend->priv->store, "package_ids", package_ids);
+	pk_backend_set_bool (backend, "hint:simulate", TRUE);
 	backend->priv->desc->simulate_update_packages (backend, package_ids);
 }
 
@@ -3093,6 +3134,7 @@ pk_backend_init (PkBackend *backend)
 	backend->priv->transaction_id = NULL;
 	backend->priv->proxy_http = NULL;
 	backend->priv->proxy_ftp = NULL;
+	backend->priv->root = NULL;
 	backend->priv->file_changed_func = NULL;
 	backend->priv->file_changed_data = NULL;
 	backend->priv->last_package = NULL;

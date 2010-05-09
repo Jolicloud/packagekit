@@ -1,9 +1,9 @@
 # Copyright (C) 2007-2009 Richard Hughes <richard@hughsie.com>
-AC_PREREQ(2.65)
+AC_PREREQ(2.63)
 
 m4_define([pk_major_version], [0])
 m4_define([pk_minor_version], [6])
-m4_define([pk_micro_version], [4])
+m4_define([pk_micro_version], [5])
 m4_define([pk_version],
           [pk_major_version.pk_minor_version.pk_micro_version])
 
@@ -492,13 +492,6 @@ else
 fi
 AM_CONDITIONAL(PK_BUILD_PM_UTILS, test $build_pm_utils = "yes")
 
-dnl ---------------------------------------------------------------------------
-dnl - Build ruck (a rug-like interface for PackageKit)
-dnl ---------------------------------------------------------------------------
-AC_ARG_ENABLE(ruck, AS_HELP_STRING([--enable-ruck],[Build ruck client]),
-	      build_ruck=$enableval,build_ruck=yes)
-AM_CONDITIONAL(PK_BUILD_RUCK, test $build_ruck = "yes")
-
 # backends
 AC_ARG_ENABLE(alpm, AS_HELP_STRING([--enable-alpm],[use the ALPM backend]),enable_alpm=$enableval,enable_alpm=no)
 AC_ARG_ENABLE(apt, AS_HELP_STRING([--enable-apt],[use the APT backend]),enable_apt=$enableval,enable_apt=no)
@@ -508,6 +501,7 @@ AC_ARG_ENABLE(conary, AS_HELP_STRING([--enable-conary],[use the CONARY backend])
 AC_ARG_ENABLE(dummy, AS_HELP_STRING([--enable-dummy],[use the dummy backend]),enable_dummy=$enableval,enable_dummy=yes)
 AC_ARG_ENABLE(entropy, AS_HELP_STRING([--enable-entropy],[use the entropy backend]),enable_entropy=$enableval,enable_entropy=no)
 AC_ARG_ENABLE(opkg, AS_HELP_STRING([--enable-opkg],[use the OPKG backend]),enable_opkg=$enableval,enable_opkg=no)
+AC_ARG_ENABLE(pacman, AS_HELP_STRING([--enable-pacman],[use the Pacman backend]),enable_pacman=$enableval,enable_pacman=no)
 AC_ARG_ENABLE(pisi, AS_HELP_STRING([--enable-pisi],[use the PiSi backend]),enable_pisi=$enableval,enable_pisi=no)
 AC_ARG_ENABLE(poldek, AS_HELP_STRING([--enable-poldek],[use the poldek backend]),enable_poldek=$enableval,enable_poldek=no)
 AC_ARG_ENABLE(portage, AS_HELP_STRING([--enable-portage],[use the portage backend]),enable_portage=$enableval,enable_portage=no)
@@ -528,6 +522,7 @@ AM_CONDITIONAL(BACKEND_TYPE_CONARY, [test x$enable_conary = xyes])
 AM_CONDITIONAL(BACKEND_TYPE_DUMMY, [test x$enable_dummy = xyes])
 AM_CONDITIONAL(BACKEND_TYPE_ENTROPY, [test x$enable_entropy = xyes])
 AM_CONDITIONAL(BACKEND_TYPE_OPKG, [test x$enable_opkg = xyes])
+AM_CONDITIONAL(BACKEND_TYPE_PACMAN, [test x$enable_pacman = xyes])
 AM_CONDITIONAL(BACKEND_TYPE_PISI, [test x$enable_pisi = xyes])
 AM_CONDITIONAL(BACKEND_TYPE_POLDEK, [test x$enable_poldek = xyes])
 AM_CONDITIONAL(BACKEND_TYPE_PORTAGE, [test x$enable_portage = xyes])
@@ -614,6 +609,8 @@ if test x$with_default_backend = x; then
 		with_default_backend=slapt
 	elif test -f /usr/bin/smart ; then
 		with_default_backend=smart
+	elif test -f /usr/lib/libpacman-glib.so ; then
+		with_default_backend=pacman
 	elif test -f /usr/bin/pisi ; then
 		with_default_backend=pisi
 	elif test -f /usr/bin/razor ; then
@@ -738,6 +735,12 @@ if test x$enable_alpm = xyes; then
 			[AC_MSG_WARN([No alpm headers found - falling back to dummy backend])])
 fi
 
+if test x$enable_pacman = xyes; then
+	PKG_CHECK_MODULES(PACMAN, pacman-glib >= 3.3.0)
+	AC_SUBST(PACMAN_CFLAGS)
+	AC_SUBST(PACMAN_LIBS)
+fi
+
 if test x$enable_poldek = xyes; then
 	POLDEK_CFLAGS="-I/usr/include/poldek"
 	POLDEK_LIBS="-lpoclidek -lpoldek"
@@ -805,8 +808,6 @@ contrib/cron/Makefile
 contrib/debuginfo-install/Makefile
 contrib/device-rebind/Makefile
 contrib/pm-utils/Makefile
-contrib/ruck/Makefile
-contrib/ruck/src/Makefile
 backends/Makefile
 backends/alpm/Makefile
 backends/apt/Makefile
@@ -816,6 +817,7 @@ backends/conary/Makefile
 backends/dummy/Makefile
 backends/entropy/Makefile
 backends/opkg/Makefile
+backends/pacman/Makefile
 backends/slapt/Makefile
 backends/smart/Makefile
 backends/test/Makefile
@@ -878,7 +880,6 @@ echo "
         debuginfo-install:         ${build_debuginfo_install}
         device-rebind:             ${build_device_rebind}
         pm-utils scripts:          ${build_pm_utils}
-        RUCK client:               ${build_ruck}
         QT library:                ${build_qt}
         Managed bindings:          ${build_managed}
 
@@ -892,6 +893,7 @@ echo "
         Entropy backend:           ${enable_entropy}
         OPKG backend:              ${enable_opkg}
         Razor backend:             ${enable_razor}
+        Pacman backend:            ${enable_pacman}
         PiSi backend:              ${enable_pisi}
         poldek backend:            ${enable_poldek}
         Portage backend:           ${enable_portage}
