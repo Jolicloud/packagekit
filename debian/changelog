@@ -1,3 +1,182 @@
+packagekit (0.6.4-git~20101005-0jolicloud1) robby; urgency=low
+
+  [ Warren Turkal ]
+  * apt: Fix a spelling error in the config file prompt message
+
+  [ Richard Hughes ]
+  * Remove the ruck client, it's been broken for the last few releases
+  * trivial: sync up with libzif from git master
+  * yum: get the correct state for each update. Fixes rh#574658
+
+  [ ruigo ]
+  * l10n: Updates to Portuguese (pt) translation
+
+  [ Richard Hughes ]
+  * yum: Sync with libzif upstream which offers a pretty stellar
+    performance increase
+
+  [ aalam ]
+  * l10n: Updates to Panjabi (Punjabi) (pa) translation
+
+  [ kristho ]
+  * l10n: Updates to Danish (da) translation
+
+  [ dichi ]
+  * l10n: Updates to Indonesian (id) translation
+
+  [ Richard Hughes ]
+  * yum: Ensure we create /var/cache/PackageKit if the user nukes it and
+    then tries to re-create the comps cache
+  * trivial: update the fedora spec file
+  * trivial: don't print a scary error message when there is simply no
+    process running
+  * yum: update to a newer version of libzif that supports getting the
+    file lists for a remote package
+  * yum: Ship a standalone version of licenses.txt for future code
+  * yum: Fix a crash when there are no updates and the user is using zif
+  * yum: fix up two runtime critical warnings when using the zif
+    accellerator
+  * yum: Ensure the lock failure message is proper unicode. Fixes
+    rh#585620
+
+  [ Michael Andres ]
+  * zypp: fix memeory leaks
+  * zypp: attempt to improve backend_find_packages
+  * zypp: let libzypp determine whether a patch is needed.
+
+  [ Richard Hughes ]
+  * Allow clients to request a relocatable root, but only with admin
+    authority
+
+  [ logan ]
+  * l10n: Updates to Spanish (Castilian) (es) translation
+
+  [ yurchor ]
+  * l10n: Updates to Ukrainian (uk) translation
+
+  [ Richard Hughes ]
+  * Ensure we send MESSAGE_OTHER_UPDATES_HELD_BACK when we hold packages
+    back
+
+  [ raven ]
+  * l10n: Updates to Polish (pl) translation
+
+  [ kmilos ]
+  * l10n: Updates to Serbian (sr) translation
+  * l10n: Updates to Serbian (Latin) (sr@latin) translation
+
+  [ warrink ]
+  * l10n: Updates to Dutch (Flemish) (nl) translation
+
+  [ ruigo ]
+  * l10n: Updates to Portuguese (pt) translation
+
+  [ Fabio Erculiani ]
+  * entropy: catch DependenciesNotRemovable exception during reverse
+    dependencies calculation
+
+  [ Michael Meeks ]
+  * Cleanup a certain amount of superstitious coding:
+  * fix parallel-build snafu wrt. MOC generated files
+  * downgrade required autoconf version
+  * fix dummy security model proxy support
+  * cleanup 'resolve' filtering code
+  * cleanup calling convention
+
+  [ Richard Hughes ]
+  * yum: ensure we catch the exception if there are no groups. Fixes
+    rh#587196
+
+  [ Michael Meeks ]
+  * Fix multiple bugs in 'resolve'
+  * Wrap pk_backend_package, use the wrapper to simplify the code,
+  * Yes it is a better idea to use a strong package version compare
+  * share the version / architecture comparison code into
+    zypp_ver_and_arch_equal
+  * introduce a pseudo-architecture "source" to distinguish source
+  * whitespace cleans wrt. }else{
+  * Factor pool item change notification out into
+    zypp_backend_pool_item_notify.
+  * fix whitespace foo
+  * Tweak filtering to ensure that we never emit both 'installed' and
+
+  [ Richard Hughes ]
+  * glib: Add C accessors for PkMessage
+  * Ensure the daemon emits Message() signals when replaying the cached
+    GetUpdates data
+  * yum: Move the list of system packages that cannot be removed to the
+    config file
+  * yum: Move the list of infrastructure packages that are updated first
+    to the config file
+
+  [ Michael Meeks ]
+  * add hint:simulate boolean on the backend, set for all simulation
+  * Get the final 'finished' signal right on remove
+
+  [ Richard Hughes ]
+  * Fix the permission of /etc/sysconfig/packagekit-background to be
+    non-executable
+
+  [ Marko Myllynen ]
+  * Fix system name variable name inconsistency in the cron script
+  * Add maximum wait time limit to cron checks
+
+  [ Richard Hughes ]
+  * trivial: add a link to the cgit pages in pk-download.html
+
+  [ aalam ]
+  * l10n: Updates to Panjabi (Punjabi) (pa) translation
+
+  [ Richard Hughes ]
+  * trivial: use the GLib TRUE/FALSE defines to fix compile
+  * Release version 0.6.4
+
+  [ Michael Meeks ]
+  * Fix problem whereby the terminal wouldn't return data to scanf from
+  * Cleanup: kill unpleasant g_strv_length calls.
+
+  [ Jonathan Conder ]
+  * trivial: set backend role after resetting it
+  * trivial: initialize arrays to NULL when replaying cached GetUpdates
+    data
+  * create skeleton pacman-glib backend
+  * pacman: add error reporting infrastructure
+  * pacman: add trivial backend functions
+  * pacman: add cancellation infrastructure
+  * pacman: add support for managing repos
+  * pacman: add support for package groups
+  * pacman: add package-related methods and helpers
+  * pacman: add searching support
+  * pacman: add dependency lookup
+  * pacman: add basic transaction infrastructure
+  * pacman: add support for installing packages
+  * pacman: add support for removing packages
+  * pacman: add support for updating packages
+  * pacman: Update status in pk-matrix.html
+  * pacman: fixed potential memory leak
+
+  [ zerng07 ]
+  * l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+
+  [ Michael Meeks ]
+  * Remove if (a == TRUE) type sillies; the processor has no boolean
+    type,
+  * add TODO
+  * update
+
+  [ Richard Hughes ]
+  * trivial: post release version bump
+  * trivial: sync the rpm spec file with fedora
+
+  [ Andrew Stormont ]
+  * Adding ruck, whatever that is
+  * Don't ask for authentication for most tasks (like installing a
+    package or updating)
+  * Don't ask for the root password when installing untrusted packages,
+    ask for the users password (and remember it) instead.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 10 May 2010 11:05:09 +0200
+
 packagekit (0.6.3-git~20101105-0jolicloud1) robby; urgency=low
 
   * Changing default backend to aptcc as it is now fully functional
