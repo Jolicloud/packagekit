@@ -176,17 +176,17 @@ class PackageKitTransaction:
     @property
     def status(self):
         '''Get the status of the transaction'''
-        return self._props.Get(TRANSACTION_INTERFACE, "Status")
+        return str(self._props.Get(TRANSACTION_INTERFACE, "Status"))
 
     @property
     def percentage(self):
         '''Get the progress of the transaction'''
-        return self._props.Get(TRANSACTION_INTERFACE, "Percentage")
+        return int(self._props.Get(TRANSACTION_INTERFACE, "Percentage"))
 
     @property
     def subpercentage(self):
         '''Get the progress of the transaction'''
-        return self._props.Get(TRANSACTION_INTERFACE, "Subpercentage")
+        return int(self._props.Get(TRANSACTION_INTERFACE, "Subpercentage"))
 
     def get_finished_state(self):
         '''Return the finished status'''
@@ -258,7 +258,7 @@ class PackageKitClient:
         return self._run_transaction("SearchDetails", [filters, search],
                                      exit_handler)
 
-    def search_file(self, search, filters=FILTER_NONE, exit_handler=None):
+    def search_files(self, search, filters=FILTER_NONE, exit_handler=None):
         '''Search for packages by their files'''
         return self._run_transaction("SearchFiles", [filters, search],
                                      exit_handler)
