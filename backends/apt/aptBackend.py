@@ -543,7 +543,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
 
     # Methods ( client -> engine -> backend )
 
-    def search_file(self, filters, filenames_string):
+    def search_file(self, filters_str, filenames):
         """Search for files in packages.
 
         Works only for installed file if apt-file isn't installed.
@@ -554,7 +554,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self._check_init(progress=False)
         self.allow_cancel(True)
 
-        filenames = filenames_string.split("&")
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
+
         result_names = set()
         # Optionally make use of apt-file's Contents cache to search for not
         # installed files. But still search for installed files additionally
@@ -605,7 +607,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     self._emit_visible_package(filters, pkg)
                     break
 
-    def search_group(self, filters, group):
+    def search_group(self, filters_str, group):
         """
         Implement the apt2-search-group functionality
         """
@@ -615,11 +617,14 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self._check_init(progress=False)
         self.allow_cancel(True)
 
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
+
         for pkg in self._cache:
             if self._get_package_group(pkg) == group:
                 self._emit_visible_package(filters, pkg)
 
-    def search_name(self, filters, values):
+    def search_name(self, filters_str, values):
         """
         Implement the apt2-search-name functionality
         """
@@ -634,12 +639,15 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self._check_init(progress=False)
         self.allow_cancel(True)
 
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
+
         for pkg_name in self._cache.keys():
             if matches(values, pkg_name):
                 self._emit_all_visible_pkg_versions(filters,
                                                     self._cache[pkg_name])
 
-    def search_details(self, filters, values):
+    def search_details(self, filters_str, values):
         """
         Implement the apt2-search-details functionality
         """
@@ -649,6 +657,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self._check_init(progress=False)
         self.allow_cancel(True)
         results = []
+
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
 
         if XAPIAN_SUPPORT == True:
             search_flags = (xapian.QueryParser.FLAG_BOOLEAN |
@@ -1098,7 +1109,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                comp.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_download_state(comp)[0]
-            if not FILTER_DEVELOPMENT in filter_list:
+            if not FILTER_DEVELOPMENT in filters:
                 self.repo_detail(repo_id,
                                  description.decode(DEFAULT_ENCODING),
                                  enabled)
@@ -1111,7 +1122,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                template.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_child_state(template)[0]
-            if not FILTER_DEVELOPMENT in filter_list:
+            if not FILTER_DEVELOPMENT in filters:
                 self.repo_detail(repo_id,
                                  description.decode(DEFAULT_ENCODING),
                                  enabled)
