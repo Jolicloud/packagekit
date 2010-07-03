@@ -1,6 +1,6 @@
 debian/tmp/usr/bin/pkcon
 debian/tmp/usr/bin/pkmon
-debian/tmp/usr/sbin/packagekitd
+debian/tmp/usr/lib/packagekit/packagekitd
 debian/tmp/usr/lib/packagekit/pk-command-not-found
 debian/tmp/usr/lib/pm-utils/sleep.d/95packagekit
 debian/tmp/usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
