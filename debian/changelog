@@ -1,3 +1,149 @@
+packagekit (0.6.6-git~20100703-0jolicloud1) robby; urgency=low
+
+  [ Michael Meeks ]
+  * Detect and advertise from /etc/meego-release
+  * Re-factor to pass PkBackend * around; hopefully we can GObject-ify
+    that
+
+  [ Sebastian Heinlein ]
+  * APT: Show a sub progress for package downloads
+  * APT: use UTF-8 as default encoding and allow to write unicode to
+    stdout.
+  * APT: Allow to do an AND search for multiple package names
+  * APT: Adapt cherry picked patch for name searching to the 0.6 API
+  * Python-Backend: Fix a typo in format_string
+  * APT: Make sure to use format_string consequently on every output
+    which
+
+  [ Richard Hughes ]
+  * yum: Do not abort init when Yum.conf does not contain some required
+    keys
+
+  [ Adrien Bustany ]
+  * PackageKit-Qt: Add Q_ENUMS to DaemonError
+
+  [ Richard Hughes ]
+  * Show the MediaChangeRequired signals in pkmon
+  * glib: Add some new PkTask methods that handle the Media and Eula
+    callbacks for the application
+  * glib: add sync versions of the new API in PkTask
+  * Use the new PkTask API in pkcon so we can deal with Media and Eula
+    queries
+  * yum: Remove all the MediaManager implementations and write a small
+    GIO based callback
+  * Fix up several daemon thinkos when a client tries to set a root
+    other than '/'
+  * yum: The transaction root is not set at _init(), so we have to re-
+    query the root when we start each action
+  * yum: Attempt to use removable disk repos if they exist at backend
+    startup
+  * yum: use the system installed version of the zif accellerator
+  * yum: Update backend to libzif git master
+
+  [ kristho ]
+  * l10n: Updates to Danish (da) translation
+
+  [ Michael Meeks ]
+  * add --force argument to pkcon refresh
+  * build conditional BUILD_ZIF needs to be at the top level
+  * tweak from merge
+
+  [ Fabio Erculiani ]
+  * entropy: make backend working with latest Entropy releases
+
+  [ vpv ]
+  * l10n: Updates to Finnish (fi) translation
+
+  [ Richard Hughes ]
+  * yum: catch and ignore the socket exception on oddball systems. Fixes
+    rh#596779
+
+  [ Marcin Banasiak ]
+  * poldek: port backend to new API
+
+  [ Richard Hughes ]
+  * yum: Fix up the filter check when doing GetRepoList(). Fixes
+    rh#598697
+  * trivial: remove the word link after unistd.h insanity
+  * Release version 0.6.5
+  * trivial: post release version bump
+  * trivial: sync the fedora spec file with upstream
+
+  [ khasida ]
+  * l10n: Updates to Japanese (ja) translation
+
+  [ zerng07 ]
+  * l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+
+  [ Richard Hughes ]
+  * glib: Explicitly mark the library as LGPLv2 by using the correct
+    boilerplate code
+  * Only set a cancelled error after we've given the backend a fighting
+    chance to process the request
+  * cnf: Add a MaxSearchTime entry in CommandNotFound.conf and default
+    to 2000ms
+  * Assign names to our idle sources when using new versions of glib2
+  * yum: don't crash with an internal error if the .discinfo is
+    malformed
+  * Build the gtk-module for gtk-3.0 as well as gtk-2.0 if available
+
+  [ Fabio Erculiani ]
+  * entropy: implement forward compatibility support
+
+  [ chenh ]
+  * l10n: Updates to Chinese (China) (zh_CN) translation
+
+  [ Richard Hughes ]
+  * Move the packagekitd binary to libexec
+
+  [ Jonathan Conder ]
+  * pacman: update for pacman-glib 3.4.0
+
+  [ chenh ]
+  * l10n: Updates to Chinese (China) (zh_CN) translation
+
+  [ Aurelien Lefebvre ]
+  * urpmi: fix update-system command and only_trusted parameter
+  * Updated my email address in source code
+
+  [ Michael Meeks ]
+  * Disable get_zypp in intialize - initialize has to be fairly fast
+    otherwise
+  * fix FPE when there are no repos.
+  * Don't crash checking status of non-patches.
+
+  [ Sebastian Heinlein ]
+  * APT: Adapt to splitted arguments from the Python backend
+  * APT: Trivial. Fix an oversight from the last commit
+  * APT: Adapt to an API change to allow OR searches (from last
+    December)
+  * APT: Fix group searching. Missed an API change.
+
+  [ Anders F Bjorklund ]
+  * ports: use distfiles size, for uninstalled packages
+
+  [ Daniel Nicoletti ]
+  * aptcc: Added distro upgrade support
+
+  [ Richard Hughes ]
+  * trivial: print the overwriting role in
+    pk_backend_set_role_internal()
+  * Ensure we clear the cancel timer when we finish a PkBackend
+    transaction to avoid the next transaction getting cancelled
+    automatically
+  * Port 'make check' to GTest rather than using our homegrown EggTest
+    functionality
+  * trivial: fix 'make distcheck'
+  * Ensure filters are properly split for spawned backends
+  * Get the control properties async when the user starts the pkmon tool
+  * Release version 0.6.6
+
+  [ Andrew Stormont ]
+  * Updating debian/packagekit.install to use packagekitd's new path
+  * Fixing my email address in last changelog entry
+
+ -- Andrew Stormont <andy@jolicloud.org>  Sat, 03 Jul 2010 16:00:47 +0200
+
 packagekit (0.6.4-git~20101005-0jolicloud2) robby; urgency=low
 
   * Convert properties from dbus types to python in client interface
