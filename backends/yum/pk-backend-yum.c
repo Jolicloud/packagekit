@@ -19,11 +19,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <config.h>
 #include <gio/gio.h>
 #include <pk-backend.h>
 #include <pk-backend-spawn.h>
 #include <string.h>
+
+#ifdef HAVE_ZIF
 #include <zif.h>
+#endif
 
 #define PREUPGRADE_BINARY			"/usr/bin/preupgrade"
 #define YUM_REPOS_DIRECTORY			"/etc/yum.repos.d"
@@ -36,14 +40,17 @@ typedef struct {
 	GFileMonitor	*monitor;
 	GCancellable	*cancellable;
 	gboolean	 use_zif;
+#ifdef HAVE_ZIF
 	ZifDownload	*download;
 	ZifConfig	*config;
 	ZifStoreLocal	*store_local;
 	ZifRepos	*repos;
 	ZifGroups	*groups;
-	ZifCompletion	*completion;
+	ZifState	*state;
 	ZifLock		*lock;
+#endif
 	GTimer		*timer;
+	GVolumeMonitor	*volume_monitor;
 } PkBackendYumPrivate;
 
 static PkBackendYumPrivate *priv;
@@ -82,16 +89,46 @@ backend_yum_repos_changed_cb (GFileMonitor *monitor_, GFile *file, GFile *other_
 	pk_backend_repo_list_changed (backend);
 }
 
+#ifdef HAVE_ZIF
+
 static void
-backend_completion_percentage_changed_cb (ZifCompletion *completion, guint percentage, PkBackend *backend)
+backend_state_percentage_changed_cb (ZifState *state, guint percentage, PkBackend *backend)
 {
 	pk_backend_set_percentage (backend, percentage);
 }
 
 static void
-backend_completion_subpercentage_changed_cb (ZifCompletion *completion, guint subpercentage, PkBackend *backend)
+backend_state_subpercentage_changed_cb (ZifState *state, guint subpercentage, PkBackend *backend)
 {
 	pk_backend_set_sub_percentage (backend, subpercentage);
+}
+
+/**
+ * backend_set_root:
+ */
+static gboolean
+backend_set_root (PkBackend *backend)
+{
+	gboolean ret = FALSE;
+	GError *error = NULL;
+	const gchar *root;
+
+	/* this backend does not support a relocatable root... yet */
+	root = pk_backend_get_root (backend);
+	if (g_strcmp0 (root, "/") != 0) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_INSTALL_ROOT_INVALID, "backend does not support this root: '%s'", root);
+		goto out;
+	}
+
+	/* try to set, or re-set root */
+	ret = zif_store_local_set_prefix (priv->store_local, root, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to set prefix: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
+out:
+	return ret;
 }
 
 /**
@@ -349,7 +386,7 @@ backend_filter_package_array (GPtrArray *array, PkBitfield filters)
  * backend_emit_package_array:
  **/
 static gboolean
-backend_emit_package_array (PkBackend *backend, GPtrArray *array, ZifCompletion *completion)
+backend_emit_package_array (PkBackend *backend, GPtrArray *array, ZifState *state)
 {
 	guint i;
 	gboolean installed;
@@ -367,8 +404,8 @@ backend_emit_package_array (PkBackend *backend, GPtrArray *array, ZifCompletion 
 		package_id = zif_package_get_package_id (package);
 
 		/* FIXME: should be okay as shouldn't be doing any action */
-		zif_completion_reset (completion);
-		summary = zif_package_get_summary (package, priv->cancellable, completion, NULL);
+		zif_state_reset (state);
+		summary = zif_package_get_summary (package, state, NULL);
 
 		/* if we set a hint, use that, otherwise just get the installed status correct */
 		info_hint = (const gchar *)g_object_get_data (G_OBJECT(package), "kind");
@@ -387,7 +424,7 @@ backend_emit_package_array (PkBackend *backend, GPtrArray *array, ZifCompletion 
  * backend_error_handler_cb:
  */
 static gboolean
-backend_error_handler_cb (GPtrArray *store_array, const GError *error, PkBackend *backend)
+backend_error_handler_cb (const GError *error, PkBackend *backend)
 {
 	/* emit a warning, this isn't fatal */
 	pk_backend_message (backend, PK_MESSAGE_ENUM_BROKEN_MIRROR, "%s", error->message);
@@ -398,7 +435,7 @@ backend_error_handler_cb (GPtrArray *store_array, const GError *error, PkBackend
  * backend_get_default_store_array_for_filter:
  */
 static GPtrArray *
-backend_get_default_store_array_for_filter (PkBackend *backend, PkBitfield filters, ZifCompletion *completion, GError **error)
+backend_get_default_store_array_for_filter (PkBackend *backend, PkBitfield filters, ZifState *state, GError **error)
 {
 	GPtrArray *store_array;
 	ZifStore *store;
@@ -416,7 +453,7 @@ backend_get_default_store_array_for_filter (PkBackend *backend, PkBitfield filte
 
 	/* add remote packages to the store_array */
 	if (!pk_bitfield_contain (filters, PK_FILTER_ENUM_INSTALLED)) {
-		array = zif_repos_get_stores_enabled (priv->repos, priv->cancellable, completion, &error_local);
+		array = zif_repos_get_stores_enabled (priv->repos, state, &error_local);
 		if (array == NULL) {
 			g_set_error (error, 1, 0, "failed to get enabled stores: %s", error_local->message);
 			g_error_free (error_local);
@@ -430,6 +467,7 @@ backend_get_default_store_array_for_filter (PkBackend *backend, PkBitfield filte
 out:
 	return store_array;
 }
+#endif
 
 /**
  * backend_search_thread:
@@ -437,13 +475,14 @@ out:
 static gboolean
 backend_search_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gboolean ret;
 	GPtrArray *store_array = NULL;
 	GPtrArray *array = NULL;
 	GPtrArray *result;
 	PkBitfield filters;
 	PkRoleEnum role;
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	GError *error = NULL;
 	gchar **search;
 	filters = (PkBitfield) pk_backend_get_uint (backend, "filters");
@@ -456,19 +495,26 @@ backend_search_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	pk_backend_set_percentage (backend, 0);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, 4);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, 4);
 
 	/* get default store_array */
-	completion_local = zif_completion_get_child (priv->completion);
-	store_array = backend_get_default_store_array_for_filter (backend, filters, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	store_array = backend_get_default_store_array_for_filter (backend, filters, state_local, &error);
 	if (store_array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to get stores: %s", error->message);
 		g_error_free (error);
@@ -476,13 +522,18 @@ backend_search_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
+	zif_state_set_error_handler (priv->state, (ZifStateErrorHandlerCb) backend_error_handler_cb, backend);
 
 	/* do get action */
 	if (role == PK_ROLE_ENUM_GET_PACKAGES) {
-		completion_local = zif_completion_get_child (priv->completion);
-		array = zif_store_array_get_packages (store_array, (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-						      priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		array = zif_store_array_get_packages (store_array, state_local, &error);
 		if (array == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to get packages: %s", error->message);
 			g_error_free (error);
@@ -499,31 +550,19 @@ backend_search_thread (PkBackend *backend)
 		array = g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
 
 		/* do OR search */
-		completion_local = zif_completion_get_child (priv->completion);
+		state_local = zif_state_get_child (priv->state);
 		if (role == PK_ROLE_ENUM_SEARCH_NAME) {
-			array = zif_store_array_search_name (store_array, search,
-							     (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-							     priv->cancellable, completion_local, &error);
+			array = zif_store_array_search_name (store_array, search, state_local, &error);
 		} else if (role == PK_ROLE_ENUM_SEARCH_DETAILS) {
-			array = zif_store_array_search_details (store_array, search,
-								(ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-								priv->cancellable, completion_local, &error);
+			array = zif_store_array_search_details (store_array, search, state_local, &error);
 		} else if (role == PK_ROLE_ENUM_SEARCH_GROUP) {
-			array = zif_store_array_search_category (store_array, search,
-								 (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-								 priv->cancellable, completion_local, &error);
+			array = zif_store_array_search_category (store_array, search, state_local, &error);
 		} else if (role == PK_ROLE_ENUM_SEARCH_FILE) {
-			array = zif_store_array_search_file (store_array, search,
-							     (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-							     priv->cancellable, completion_local, &error);
+			array = zif_store_array_search_file (store_array, search, state_local, &error);
 		} else if (role == PK_ROLE_ENUM_RESOLVE) {
-			array = zif_store_array_resolve (store_array, search,
-							 (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-							 priv->cancellable, completion_local, &error);
+			array = zif_store_array_resolve (store_array, search, state_local, &error);
 		} else if (role == PK_ROLE_ENUM_WHAT_PROVIDES) {
-			array = zif_store_array_what_provides (store_array, search,
-							       (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-							       priv->cancellable, completion_local, &error);
+			array = zif_store_array_what_provides (store_array, search, state_local, &error);
 		}
 		if (array == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to search: %s", error->message);
@@ -538,23 +577,38 @@ backend_search_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* filter */
 	result = backend_filter_package_array (array, filters);
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* done */
 	pk_backend_set_percentage (backend, 100);
 
 	/* emit */
-	completion_local = zif_completion_get_child (priv->completion);
-	backend_emit_package_array (backend, result, completion_local);
+	state_local = zif_state_get_child (priv->state);
+	backend_emit_package_array (backend, result, state_local);
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 out:
 	if (store_array != NULL)
 		g_ptr_array_unref (store_array);
@@ -562,7 +616,49 @@ out:
 		g_ptr_array_unref (array);
 	backend_unlock (backend);
 	pk_backend_finished (backend);
+#endif
 	return TRUE;
+}
+
+/**
+ * backend_mount_add:
+ */
+static void
+backend_mount_add (GMount *mount, gpointer user_data)
+{
+	GFile *root;
+	GFile *repo;
+	GFile *dest;
+	gchar *root_path;
+	gchar *repo_path;
+	gboolean ret;
+	GError *error = NULL;
+
+	/* check if any installed media is an install disk */
+	root = g_mount_get_root (mount);
+	root_path = g_file_get_path (root);
+	repo_path = g_build_filename (root_path, "media.repo", NULL);
+	repo = g_file_new_for_path (repo_path);
+	dest = g_file_new_for_path ("/etc/yum.repos.d/packagekit-media.repo");
+
+	/* media.repo exists */
+	ret = g_file_query_exists (repo, NULL);
+	egg_warning ("checking for %s: %s", repo_path, ret ? "yes" : "no");
+	if (!ret)
+		goto out;
+
+	/* copy to the system repo dir */
+	ret = g_file_copy (repo, dest, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
+	if (!ret) {
+		egg_warning ("failed to copy: %s", error->message);
+		g_error_free (error);
+	}
+out:
+	g_free (root_path);
+	g_free (repo_path);
+	g_object_unref (dest);
+	g_object_unref (root);
+	g_object_unref (repo);
 }
 
 /**
@@ -577,7 +673,7 @@ backend_initialize (PkBackend *backend)
 	GError *error = NULL;
 	GKeyFile *key_file = NULL;
 	gchar *config_file = NULL;
-	const gchar *root;
+	GList *mounts;
 
 	/* create private area */
 	priv = g_new0 (PkBackendYumPrivate, 1);
@@ -589,12 +685,12 @@ backend_initialize (PkBackend *backend)
 	pk_backend_spawn_set_name (priv->spawn, "yum");
 	pk_backend_spawn_set_allow_sigkill (priv->spawn, FALSE);
 
-	/* this backend does not support a relocatable root */
-	root = pk_backend_get_root (backend);
-	if (g_strcmp0 (root, "/") != 0) {
-		pk_backend_error_code (backend, PK_ERROR_ENUM_INSTALL_ROOT_INVALID, "backend does not support this root: '%s'", root);
-		goto out;
-	}
+	/* coldplug the mounts */
+	priv->volume_monitor = g_volume_monitor_get ();
+	mounts = g_volume_monitor_get_mounts (priv->volume_monitor);
+	g_list_foreach (mounts, (GFunc) backend_mount_add, NULL);
+	g_list_foreach (mounts, (GFunc) g_object_unref, NULL);
+	g_list_free (mounts);
 
 	/* setup a file monitor on the repos directory */
 	file = g_file_new_for_path (YUM_REPOS_DIRECTORY);
@@ -617,6 +713,7 @@ backend_initialize (PkBackend *backend)
 		goto out;
 	}
 
+#ifdef HAVE_ZIF
 	/* it seems some people are not ready for the awesomeness */
 	priv->use_zif = g_key_file_get_boolean (key_file, "Backend", "UseZif", NULL);
 	if (!priv->use_zif)
@@ -634,10 +731,10 @@ backend_initialize (PkBackend *backend)
 	/* TODO: hook up errors */
 	priv->cancellable = g_cancellable_new ();
 
-	/* ZifCompletion */
-	priv->completion = zif_completion_new ();
-	g_signal_connect (priv->completion, "percentage-changed", G_CALLBACK (backend_completion_percentage_changed_cb), backend);
-	g_signal_connect (priv->completion, "subpercentage-changed", G_CALLBACK (backend_completion_subpercentage_changed_cb), backend);
+	/* ZifState */
+	priv->state = zif_state_new ();
+	g_signal_connect (priv->state, "percentage-changed", G_CALLBACK (backend_state_percentage_changed_cb), backend);
+	g_signal_connect (priv->state, "subpercentage-changed", G_CALLBACK (backend_state_subpercentage_changed_cb), backend);
 
 	/* ZifConfig */
 	priv->config = zif_config_new ();
@@ -659,12 +756,6 @@ backend_initialize (PkBackend *backend)
 
 	/* ZifStoreLocal */
 	priv->store_local = zif_store_local_new ();
-	ret = zif_store_local_set_prefix (priv->store_local, root, &error);
-	if (!ret) {
-		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to set prefix: %s", error->message);
-		g_error_free (error);
-		goto out;
-	}
 
 	/* profile */
 	backend_profile ("read local store");
@@ -692,6 +783,9 @@ backend_initialize (PkBackend *backend)
 
 	/* profile */
 	backend_profile ("read groups");
+#else
+	priv->use_zif = FALSE;
+#endif
 out:
 	g_free (config_file);
 	if (key_file != NULL)
@@ -711,12 +805,13 @@ backend_destroy (PkBackend *backend)
 	g_object_unref (priv->spawn);
 	if (priv->monitor != NULL)
 		g_object_unref (priv->monitor);
+#ifdef HAVE_ZIF
 	if (priv->config != NULL)
 		g_object_unref (priv->config);
 	if (priv->download != NULL)
 		g_object_unref (priv->download);
-	if (priv->completion != NULL)
-		g_object_unref (priv->completion);
+	if (priv->state != NULL)
+		g_object_unref (priv->state);
 	if (priv->repos != NULL)
 		g_object_unref (priv->repos);
 	if (priv->groups != NULL)
@@ -727,6 +822,9 @@ backend_destroy (PkBackend *backend)
 		g_object_unref (priv->lock);
 	if (priv->timer != NULL)
 		g_timer_destroy (priv->timer);
+#endif
+	if (priv->volume_monitor != NULL)
+		g_object_unref (priv->volume_monitor);
 	g_free (priv);
 }
 
@@ -736,8 +834,13 @@ backend_destroy (PkBackend *backend)
 static PkBitfield
 backend_get_groups (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	GError *error = NULL;
-	PkBitfield groups;
+	GPtrArray *array = NULL;
+	guint i;
+	const gchar *group_str;
+#endif
+	PkBitfield groups = 0;
 
 	/* it seems some people are not ready for the awesomeness */
 	if (!priv->use_zif) {
@@ -768,13 +871,21 @@ backend_get_groups (PkBackend *backend)
 		goto out;
 	}
 
+#ifdef HAVE_ZIF
 	/* get the dynamic group list */
-	groups = zif_groups_get_groups (priv->groups, &error);
-	if (groups == 0) {
+	array = zif_groups_get_groups (priv->groups, &error);
+	if (array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_GROUP_LIST_INVALID, "failed to get the list of groups: %s", error->message);
 		g_error_free (error);
 		goto out;
 	}
+
+	/* convert to a bitfield */
+	for (i=0; i<array->len; i++) {
+		group_str = g_ptr_array_index (array, i);
+		pk_bitfield_add (groups, pk_group_enum_from_string (group_str));
+	}
+#endif
 
 	/* add the virtual groups */
 	pk_bitfield_add (groups, PK_GROUP_ENUM_COLLECTIONS);
@@ -875,11 +986,12 @@ backend_cancel (PkBackend *backend)
 static gboolean
 backend_download_packages_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 	const gchar *directory = pk_backend_get_string (backend, "directory");
 	GPtrArray *store_array = NULL;
 	ZifPackage *package;
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	GPtrArray *packages = NULL;
 	const gchar *id;
 	guint i;
@@ -897,18 +1009,25 @@ backend_download_packages_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
+	/* setup state */
+	zif_state_reset (priv->state);
 	len = g_strv_length (package_ids);
-	zif_completion_set_number_steps (priv->completion, (len * 4) + 1);
+	zif_state_set_number_steps (priv->state, (len * 4) + 1);
 
 	/* find all the packages */
 	packages = g_ptr_array_new ();
-	completion_local = zif_completion_get_child (priv->completion);
-	store_array = backend_get_default_store_array_for_filter (backend, pk_bitfield_value (PK_FILTER_ENUM_NOT_INSTALLED), completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	store_array = backend_get_default_store_array_for_filter (backend, pk_bitfield_value (PK_FILTER_ENUM_NOT_INSTALLED), state_local, &error);
 	if (store_array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to get stores: %s", error->message);
 		g_error_free (error);
@@ -916,13 +1035,18 @@ backend_download_packages_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	for (i=0; package_ids[i] != NULL; i++) {
 		id = package_ids[i];
-		completion_local = zif_completion_get_child (priv->completion);
-		package = zif_store_array_find_package (store_array, id, priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		package = zif_store_array_find_package (store_array, id, state_local, &error);
 		if (package == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_PACKAGE_NOT_FOUND, "failed to find %s: %s", package_ids[i], error->message);
 			g_error_free (error);
@@ -930,14 +1054,24 @@ backend_download_packages_thread (PkBackend *backend)
 		}
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		g_ptr_array_add (packages, g_object_ref (package));
 		g_object_unref (package);
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* download list */
 	pk_backend_set_status (backend, PK_STATUS_ENUM_DOWNLOAD);
@@ -945,8 +1079,8 @@ backend_download_packages_thread (PkBackend *backend)
 		package = g_ptr_array_index (packages, i);
 
 		/* get filename */
-		completion_local = zif_completion_get_child (priv->completion);
-		filename = zif_package_get_filename (package, priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		filename = zif_package_get_filename (package, state_local, &error);
 		if (filename == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED,
 					       "failed to get filename for %s: %s", zif_package_get_id (package), error->message);
@@ -955,11 +1089,16 @@ backend_download_packages_thread (PkBackend *backend)
 		}
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* download */
-		completion_local = zif_completion_get_child (priv->completion);
-		ret = zif_package_download (package, directory, priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		ret = zif_package_download (package, directory, state_local, &error);
 		if (!ret) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED,
 					       "failed to download %s: %s", filename, error->message);
@@ -975,7 +1114,12 @@ backend_download_packages_thread (PkBackend *backend)
 		g_free (path);
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 	}
 out:
 	backend_unlock (backend);
@@ -984,6 +1128,7 @@ out:
 		g_ptr_array_unref (packages);
 	if (store_array != NULL)
 		g_ptr_array_unref (store_array);
+#endif
 	return TRUE;
 }
 
@@ -1027,12 +1172,13 @@ backend_get_depends (PkBackend *backend, PkBitfield filters, gchar **package_ids
 static gboolean
 backend_get_details_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gboolean ret;
 	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 	GPtrArray *store_array = NULL;
 	ZifPackage *package;
-	ZifCompletion *completion_local;
-	ZifCompletion *completion_loop;
+	ZifState *state_local;
+	ZifState *state_loop;
 	const gchar *id;
 	guint i;
 	guint len;
@@ -1040,6 +1186,7 @@ backend_get_details_thread (PkBackend *backend)
 	const gchar *license;
 	const gchar *description;
 	const gchar *url;
+	const gchar *group_str;
 	PkGroupEnum group;
 	guint64 size;
 	PkBitfield filters = PK_FILTER_ENUM_UNKNOWN;
@@ -1051,20 +1198,27 @@ backend_get_details_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
 	len = g_strv_length (package_ids);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, len + 1);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, len + 1);
 
 	/* find all the packages */
-	completion_local = zif_completion_get_child (priv->completion);
+	state_local = zif_state_get_child (priv->state);
 	if (backend_is_all_installed (package_ids))
 		pk_bitfield_add (filters, PK_FILTER_ENUM_INSTALLED);
-	store_array = backend_get_default_store_array_for_filter (backend, filters, completion_local, &error);
+	store_array = backend_get_default_store_array_for_filter (backend, filters, state_local, &error);
 	if (store_array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to get stores: %s", error->message);
 		g_error_free (error);
@@ -1072,19 +1226,24 @@ backend_get_details_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	for (i=0; package_ids[i] != NULL; i++) {
 		id = package_ids[i];
 
-		/* set up completion */
-		completion_local = zif_completion_get_child (priv->completion);
-		zif_completion_set_number_steps (completion_local, 6);
+		/* set up state */
+		state_local = zif_state_get_child (priv->state);
+		zif_state_set_number_steps (state_local, 6);
 
 		/* find package */
-		completion_loop = zif_completion_get_child (completion_local);
-		package = zif_store_array_find_package (store_array, id, priv->cancellable, completion_loop, &error);
+		state_loop = zif_state_get_child (state_local);
+		package = zif_store_array_find_package (store_array, id, state_loop, &error);
 		if (package == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_PACKAGE_NOT_FOUND, "failed to find %s: %s", package_ids[i], error->message);
 			g_error_free (error);
@@ -1092,42 +1251,79 @@ backend_get_details_thread (PkBackend *backend)
 		}
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* get license */
-		completion_loop = zif_completion_get_child (completion_local);
-		license = zif_package_get_license (package, priv->cancellable, completion_loop, NULL);
+		state_loop = zif_state_get_child (state_local);
+		license = zif_package_get_license (package, state_loop, NULL);
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* get group */
-		completion_loop = zif_completion_get_child (completion_local);
-		group = zif_package_get_group (package, priv->cancellable, completion_loop, NULL);
+		state_loop = zif_state_get_child (state_local);
+		group_str = zif_package_get_group (package, state_loop, &error);
+
+		/* not being in a group is non-fatal */
+		if (group_str == NULL) {
+			egg_warning ("failed to get group: %s", error->message);
+			g_clear_error (&error);
+		}
+		group = pk_group_enum_from_text (group_str);
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* get description */
-		completion_loop = zif_completion_get_child (completion_local);
-		description = zif_package_get_description (package, priv->cancellable, completion_loop, NULL);
+		state_loop = zif_state_get_child (state_local);
+		description = zif_package_get_description (package, state_loop, NULL);
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* get url */
-		completion_loop = zif_completion_get_child (completion_local);
-		url = zif_package_get_url (package, priv->cancellable, completion_loop, NULL);
+		state_loop = zif_state_get_child (state_local);
+		url = zif_package_get_url (package, state_loop, NULL);
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* get size */
-		completion_loop = zif_completion_get_child (completion_local);
-		size = zif_package_get_size (package, priv->cancellable, completion_loop, NULL);
+		state_loop = zif_state_get_child (state_local);
+		size = zif_package_get_size (package, state_loop, NULL);
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* emit */
 		pk_backend_details (backend,
@@ -1139,7 +1335,12 @@ backend_get_details_thread (PkBackend *backend)
 				    (gulong) size);
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* free */
 		g_object_unref (package);
@@ -1149,6 +1350,7 @@ out:
 	pk_backend_finished (backend);
 	if (store_array != NULL)
 		g_ptr_array_unref (store_array);
+#endif
 	return TRUE;
 }
 
@@ -1175,6 +1377,7 @@ backend_get_details (PkBackend *backend, gchar **package_ids)
 static gboolean
 backend_get_distro_upgrades_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gboolean ret;
 	gchar *distro_id = NULL;
 	gchar *filename = NULL;
@@ -1188,11 +1391,11 @@ backend_get_distro_upgrades_thread (PkBackend *backend)
 	guint version;
 	GError *error = NULL;
 	GKeyFile *file = NULL;
-	ZifCompletion *child;
+	ZifState *child;
 
 	/* download, then parse */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, 2);
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, 2);
 
 	/* set proxy */
 	proxy = pk_backend_get_proxy_http (backend);
@@ -1205,15 +1408,20 @@ backend_get_distro_upgrades_thread (PkBackend *backend)
 
 	/* download new file */
 	filename = g_build_filename ("/var/cache/PackageKit", "releases.txt", NULL);
-	child = zif_completion_get_child (priv->completion);
+	child = zif_state_get_child (priv->state);
 	pk_backend_set_status (backend, PK_STATUS_ENUM_DOWNLOAD_UPDATEINFO);
-	ret = zif_download_file (priv->download, "http://mirrors.fedoraproject.org/releases.txt", filename, NULL, child, &error);
+	ret = zif_download_file (priv->download, "http://mirrors.fedoraproject.org/releases.txt", filename, child, &error);
 	if (!ret) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_ERROR, "failed to download %s: %s", filename, error->message);
 		g_error_free (error);
 		goto out;
 	}
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	file = g_key_file_new ();
 	ret = g_key_file_load_from_file (file, filename, G_KEY_FILE_NONE, &error);
@@ -1261,7 +1469,12 @@ backend_get_distro_upgrades_thread (PkBackend *backend)
 	pk_backend_distro_upgrade (backend, PK_DISTRO_UPGRADE_ENUM_STABLE, distro_id, groups[newest]);
 
 	/* we're done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 out:
 	pk_backend_finished (backend);
 	g_free (distro_id);
@@ -1272,6 +1485,7 @@ out:
 		g_key_file_free (file);
 	g_strfreev (groups);
 	g_strfreev (split);
+#endif
 	return TRUE;
 }
 
@@ -1296,12 +1510,13 @@ backend_get_distro_upgrades (PkBackend *backend)
 static gboolean
 backend_get_files_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gboolean ret;
 	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 	GPtrArray *store_array = NULL;
 	ZifPackage *package;
 	GPtrArray *files;
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	const gchar *id;
 	guint i, j;
 	guint len;
@@ -1320,6 +1535,13 @@ backend_get_files_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
@@ -1328,15 +1550,15 @@ backend_get_files_thread (PkBackend *backend)
 
 	len = g_strv_length (package_ids);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, (len * 2) + 1);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, (len * 2) + 1);
 
 	/* find all the packages */
-	completion_local = zif_completion_get_child (priv->completion);
+	state_local = zif_state_get_child (priv->state);
 	if (backend_is_all_installed (package_ids))
 		pk_bitfield_add (filters, PK_FILTER_ENUM_INSTALLED);
-	store_array = backend_get_default_store_array_for_filter (backend, filters, completion_local, &error);
+	store_array = backend_get_default_store_array_for_filter (backend, filters, state_local, &error);
 	if (store_array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to get stores: %s", error->message);
 		g_error_free (error);
@@ -1347,13 +1569,18 @@ backend_get_files_thread (PkBackend *backend)
 	backend_profile ("add local");
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	for (i=0; package_ids[i] != NULL; i++) {
 		id = package_ids[i];
-		completion_local = zif_completion_get_child (priv->completion);
-		package = zif_store_array_find_package (store_array, id, priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		package = zif_store_array_find_package (store_array, id, state_local, &error);
 		if (package == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_PACKAGE_NOT_FOUND, "failed to find %s: %s", package_ids[i], error->message);
 			g_error_free (error);
@@ -1364,11 +1591,16 @@ backend_get_files_thread (PkBackend *backend)
 		backend_profile ("find package");
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		/* get files */
-		completion_local = zif_completion_get_child (priv->completion);
-		files = zif_package_get_files (package, priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		files = zif_package_get_files (package, state_local, &error);
 		if (files == NULL) {
 			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "no files for %s: %s", package_ids[i], error->message);
 			g_error_free (error);
@@ -1389,7 +1621,12 @@ backend_get_files_thread (PkBackend *backend)
 		backend_profile ("emit files");
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 
 		g_string_free (files_str, TRUE);
 		g_object_unref (package);
@@ -1399,6 +1636,7 @@ out:
 	pk_backend_finished (backend);
 	if (store_array != NULL)
 		g_ptr_array_unref (store_array);
+#endif
 	return TRUE;
 }
 
@@ -1409,11 +1647,9 @@ static void
 backend_get_files (PkBackend *backend, gchar **package_ids)
 {
 	gchar *package_ids_temp;
-	gboolean ret;
 
 	/* check if we can use zif */
-	ret = backend_is_all_installed (package_ids);
-	if (ret && priv->use_zif) {
+	if (priv->use_zif) {
 		pk_backend_thread_create (backend, backend_get_files_thread);
 		return;
 	}
@@ -1445,10 +1681,11 @@ backend_get_requires (PkBackend *backend, PkBitfield filters, gchar **package_id
 static gboolean
 backend_get_updates_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	PkBitfield filters = (PkBitfield) pk_backend_get_uint (backend, "filters");
 	GPtrArray *store_array = NULL;
-	ZifCompletion *completion_local;
-	ZifCompletion *completion_loop;
+	ZifState *state_local;
+	ZifState *state_loop;
 	GPtrArray *array = NULL;
 	GPtrArray *result = NULL;
 	GPtrArray *packages = NULL;
@@ -1457,6 +1694,7 @@ backend_get_updates_thread (PkBackend *backend)
 	ZifUpdate *update;
 	ZifPackage *package;
 	PkInfoEnum info;
+	ZifUpdateKind update_kind;
 	guint i;
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 
@@ -1470,20 +1708,27 @@ backend_get_updates_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* profile */
 	backend_profile ("get lock");
 
 	/* set the network state */
 	backend_setup_network (backend);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, 5);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, 5);
 
 	/* get a store_array of remote stores */
 	store_array = zif_store_array_new ();
-	completion_local = zif_completion_get_child (priv->completion);
-	ret = zif_store_array_add_remote_enabled (store_array, priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	ret = zif_store_array_add_remote_enabled (store_array, state_local, &error);
 	if (!ret) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to add enabled stores: %s\n", error->message);
 		g_error_free (error);
@@ -1491,14 +1736,19 @@ backend_get_updates_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* profile */
 	backend_profile ("get remote stores");
 
 	/* get all the installed packages */
-	completion_local = zif_completion_get_child (priv->completion);
-	packages = zif_store_get_packages (ZIF_STORE (priv->store_local), NULL, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	packages = zif_store_get_packages (ZIF_STORE (priv->store_local), state_local, &error);
 	if (packages == NULL) {
 		g_print ("failed to get local store: %s", error->message);
 		g_error_free (error);
@@ -1507,7 +1757,12 @@ backend_get_updates_thread (PkBackend *backend)
 	egg_debug ("searching for updates with %i packages", packages->len);
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* profile */
 	backend_profile ("get installed packages");
@@ -1516,15 +1771,20 @@ backend_get_updates_thread (PkBackend *backend)
 	zif_package_array_filter_newest (packages);
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* profile */
 	backend_profile ("filter installed newest");
 
 	/* get updates */
-	completion_local = zif_completion_get_child (priv->completion);
-	array = zif_store_array_get_updates (store_array, packages, (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-					     priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	zif_state_set_error_handler (priv->state, (ZifStateErrorHandlerCb) backend_error_handler_cb, backend);
+	array = zif_store_array_get_updates (store_array, packages, state_local, &error);
 	if (array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to get updates: %s\n", error->message);
 		g_error_free (error);
@@ -1532,28 +1792,42 @@ backend_get_updates_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* profile */
 	backend_profile ("get updates of packages");
 
-	/* setup steps on updatinfo completion */
-	completion_local = zif_completion_get_child (priv->completion);
+	/* setup steps on updatinfo state */
+	state_local = zif_state_get_child (priv->state);
 	if (array->len > 0)
-		zif_completion_set_number_steps (completion_local, array->len);
+		zif_state_set_number_steps (state_local, array->len);
 
 	/* get update info */
 	for (i=0; i<array->len; i++) {
 		package = g_ptr_array_index (array, i);
-		completion_loop = zif_completion_get_child (completion_local);
-		update = zif_package_get_update_detail (package, priv->cancellable, completion_loop, &error);
+		state_loop = zif_state_get_child (state_local);
+
+		/* updates without updatinfo */
+		info = PK_INFO_ENUM_NORMAL;
+
+		update = zif_package_get_update_detail (package, state_loop, &error);
 		if (update == NULL) {
 			egg_debug ("failed to get updateinfo for %s", zif_package_get_id (package));
 			g_clear_error (&error);
-			zif_completion_finished (completion_loop);
-			info = PK_INFO_ENUM_NORMAL;
+			ret = zif_state_finished (state_loop, NULL);
 		} else {
-			info = zif_update_get_kind (update);
+			update_kind = zif_update_get_kind (update);
+			if (update_kind == ZIF_UPDATE_KIND_BUGFIX)
+				info = PK_INFO_ENUM_BUGFIX;
+			else if (update_kind == ZIF_UPDATE_KIND_SECURITY)
+				info = PK_INFO_ENUM_SECURITY;
+			else if (update_kind == ZIF_UPDATE_KIND_ENHANCEMENT)
+				info = PK_INFO_ENUM_ENHANCEMENT;
 			g_object_unref (update);
 		}
 
@@ -1561,11 +1835,21 @@ backend_get_updates_thread (PkBackend *backend)
 		g_object_set_data (G_OBJECT(package), "kind", (gpointer)pk_info_enum_to_string (info));
 
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* profile */
 	backend_profile ("get updateinfo");
@@ -1577,8 +1861,8 @@ backend_get_updates_thread (PkBackend *backend)
 	pk_backend_set_percentage (backend, 100);
 
 	/* emit */
-	completion_local = zif_completion_get_child (priv->completion);
-	backend_emit_package_array (backend, result, completion_local);
+	state_local = zif_state_get_child (priv->state);
+	backend_emit_package_array (backend, result, state_local);
 
 	/* profile */
 	backend_profile ("filter and emit");
@@ -1594,7 +1878,7 @@ out:
 		g_ptr_array_unref (result);
 	if (store_array != NULL)
 		g_ptr_array_unref (store_array);
-
+#endif
 	return TRUE;
 }
 
@@ -1638,12 +1922,13 @@ backend_get_packages (PkBackend *backend, PkBitfield filters)
 static gboolean
 backend_get_update_detail_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gchar **package_ids;
 	guint i;
 	guint j;
 	gboolean ret;
 	ZifUpdate *update;
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	ZifPackage *package;
 	GError *error = NULL;
 
@@ -1657,6 +1942,13 @@ backend_get_update_detail_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* get the data */
 	package_ids = pk_backend_get_strv (backend, "package_ids");
 
@@ -1666,21 +1958,24 @@ backend_get_update_detail_thread (PkBackend *backend)
 	/* set the network state */
 	backend_setup_network (backend);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, g_strv_length (package_ids));
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, g_strv_length (package_ids));
 
 	/* get the update info */
 	for (i=0; package_ids[i] != NULL; i++) {
 
 		package = zif_package_new ();
-		ret = zif_package_set_id (package, package_ids[i]);
+		ret = zif_package_set_id (package, package_ids[i], &error);
 		if (!ret) {
-			g_error ("moo");
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_ERROR,
+					       "failed to set id: %s", error->message);
+			g_error_free (error);
+			goto out;
 		}
 
-		completion_local = zif_completion_get_child (priv->completion);
-		update = zif_package_get_update_detail (package, priv->cancellable, completion_local, &error);
+		state_local = zif_state_get_child (priv->state);
+		update = zif_package_get_update_detail (package, state_local, &error);
 		if (update == NULL) {
 			egg_debug ("failed to get updateinfo for %s", zif_package_get_id (package));
 			g_clear_error (&error);
@@ -1729,11 +2024,17 @@ backend_get_update_detail_thread (PkBackend *backend)
 		g_object_unref (package);
 
 		/* this section done */
-		zif_completion_done (priv->completion);
+		ret = zif_state_done (priv->state, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 	}
 out:
 	backend_unlock (backend);
 	pk_backend_finished (backend);
+#endif
 	return TRUE;
 }
 
@@ -1843,10 +2144,11 @@ backend_install_signature (PkBackend *backend, PkSigTypeEnum type,
 static gboolean
 backend_refresh_cache_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	GPtrArray *store_array = NULL;
 	gboolean ret;
 	GError *error = NULL;
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	gboolean force = pk_backend_get_bool (backend, "force");
 
 	/* get lock */
@@ -1856,12 +2158,19 @@ backend_refresh_cache_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, 2);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, 2);
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	pk_backend_set_percentage (backend, 0);
@@ -1874,8 +2183,8 @@ backend_refresh_cache_thread (PkBackend *backend)
 
 	/* get a store_array of remote stores */
 	store_array = zif_store_array_new ();
-	completion_local = zif_completion_get_child (priv->completion);
-	ret = zif_store_array_add_remote_enabled (store_array, priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	ret = zif_store_array_add_remote_enabled (store_array, state_local, &error);
 	if (!ret) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to add enabled stores: %s\n", error->message);
 		g_error_free (error);
@@ -1883,12 +2192,17 @@ backend_refresh_cache_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* clean all the repos */
-	completion_local = zif_completion_get_child (priv->completion);
-	ret = zif_store_array_clean (store_array, (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-				     priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	zif_state_set_error_handler (priv->state, (ZifStateErrorHandlerCb) backend_error_handler_cb, backend);
+	ret = zif_store_array_clean (store_array, state_local, &error);
 	if (!ret) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "failed to clean: %s\n", error->message);
 		g_error_free (error);
@@ -1899,7 +2213,7 @@ out:
 	pk_backend_finished (backend);
 	if (store_array != NULL)
 		g_ptr_array_unref (store_array);
-
+#endif
 	return TRUE;
 }
 
@@ -2068,12 +2382,13 @@ backend_resolve (PkBackend *backend, PkBitfield filters, gchar **packages)
 static gboolean
 backend_get_repo_list_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gboolean ret;
 	PkBitfield filters = (PkBitfield) pk_backend_get_uint (backend, "filters");
 	guint i;
 	GPtrArray *array = NULL;
 	ZifStoreRemote *store;
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	const gchar *repo_id;
 	const gchar *name;
 	gboolean enabled;
@@ -2087,18 +2402,25 @@ backend_get_repo_list_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	pk_backend_set_percentage (backend, 0);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, 2);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, 2);
 
-	completion_local = zif_completion_get_child (priv->completion);
-	array = zif_repos_get_stores (priv->repos, priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	array = zif_repos_get_stores (priv->repos, state_local, &error);
 	if (array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_REPO_NOT_FOUND, "failed to find repos: %s", error->message);
 		g_error_free (error);
@@ -2112,39 +2434,56 @@ backend_get_repo_list_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
-	/* setup completion */
-	completion_local = zif_completion_get_child (priv->completion);
-	zif_completion_set_number_steps (completion_local, array->len);
+	/* setup state */
+	state_local = zif_state_get_child (priv->state);
+	zif_state_set_number_steps (state_local, array->len);
 
 	/* looks at each store */
 	for (i=0; i<array->len; i++) {
 		store = g_ptr_array_index (array, i);
 		if (pk_bitfield_contain (filters, PK_FILTER_ENUM_NOT_DEVELOPMENT)) {
-			/* TODO: completion */
-			devel = zif_store_remote_is_devel (store, priv->cancellable, NULL, NULL);
+			/* TODO: state */
+			devel = zif_store_remote_is_devel (store, NULL, NULL);
 			if (devel)
-				continue;
+				goto skip;
 		}
-		repo_id = zif_store_get_id (ZIF_STORE (store));
-		/* TODO: completion */
-		name = zif_store_remote_get_name (store, priv->cancellable, NULL, NULL);
-		/* TODO: completion */
-		enabled = zif_store_remote_get_enabled (store, priv->cancellable, NULL, NULL);
-		pk_backend_repo_detail (backend, repo_id, name, enabled);
 
+		/* TODO: state */
+		name = zif_store_remote_get_name (store, NULL, NULL);
+		/* TODO: state */
+		enabled = zif_store_remote_get_enabled (store, NULL, NULL);
+		repo_id = zif_store_get_id (ZIF_STORE (store));
+		pk_backend_repo_detail (backend, repo_id, name, enabled);
+skip:
 		/* this section done */
-		zif_completion_done (completion_local);
+		ret = zif_state_done (state_local, &error);
+		if (!ret) {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+			g_error_free (error);
+			goto out;
+		}
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 out:
 	backend_unlock (backend);
 	pk_backend_finished (backend);
 	if (array != NULL)
 		g_ptr_array_unref (array);
+#endif
 	return TRUE;
 }
 
@@ -2172,6 +2511,7 @@ backend_get_repo_list (PkBackend *backend, PkBitfield filters)
 static gboolean
 backend_repo_enable_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	ZifStoreRemote *repo = NULL;
 	gboolean ret;
 	GError *error = NULL;
@@ -2186,6 +2526,13 @@ backend_repo_enable_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
@@ -2193,7 +2540,7 @@ backend_repo_enable_thread (PkBackend *backend)
 	pk_backend_set_percentage (backend, 0);
 
 	/* find the right repo */
-	repo = zif_repos_get_store (priv->repos, repo_id, priv->cancellable, priv->completion, &error);
+	repo = zif_repos_get_store (priv->repos, repo_id, priv->state, &error);
 	if (repo == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_REPO_NOT_FOUND, "failed to find repo: %s", error->message);
 		g_error_free (error);
@@ -2226,6 +2573,7 @@ out:
 	g_free (warning);
 	if (repo != NULL)
 		g_object_unref (repo);
+#endif
 	return TRUE;
 }
 
@@ -2322,14 +2670,15 @@ backend_what_provides (PkBackend *backend, PkBitfield filters, PkProvidesEnum pr
 static gboolean
 backend_get_categories_thread (PkBackend *backend)
 {
+#ifdef HAVE_ZIF
 	gboolean ret;
 	guint i;
 	GPtrArray *array = NULL;
 	GPtrArray *stores = NULL;
-	PkCategory *cat;
+	ZifCategory *cat;
 	gchar *cat_id;
 
-	ZifCompletion *completion_local;
+	ZifState *state_local;
 	GError *error = NULL;
 
 	/* get lock */
@@ -2339,19 +2688,26 @@ backend_get_categories_thread (PkBackend *backend)
 		goto out;
 	}
 
+	/* set correct install root */
+	ret = backend_set_root (backend);
+	if (!ret) {
+		egg_warning ("failed to set root");
+		goto out;
+	}
+
 	/* set the network state */
 	backend_setup_network (backend);
 
-	/* setup completion */
-	zif_completion_reset (priv->completion);
-	zif_completion_set_number_steps (priv->completion, 3);
+	/* setup state */
+	zif_state_reset (priv->state);
+	zif_state_set_number_steps (priv->state, 3);
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	pk_backend_set_percentage (backend, 0);
 
 	/* get enabled repos */
-	completion_local = zif_completion_get_child (priv->completion);
-	stores = zif_repos_get_stores_enabled (priv->repos, priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	stores = zif_repos_get_stores_enabled (priv->repos, state_local, &error);
 	if (stores == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_REPO_CONFIGURATION_ERROR, "failed to add remote stores: %s", error->message);
 		g_error_free (error);
@@ -2359,12 +2715,17 @@ backend_get_categories_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* get sorted list of unique categories */
-	completion_local = zif_completion_get_child (priv->completion);
-	array = zif_store_array_get_categories (stores, (ZifStoreArrayErrorCb) backend_error_handler_cb, backend,
-						priv->cancellable, completion_local, &error);
+	state_local = zif_state_get_child (priv->state);
+	zif_state_set_error_handler (priv->state, (ZifStateErrorHandlerCb) backend_error_handler_cb, backend);
+	array = zif_store_array_get_categories (stores, state_local, &error);
 	if (array == NULL) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_GROUP_LIST_INVALID, "failed to add get categories: %s", error->message);
 		g_error_free (error);
@@ -2372,27 +2733,37 @@ backend_get_categories_thread (PkBackend *backend)
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 
 	/* emit each cat obj */
 	for (i=0; i<array->len; i++) {
 		cat = g_ptr_array_index (array, i);
 		/* FIXME: in the yum backend, we signify a group with a '@' prefix */
-		if (pk_category_get_parent_id (cat) != NULL)
-			cat_id = g_strdup_printf ("@%s", pk_category_get_id (cat));
+		if (zif_category_get_parent_id (cat) != NULL)
+			cat_id = g_strdup_printf ("@%s", zif_category_get_id (cat));
 		else
-			cat_id = g_strdup (pk_category_get_id (cat));
+			cat_id = g_strdup (zif_category_get_id (cat));
 		pk_backend_category (backend,
-				     pk_category_get_parent_id (cat),
+				     zif_category_get_parent_id (cat),
 				     cat_id,
-				     pk_category_get_name (cat),
-				     pk_category_get_summary (cat),
-				     pk_category_get_icon (cat));
+				     zif_category_get_name (cat),
+				     zif_category_get_summary (cat),
+				     zif_category_get_icon (cat));
 		g_free (cat_id);
 	}
 
 	/* this section done */
-	zif_completion_done (priv->completion);
+	ret = zif_state_done (priv->state, &error);
+	if (!ret) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "cancelled: %s", error->message);
+		g_error_free (error);
+		goto out;
+	}
 out:
 	backend_unlock (backend);
 	pk_backend_finished (backend);
@@ -2400,6 +2771,7 @@ out:
 		g_ptr_array_unref (array);
 	if (stores != NULL)
 		g_ptr_array_unref (stores);
+#endif
 	return TRUE;
 }
 

@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2008 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -322,91 +322,3 @@ pk_desktop_new (void)
 	}
 	return PK_DESKTOP (pk_desktop_object);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-pk_desktop_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	PkDesktop *desktop;
-	gboolean ret;
-	gchar *package;
-	GPtrArray *array;
-	GError *error = NULL;
-
-	if (!egg_test_start (test, "PkDesktop"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get desktop");
-	desktop = pk_desktop_new ();
-	egg_test_assert (test, desktop != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "get package when not valid");
-	package = pk_desktop_get_package_for_file (desktop, "/usr/share/applications/gpk-update-viewer.desktop", NULL);
-	egg_test_assert (test, package == NULL);
-
-	/* file does not exist */
-	ret = g_file_test (PK_DESKTOP_DEFAULT_DATABASE, G_FILE_TEST_EXISTS);
-	if (!ret) {
-		egg_warning ("skipping checks as database does not exist");
-		goto out;
-	}
-
-	/************************************************************/
-	egg_test_title (test, "open database");
-	ret = pk_desktop_open_database (desktop, &error);
-	if (ret)
-		egg_test_success (test, "%ims", egg_test_elapsed (test));
-	else
-		egg_test_failed (test, "failed to open: %s", error->message);
-
-	/************************************************************/
-	egg_test_title (test, "get package");
-	package = pk_desktop_get_package_for_file (desktop, "/usr/share/applications/gpk-update-viewer.desktop", NULL);
-
-	/* dummy, not yum */
-	if (g_strcmp0 (package, "vips-doc") == 0) {
-		egg_test_success (test, "created db with dummy, skipping remaining tests");
-		goto out;
-	}
-	if (g_strcmp0 (package, "gnome-packagekit") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "package was: %s", package);
-	g_free (package);
-
-	/************************************************************/
-	egg_test_title (test, "get files");
-	array = pk_desktop_get_files_for_package (desktop, "gnome-packagekit", NULL);
-	if (array == NULL)
-		egg_test_failed (test, "array NULL");
-	else if (array->len >= 5)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "length=%i", array->len);
-	g_ptr_array_unref (array);
-
-	/************************************************************/
-	egg_test_title (test, "get shown files");
-	array = pk_desktop_get_shown_for_package (desktop, "gnome-packagekit", NULL);
-	if (array == NULL)
-		egg_test_failed (test, "array NULL");
-	else if (array->len > 3)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "length=%i", array->len);
-	g_ptr_array_unref (array);
-out:
-	g_object_unref (desktop);
-
-	egg_test_end (test);
-}
-#endif
-

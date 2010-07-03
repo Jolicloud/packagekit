@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2008-2009 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -245,49 +245,3 @@ pk_package_ids_remove_id (gchar **package_ids, const gchar *package_id)
 	}
 	return result;
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-pk_package_ids_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	gboolean ret;
-	gchar *package_ids_blank[] = {};
-	gchar **package_ids;
-
-	if (!egg_test_start (test, "PkPackageIds"))
-		return;
-
-	/************************************************************
-	 ****************          IDENTS          ******************
-	 ************************************************************/
-
-	egg_test_title (test, "parse va_list");
-	package_ids = pk_package_ids_from_string ("foo;0.0.1;i386;fedora&bar;0.1.1;noarch;livna");
-	egg_test_assert (test, package_ids != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "verify size");
-	egg_test_assert (test, (g_strv_length (package_ids) == 2));
-
-	/************************************************************/
-	egg_test_title (test, "verify blank");
-	ret = pk_package_ids_check (package_ids_blank);
-	egg_test_assert (test, !ret);
-
-	/************************************************************/
-	egg_test_title (test, "verify");
-	ret = pk_package_ids_check (package_ids);
-	egg_test_assert (test, ret);
-
-	g_strfreev (package_ids);
-
-	egg_test_end (test);
-}
-#endif
-

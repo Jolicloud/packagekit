@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2007-2008 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -163,59 +163,3 @@ pk_ptr_array_to_strv (GPtrArray *array)
 
 	return value;
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-pk_common_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	gchar *present;
-	GDate *date;
-
-	if (!egg_test_start (test, "PkCommon"))
-		return;
-
-	/************************************************************
-	 **************            iso8601           ****************
-	 ************************************************************/
-	egg_test_title (test, "get present iso8601");
-	present = pk_iso8601_present ();
-	if (present != NULL)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "present is NULL");
-	g_free (present);
-
-	/************************************************************
-	 **************        Date handling         ****************
-	 ************************************************************/
-	egg_test_title (test, "zero length date");
-	date = pk_iso8601_to_date ("");
-	egg_test_assert (test, (date == NULL));
-
-	/************************************************************/
-	egg_test_title (test, "no day specified");
-	date = pk_iso8601_to_date ("2004-01");
-	egg_test_assert (test, (date == NULL));
-
-	/************************************************************/
-	egg_test_title (test, "date _and_ time specified");
-	date = pk_iso8601_to_date ("2009-05-08 13:11:12");
-	egg_test_assert (test, (date->day == 8 && date->month == 5 && date->year == 2009));
-	g_date_free (date);
-
-	/************************************************************/
-	egg_test_title (test, "correct date format");
-	date = pk_iso8601_to_date ("2004-02-01");
-	egg_test_assert (test, (date->day == 1 && date->month == 2 && date->year == 2004));
-	g_date_free (date);
-
-	egg_test_end (test);
-}
-#endif
-

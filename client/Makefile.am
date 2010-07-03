@@ -57,6 +57,8 @@ PK_GLIB2_LIBS =						\
 	$(NULL)
 
 pkcon_SOURCES =						\
+	egg-debug.c					\
+	egg-debug.h					\
 	pk-console.c					\
 	$(NULL)
 
@@ -72,6 +74,8 @@ pkcon_CFLAGS =						\
 	$(NULL)
 
 pkmon_SOURCES =						\
+	egg-debug.c					\
+	egg-debug.h					\
 	pk-monitor.c					\
 	$(NULL)
 
@@ -101,34 +105,6 @@ pkgenpack_LDADD = 					\
 pkgenpack_CFLAGS =					\
 	$(WARNINGFLAGS_C)				\
 	$(NULL)
-
-if EGG_BUILD_TESTS
-
-check_PROGRAMS =					\
-	pk-self-test
-
-pk_self_test_SOURCES =					\
-	egg-debug.c					\
-	egg-debug.h					\
-	egg-string.c					\
-	egg-string.h					\
-	egg-test.c					\
-	egg-test.h					\
-	pk-self-test.c					\
-	$(NULL)
-
-pk_self_test_LDADD =					\
-	$(GLIB_LIBS)					\
-	$(DBUS_LIBS)					\
-	$(SELFTEST_LIBS)				\
-	$(ARCHIVE_LIBS)					\
-	$(PK_GLIB2_LIBS)				\
-	$(NULL)
-
-pk_self_test_CFLAGS = -DEGG_TEST $(AM_CFLAGS)
-
-TESTS = pk-self-test
-endif
 
 clean-local:
 	rm -f *~

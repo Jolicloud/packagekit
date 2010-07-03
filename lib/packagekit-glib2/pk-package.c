@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2009 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -790,74 +790,3 @@ pk_package_new (void)
 	package = g_object_new (PK_TYPE_PACKAGE, NULL);
 	return PK_PACKAGE (package);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-pk_package_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	gboolean ret;
-	PkPackage *package;
-	const gchar *id;
-	gchar *text;
-
-	if (!egg_test_start (test, "PkPackage"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get package");
-	package = pk_package_new ();
-	egg_test_assert (test, package != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "get id of unset package");
-	id = pk_package_get_id (package);
-	egg_test_assert (test, (id == NULL));
-
-	/************************************************************/
-	egg_test_title (test, "get id of unset package");
-	g_object_get (package, "package-id", &text, NULL);
-	egg_test_assert (test, (text == NULL));
-	g_free (text);
-
-	/************************************************************/
-	egg_test_title (test, "set invalid id");
-	ret = pk_package_set_id (package, "gnome-power-manager", NULL);
-	egg_test_assert (test, !ret);
-
-	/************************************************************/
-	egg_test_title (test, "set invalid id (sections)");
-	ret = pk_package_set_id (package, "gnome-power-manager;0.1.2;i386", NULL);
-	egg_test_assert (test, !ret);
-
-	/************************************************************/
-	egg_test_title (test, "set invalid name");
-	ret = pk_package_set_id (package, ";0.1.2;i386;fedora", NULL);
-	egg_test_assert (test, !ret);
-
-	/************************************************************/
-	egg_test_title (test, "set valid name");
-	ret = pk_package_set_id (package, "gnome-power-manager;0.1.2;i386;fedora", NULL);
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "get id of set package");
-	id = pk_package_get_id (package);
-	egg_test_assert (test, (g_strcmp0 (id, "gnome-power-manager;0.1.2;i386;fedora") == 0));
-
-	/************************************************************/
-	egg_test_title (test, "get name of set package");
-	g_object_get (package, "package-id", &text, NULL);
-	egg_test_assert (test, (g_strcmp0 (text, "gnome-power-manager;0.1.2;i386;fedora") == 0));
-	g_free (text);
-
-	g_object_unref (package);
-	egg_test_end (test);
-}
-#endif
-

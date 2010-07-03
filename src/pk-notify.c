@@ -111,6 +111,9 @@ pk_notify_wait_updates_changed (PkNotify *notify, guint timeout)
 
 	/* schedule */
 	notify->priv->timeout_id = g_timeout_add (timeout, pk_notify_finished_updates_changed_cb, notify);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (notify->priv->timeout_id, "[PkNotify] updates-changed");
+#endif
 	return TRUE;
 }
 
@@ -186,29 +189,4 @@ pk_notify_new (void)
 	}
 	return PK_NOTIFY (pk_notify_object);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-egg_test_notify (EggTest *test)
-{
-	PkNotify *notify;
-
-	if (!egg_test_start (test, "PkNotify"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get an instance");
-	notify = pk_notify_new ();
-	egg_test_assert (test, notify != NULL);
-
-	g_object_unref (notify);
-
-	egg_test_end (test);
-}
-#endif
 

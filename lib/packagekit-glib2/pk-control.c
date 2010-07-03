@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2008 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -1854,7 +1854,12 @@ pk_control_transaction_list_changed_cb (DBusGProxy *proxy, gchar **transaction_i
 
 	/* we have to do this idle as the transaction list will change when not yet finished */
 	egg_debug ("emit transaction-list-changed (when idle)");
-	control->priv->transaction_list_changed_id = g_idle_add ((GSourceFunc) pk_control_transaction_list_changed_idle_cb, store);
+	control->priv->transaction_list_changed_id =
+		g_idle_add ((GSourceFunc) pk_control_transaction_list_changed_idle_cb, store);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (control->priv->transaction_list_changed_id,
+				 "[PkControl] transaction-list-changed");
+#endif
 }
 
 /**
@@ -1892,7 +1897,12 @@ pk_control_restart_schedule_cb (DBusGProxy *proxy, PkControl *control)
 
 	/* we have to do this idle as the transaction list will change when not yet finished */
 	egg_debug ("emit restart-schedule (when idle)");
-	store->control->priv->restart_schedule_id = g_idle_add ((GSourceFunc) pk_control_restart_schedule_idle_cb, store);
+	store->control->priv->restart_schedule_id =
+		g_idle_add ((GSourceFunc) pk_control_restart_schedule_idle_cb, store);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (store->control->priv->restart_schedule_id,
+				 "[PkControl] restart-schedule");
+#endif
 }
 
 /**
@@ -1930,7 +1940,12 @@ pk_control_updates_changed_cb (DBusGProxy *proxy, PkControl *control)
 
 	/* we have to do this idle as the transaction list will change when not yet finished */
 	egg_debug ("emit updates-changed (when idle)");
-	control->priv->updates_changed_id = g_idle_add ((GSourceFunc) pk_control_updates_changed_idle_cb, store);
+	control->priv->updates_changed_id =
+		g_idle_add ((GSourceFunc) pk_control_updates_changed_idle_cb, store);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (control->priv->updates_changed_id,
+				 "[PkControl] updates-changed");
+#endif
 }
 
 /**
@@ -1968,7 +1983,12 @@ pk_control_repo_list_changed_cb (DBusGProxy *proxy, PkControl *control)
 
 	/* we have to do this idle as the transaction list will change when not yet finished */
 	egg_debug ("emit repo-list-changed (when idle)");
-	control->priv->repo_list_changed_id = g_idle_add ((GSourceFunc) pk_control_repo_list_changed_idle_cb, store);
+	control->priv->repo_list_changed_id =
+		g_idle_add ((GSourceFunc) pk_control_repo_list_changed_idle_cb, store);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (control->priv->repo_list_changed_id,
+				 "[PkControl] repo-list-changed");
+#endif
 }
 
 /**
@@ -2534,261 +2554,3 @@ pk_control_new (void)
 	}
 	return PK_CONTROL (pk_control_object);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-#include "pk-control-sync.h"
-
-static guint _refcount = 0;
-
-static void
-pk_control_test_get_tid_cb (GObject *object, GAsyncResult *res, EggTest *test)
-{
-	PkControl *control = PK_CONTROL (object);
-	GError *error = NULL;
-	gchar *tid;
-
-	/* get the result */
-	tid = pk_control_get_tid_finish (control, res, &error);
-	if (tid == NULL) {
-		egg_test_failed (test, "failed to get transaction: %s", error->message);
-		g_error_free (error);
-		return;
-	}
-
-	egg_debug ("tid = %s", tid);
-	g_free (tid);
-	if (--_refcount == 0)
-		egg_test_loop_quit (test);
-}
-
-static void
-pk_control_test_get_properties_cb (GObject *object, GAsyncResult *res, EggTest *test)
-{
-	PkControl *control = PK_CONTROL (object);
-	GError *error = NULL;
-	gboolean ret;
-	PkBitfield roles;
-	PkBitfield filters;
-	PkBitfield groups;
-	gchar *text;
-
-	/* get the result */
-	ret = pk_control_get_properties_finish (control, res, &error);
-	if (!ret) {
-		egg_test_failed (test, "failed to get properties: %s", error->message);
-		g_error_free (error);
-		return;
-	}
-
-	/* get values */
-	g_object_get (control,
-		      "mime-types", &text,
-		      "roles", &roles,
-		      "filters", &filters,
-		      "groups", &groups,
-		      NULL);
-
-	/* check mime_types */
-	if (g_strcmp0 (text, "application/x-rpm;application/x-deb") != 0) {
-		egg_test_failed (test, "data incorrect: %s", text);
-		return;
-	}
-	g_free (text);
-
-	/* check roles */
-	text = pk_role_bitfield_to_string (roles);
-	if (g_strcmp0 (text, "cancel;get-depends;get-details;get-files;get-packages;get-repo-list;"
-			     "get-requires;get-update-detail;get-updates;install-files;install-packages;install-signature;"
-			     "refresh-cache;remove-packages;repo-enable;repo-set-data;resolve;rollback;"
-			     "search-details;search-file;search-group;search-name;update-packages;update-system;"
-			     "what-provides;download-packages;get-distro-upgrades;simulate-install-packages;"
-			     "simulate-remove-packages;simulate-update-packages") != 0) {
-		egg_test_failed (test, "data incorrect: %s", text);
-		return;
-	}
-	g_free (text);
-
-	/* check filters */
-	text = pk_filter_bitfield_to_string (filters);
-	if (g_strcmp0 (text, "installed;devel;gui") != 0) {
-		egg_test_failed (test, "data incorrect: %s", text);
-		return;
-	}
-	g_free (text);
-
-	/* check groups */
-	text = pk_group_bitfield_to_string (groups);
-	if (g_strcmp0 (text, "accessibility;games;system") != 0) {
-		egg_test_failed (test, "data incorrect: %s", text);
-		return;
-	}
-	egg_debug ("groups = %s", text);
-
-	g_free (text);
-
-	if (--_refcount == 0)
-		egg_test_loop_quit (test);
-}
-
-static void
-pk_control_test_get_time_since_action_cb (GObject *object, GAsyncResult *res, EggTest *test)
-{
-	PkControl *control = PK_CONTROL (object);
-	GError *error = NULL;
-	guint seconds;
-
-	/* get the result */
-	seconds = pk_control_get_time_since_action_finish (control, res, &error);
-	if (seconds == 0) {
-		egg_test_failed (test, "failed to get time: %s", error->message);
-		g_error_free (error);
-		return;
-	}
-
-	egg_test_loop_quit (test);
-}
-
-static void
-pk_control_test_can_authorize_cb (GObject *object, GAsyncResult *res, EggTest *test)
-{
-	PkControl *control = PK_CONTROL (object);
-	GError *error = NULL;
-	PkAuthorizeEnum auth;
-
-	/* get the result */
-	auth = pk_control_can_authorize_finish (control, res, &error);
-	if (auth == PK_AUTHORIZE_ENUM_UNKNOWN) {
-		egg_test_failed (test, "failed to get auth: %s", error->message);
-		g_error_free (error);
-		return;
-	}
-
-	egg_test_loop_quit (test);
-}
-
-void
-pk_control_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	PkControl *control;
-	guint version;
-	GError *error = NULL;
-	gboolean ret;
-	gchar *text;
-	PkBitfield roles;
-	guint i;
-	const guint LOOP_SIZE = 5;
-
-	if (!egg_test_start (test, "PkControl"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get control");
-	control = pk_control_new ();
-	egg_test_assert (test, control != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "get TID async");
-	_refcount = 1;
-	pk_control_get_tid_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_tid_cb, test);
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "got tid in %i", egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "get multiple TIDs async");
-	_refcount = LOOP_SIZE;
-	for (i=0; i<_refcount; i++) {
-		egg_debug ("getting #%i", i+1);
-		pk_control_get_tid_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_tid_cb, test);
-	}
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "got %i tids in %i", LOOP_SIZE, egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "get properties async");
-	_refcount = 1;
-	pk_control_get_properties_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_properties_cb, test);
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "got properties types in %i", egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "get properties async (again, to test caching)");
-	_refcount = 1;
-	pk_control_get_properties_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_properties_cb, test);
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "got properties in %i", egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "do multiple requests async");
-	_refcount = LOOP_SIZE * 4;
-	for (i=0; i<_refcount; i++) {
-		egg_debug ("getting #%i", i+1);
-		pk_control_get_tid_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_tid_cb, test);
-		pk_control_get_properties_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_properties_cb, test);
-		pk_control_get_tid_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_tid_cb, test);
-		pk_control_get_properties_async (control, NULL, (GAsyncReadyCallback) pk_control_test_get_properties_cb, test);
-	}
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "got %i 2*properties and 2*tids in %i", LOOP_SIZE, egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "get time since async");
-	pk_control_get_time_since_action_async (control, PK_ROLE_ENUM_GET_UPDATES, NULL, (GAsyncReadyCallback) pk_control_test_get_time_since_action_cb, test);
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "got get time since in %i", egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "get auth state async");
-	pk_control_can_authorize_async (control, "org.freedesktop.packagekit.system-update", NULL,
-					(GAsyncReadyCallback) pk_control_test_can_authorize_cb, test);
-	egg_test_loop_wait (test, 5000);
-	egg_test_success (test, "get auth state in %i", egg_test_elapsed (test));
-
-	/************************************************************/
-	egg_test_title (test, "version major");
-	g_object_get (control, "version-major", &version, NULL);
-	egg_test_assert (test, (version == PK_MAJOR_VERSION));
-
-	/************************************************************/
-	egg_test_title (test, "version minor");
-	g_object_get (control, "version-minor", &version, NULL);
-	egg_test_assert (test, (version == PK_MINOR_VERSION));
-
-	/************************************************************/
-	egg_test_title (test, "version micro");
-	g_object_get (control, "version-micro", &version, NULL);
-	egg_test_assert (test, (version == PK_MICRO_VERSION));
-
-	/************************************************************/
-	egg_test_title (test, "get properties sync");
-	ret = pk_control_get_properties (control, NULL, &error);
-	if (!ret)
-		egg_test_failed (test, "failed to get properties: %s", error->message);
-
-	/* get data */
-	g_object_get (control,
-		      "roles", &roles,
-		      NULL);
-
-	/* check data */
-	text = pk_role_bitfield_to_string (roles);
-	if (g_strcmp0 (text, "cancel;get-depends;get-details;get-files;get-packages;get-repo-list;"
-			     "get-requires;get-update-detail;get-updates;install-files;install-packages;install-signature;"
-			     "refresh-cache;remove-packages;repo-enable;repo-set-data;resolve;rollback;"
-			     "search-details;search-file;search-group;search-name;update-packages;update-system;"
-			     "what-provides;download-packages;get-distro-upgrades;simulate-install-packages;"
-			     "simulate-remove-packages;simulate-update-packages") != 0) {
-		egg_test_failed (test, "data incorrect: %s", text);
-	}
-	egg_test_success (test, "got correct roles");
-	g_free (text);
-
-	g_object_unref (control);
-	egg_test_end (test);
-}
-#endif
-

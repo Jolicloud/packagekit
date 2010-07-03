@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2007-2008 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -1172,189 +1172,3 @@ pk_authorize_type_enum_to_string (PkAuthorizeEnum authorize_type)
 {
 	return pk_enum_find_string (enum_authorize_type, authorize_type);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-pk_enum_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	const gchar *string;
-	PkRoleEnum role_value;
-	guint i;
-
-	if (!egg_test_start (test, "PkEnum"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "find role_value");
-	role_value = pk_enum_find_value (enum_role, "search-file");
-	if (role_value == PK_ROLE_ENUM_SEARCH_FILE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "find string");
-	string = pk_enum_find_string (enum_role, PK_ROLE_ENUM_SEARCH_FILE);
-	if (g_strcmp0 (string, "search-file") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "find value");
-	role_value = pk_role_enum_from_string ("search-file");
-	if (role_value == PK_ROLE_ENUM_SEARCH_FILE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "find string");
-	string = pk_role_enum_to_string (PK_ROLE_ENUM_SEARCH_FILE);
-	if (g_strcmp0 (string, "search-file") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the role bitfield");
-	for (i=1; i<PK_ROLE_ENUM_LAST; i++) {
-		string = pk_role_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the status bitfield");
-	for (i=1; i<PK_STATUS_ENUM_LAST; i++) {
-		string = pk_status_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the exit bitfield");
-	for (i=0; i<PK_EXIT_ENUM_LAST; i++) {
-		string = pk_exit_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the filter bitfield");
-	for (i=0; i<PK_FILTER_ENUM_LAST; i++) {
-		string = pk_filter_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the restart bitfield");
-	for (i=0; i<PK_RESTART_ENUM_LAST; i++) {
-		string = pk_restart_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the error_code bitfield");
-	for (i=0; i<PK_ERROR_ENUM_LAST; i++) {
-		string = pk_error_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the group bitfield");
-	for (i=1; i<PK_GROUP_ENUM_LAST; i++) {
-		string = pk_group_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the info bitfield");
-	for (i=1; i<PK_INFO_ENUM_LAST; i++) {
-		string = pk_info_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the sig_type bitfield");
-	for (i=0; i<PK_SIGTYPE_ENUM_LAST; i++) {
-		string = pk_sig_type_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the upgrade bitfield");
-	for (i=0; i<PK_DISTRO_UPGRADE_ENUM_LAST; i++) {
-		string = pk_distro_upgrade_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the license bitfield");
-	for (i=0; i<PK_LICENSE_ENUM_LAST; i++) {
-		string = pk_license_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "check we convert all the media type bitfield");
-	for (i=0; i<PK_MEDIA_TYPE_ENUM_LAST; i++) {
-		string = pk_media_type_enum_to_string (i);
-		if (string == NULL) {
-			egg_test_failed (test, "failed to get %i", i);
-			break;
-		}
-	}
-	egg_test_success (test, NULL);
-
-	egg_test_end (test);
-}
-#endif
-

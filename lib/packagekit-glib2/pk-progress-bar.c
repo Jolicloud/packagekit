@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2008-2009 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <glib.h>
@@ -151,7 +151,11 @@ pk_progress_bar_draw_pulse_bar (PkProgressBar *self)
 	if (TRUE) {
 		self->priv->pulse_state.position = 1;
 		self->priv->pulse_state.move_forward = TRUE;
-		self->priv->timer_id = g_timeout_add (PK_PROGRESS_BAR_PULSE_TIMEOUT, (GSourceFunc) pk_progress_bar_pulse_bar, self);
+		self->priv->timer_id = g_timeout_add (PK_PROGRESS_BAR_PULSE_TIMEOUT,
+						      (GSourceFunc) pk_progress_bar_pulse_bar, self);
+#if GLIB_CHECK_VERSION(2,25,8)
+		g_source_set_name_by_id (self->priv->timer_id, "[PkProgressBar] pulse");
+#endif
 	}
 }
 
@@ -331,32 +335,3 @@ pk_progress_bar_new (void)
 	self = g_object_new (PK_TYPE_PROGRESS_BAR, NULL);
 	return PK_PROGRESS_BAR (self);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-egg_test_progress_bar (EggTest *test)
-{
-	PkProgressBar *self;
-
-	if (!egg_test_start (test, "PkProgressBar"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get an instance");
-	self = pk_progress_bar_new ();
-	if (self != NULL)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	g_object_unref (self);
-
-	egg_test_end (test);
-}
-#endif
-

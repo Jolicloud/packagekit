@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (C) 2008 Aurelien Lefebvre <alefebvre@mandriva.com>
+# Copyright (C) 2008 Aurelien Lefebvre <alkh@mandriva.org>
 #
 # Licensed under the GNU General Public License Version 2
 #
@@ -383,7 +383,7 @@ sub install_packages {
     caseinsensitive => 0,
     all => 0);
   eval {
-    perform_installation($urpm, \%requested, { only_trusted => $only_trusted });
+    perform_installation($urpm, \%requested, only_trusted => $only_trusted);
   };
   _finished();
 }
@@ -716,7 +716,7 @@ sub update_system {
 
   my $only_trusted = @{$args}[0];
   eval {
-    perform_installation($urpm, {}, { auto_select => 1, only_trusted => $only_trusted});
+    perform_installation($urpm, {}, auto_select => 1, only_trusted => $only_trusted);
   };
   _finished();
 }

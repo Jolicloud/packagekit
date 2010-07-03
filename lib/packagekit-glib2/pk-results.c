@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2009 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -929,104 +929,3 @@ pk_results_new (void)
 	results = g_object_new (PK_TYPE_RESULTS, NULL);
 	return PK_RESULTS (results);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-void
-pk_results_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	gboolean ret;
-	PkResults *results;
-	PkExitEnum exit_enum;
-	GPtrArray *packages;
-	PkPackage *item;
-	PkInfoEnum info;
-	gchar *package_id;
-	gchar *summary;
-
-	if (!egg_test_start (test, "PkResults"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get results");
-	results = pk_results_new ();
-	egg_test_assert (test, results != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "get exit code of unset results");
-	exit_enum = pk_results_get_exit_code (results);
-	egg_test_assert (test, (exit_enum == PK_EXIT_ENUM_UNKNOWN));
-
-	/************************************************************/
-	egg_test_title (test, "get package list of unset results");
-	packages = pk_results_get_package_array (results);
-	egg_test_assert (test, (packages->len == 0));
-	g_ptr_array_unref (packages);
-
-	/************************************************************/
-	egg_test_title (test, "set valid exit code");
-	ret = pk_results_set_exit_code (results, PK_EXIT_ENUM_CANCELLED);
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "get exit code of set results");
-	exit_enum = pk_results_get_exit_code (results);
-	egg_test_assert (test, (exit_enum == PK_EXIT_ENUM_CANCELLED));
-
-	/************************************************************/
-	egg_test_title (test, "add package");
-	item = pk_package_new ();
-	g_object_set (item,
-		      "info", PK_INFO_ENUM_AVAILABLE,
-		      "package-id", "gnome-power-manager;0.1.2;i386;fedora",
-		      "summary", "Power manager for GNOME",
-		      NULL);
-	ret = pk_results_add_package (results, item);
-	g_object_unref (item);
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "get package list of set results");
-	packages = pk_results_get_package_array (results);
-	egg_test_assert (test, (packages->len == 1));
-
-	/************************************************************/
-	egg_test_title (test, "check data");
-	item = g_ptr_array_index (packages, 0);
-	g_object_get (item,
-		      "info", &info,
-		      "package-id", &package_id,
-		      "summary", &summary,
-		      NULL);
-	egg_test_assert (test, (info == PK_INFO_ENUM_AVAILABLE &&
-				g_strcmp0 ("gnome-power-manager;0.1.2;i386;fedora", package_id) == 0 &&
-				g_strcmp0 ("Power manager for GNOME", summary) == 0));
-	g_object_ref (item);
-	g_ptr_array_unref (packages);
-	g_free (package_id);
-	g_free (summary);
-
-	/************************************************************/
-	egg_test_title (test, "check ref");
-	g_object_get (item,
-		      "info", &info,
-		      "package-id", &package_id,
-		      "summary", &summary,
-		      NULL);
-	egg_test_assert (test, (info == PK_INFO_ENUM_AVAILABLE &&
-				g_strcmp0 ("gnome-power-manager;0.1.2;i386;fedora", package_id) == 0 &&
-				g_strcmp0 ("Power manager for GNOME", summary) == 0));
-	g_object_unref (item);
-	g_free (package_id);
-	g_free (summary);
-
-	g_object_unref (results);
-	egg_test_end (test);
-}
-#endif
-

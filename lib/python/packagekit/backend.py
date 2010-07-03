@@ -319,7 +319,7 @@ class PackageKitBaseBackend:
 # Backend Action Methods
 #
 
-    def search_names(self, filters, values):
+    def search_name(self, filters, values):
         '''
         Implement the {backend}-search-name functionality
         Needed to be implemented in a sub class
@@ -333,14 +333,14 @@ class PackageKitBaseBackend:
         '''
         self.error(ERROR_NOT_SUPPORTED, "This function is not implemented in this backend", exit=False)
 
-    def search_groups(self, filters, values):
+    def search_group(self, filters, values):
         '''
         Implement the {backend}-search-group functionality
         Needed to be implemented in a sub class
         '''
         self.error(ERROR_NOT_SUPPORTED, "This function is not implemented in this backend", exit=False)
 
-    def search_files(self, filters, values):
+    def search_file(self, filters, values):
         '''
         Implement the {backend}-search-file functionality
         Needed to be implemented in a sub class
@@ -652,24 +652,24 @@ class PackageKitBaseBackend:
             self.resolve(filters, package_ids)
             self.finished()
         elif cmd == 'search-details':
-            options = args[0]
+            filters = args[0].split(';')
             values = _to_unicode(args[1]).split(PACKAGE_IDS_DELIM)
-            self.search_details(options, values)
+            self.search_details(filters, values)
             self.finished()
-        elif cmd == 'search-files':
-            options = args[0]
+        elif cmd == 'search-file':
+            filters = args[0].split(';')
             values = args[1].split(PACKAGE_IDS_DELIM)
-            self.search_files(options, values)
+            self.search_file(filters, values)
             self.finished()
-        elif cmd == 'search-groups':
-            options = args[0]
+        elif cmd == 'search-group':
+            filters = args[0].split(';')
             values = args[1].split(PACKAGE_IDS_DELIM)
-            self.search_group(options, values)
+            self.search_group(filters, values)
             self.finished()
-        elif cmd == 'search-names':
-            options = args[0]
+        elif cmd == 'search-name':
+            filters = args[0].split(';')
             values = _to_unicode(args[1]).split(PACKAGE_IDS_DELIM)
-            self.search_names(options, values)
+            self.search_name(filters, values)
             self.finished()
         elif cmd == 'signature-install':
             package = args[0]
@@ -744,7 +744,7 @@ def format_string(text, encoding='utf-8'):
     Format a string to be used on stdout for communication with the daemon.
     '''
     if not isinstance(text, unicode):
-        txt = unicode(text, encoding, errors='replace')
+        text = unicode(text, encoding, errors='replace')
     return text.replace("\n", ";")
 
 def _text_to_bool(text):

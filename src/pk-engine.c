@@ -98,7 +98,6 @@ struct PkEnginePrivate
 #ifdef USE_SECURITY_POLKIT
 	PolkitAuthority		*authority;
 #endif
-	gchar			*sender;
 	gboolean		 locked;
 	PkNetworkEnum		 network_state;
 };
@@ -390,6 +389,19 @@ pk_engine_get_distro_id (PkEngine *engine)
 		goto out;
 	}
 
+	/* check for meego */
+	ret = g_file_get_contents ("/etc/meego-release", &contents, NULL, NULL);
+	if (ret) {
+		/* Meego release 1.0 (MeeGo) */
+		split = g_strsplit (contents, " ", 0);
+		if (split == NULL)
+			goto out;
+
+		/* complete! */
+		distro_id = g_strdup_printf ("meego;%s;%s", split[2], arch);
+		goto out;
+	}
+
 	/* check for foresight or foresight derivatives */
 	ret = g_file_get_contents ("/etc/distro-release", &contents, NULL, NULL);
 	if (ret) {
@@ -591,12 +603,19 @@ pk_engine_state_has_changed (PkEngine *engine, const gchar *reason, GError **err
 		engine->priv->timeout_normal_id = 0;	}
 
 	/* wait a little delay in case we get multiple requests */
-	if (is_priority)
+	if (is_priority) {
 		engine->priv->timeout_priority_id = g_timeout_add_seconds (engine->priv->timeout_priority,
 									   pk_engine_state_changed_cb, engine);
-	else
+#if GLIB_CHECK_VERSION(2,25,8)
+		g_source_set_name_by_id (engine->priv->timeout_priority_id, "[PkEngine] priority");
+#endif
+	} else {
 		engine->priv->timeout_normal_id = g_timeout_add_seconds (engine->priv->timeout_normal,
 									 pk_engine_state_changed_cb, engine);
+#if GLIB_CHECK_VERSION(2,25,8)
+		g_source_set_name_by_id (engine->priv->timeout_normal_id, "[PkEngine] normal");
+#endif
+	}
 
 	/* reset the timer */
 	pk_engine_reset_timer (engine);
@@ -949,7 +968,7 @@ out:
  * pk_engine_set_root_internal:
  **/
 static gboolean
-pk_engine_set_root_internal (PkEngine *engine, const gchar *root)
+pk_engine_set_root_internal (PkEngine *engine, const gchar *root, const gchar *sender)
 {
 	gboolean ret;
 	guint uid;
@@ -963,14 +982,14 @@ pk_engine_set_root_internal (PkEngine *engine, const gchar *root)
 	}
 
 	/* get uid */
-	uid = pk_dbus_get_uid (engine->priv->dbus, engine->priv->sender);
+	uid = pk_dbus_get_uid (engine->priv->dbus, sender);
 	if (uid == G_MAXUINT) {
 		egg_warning ("failed to get the uid");
 		goto out;
 	}
 
 	/* get session */
-	session = pk_dbus_get_session (engine->priv->dbus, engine->priv->sender);
+	session = pk_dbus_get_session (engine->priv->dbus, sender);
 	if (session == NULL) {
 		egg_warning ("failed to get the session");
 		goto out;
@@ -1021,7 +1040,7 @@ pk_engine_action_obtain_root_authorization_finished_cb (PolkitAuthority *authori
 	}
 
 	/* try to set the new root and save to database */
-	ret = pk_engine_set_root_internal (state->engine, state->value1);
+	ret = pk_engine_set_root_internal (state->engine, state->value1, state->sender);
 	if (!ret) {
 		error = g_error_new_literal (PK_ENGINE_ERROR, PK_ENGINE_ERROR_CANNOT_SET_PROXY,
 					     "setting the root failed");
@@ -1136,9 +1155,22 @@ pk_engine_set_root (PkEngine *engine, const gchar *root, DBusGMethodInvocation *
 		goto out;
 	}
 
+	/* '/' is the default root, which doesn't need additional authentication */
+	if (g_strcmp0 (root, "/") == 0) {
+		ret = pk_engine_set_root_internal (engine, root, sender);
+		if (ret) {
+			egg_debug ("using default root, so no need to authenticate");
+			dbus_g_method_return (context);
+		} else {
+			error = g_error_new (PK_ENGINE_ERROR, PK_ENGINE_ERROR_CANNOT_SET_ROOT, "%s", "setting the root failed");
+			dbus_g_method_return_error (context, error);
+		}
+		goto out;
+	}
+
 #ifdef USE_SECURITY_POLKIT
 	/* check subject */
-	subject = polkit_system_bus_name_new (engine->priv->sender);
+	subject = polkit_system_bus_name_new (sender);
 
 	/* insert details about the authorization */
 	details = polkit_details_new ();
@@ -1166,14 +1198,14 @@ pk_engine_set_root (PkEngine *engine, const gchar *root, DBusGMethodInvocation *
 	egg_warning ("*** THERE IS NO SECURITY MODEL BEING USED!!! ***");
 
 	/* try to set the new root and save to database */
-	ret = pk_engine_set_root_internal (engine, root);
+	ret = pk_engine_set_root_internal (engine, root, sender);
 	if (!ret) {
 		error = g_error_new (PK_ENGINE_ERROR, PK_ENGINE_ERROR_CANNOT_SET_ROOT, "%s", "setting the root failed");
 		dbus_g_method_return_error (context, error);
 		goto out;
 	}
 
-	/* all okay, TODO: return only when done the polkit auth */
+	/* all okay */
 	dbus_g_method_return (context);
 #endif
 
@@ -1751,260 +1783,4 @@ pk_engine_new (void)
 	engine = g_object_new (PK_TYPE_ENGINE, NULL);
 	return PK_ENGINE (engine);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-static PkNotify *notify = NULL;
-static gboolean _quit = FALSE;
-static gboolean _locked = FALSE;
-static gboolean _restart_schedule = FALSE;
-
-/**
- * pk_test_quit_cb:
- **/
-static void
-pk_test_quit_cb (PkEngine *engine, EggTest *test)
-{
-	_quit = TRUE;
-}
-
-/**
- * pk_test_changed_cb:
- **/
-static void
-pk_test_changed_cb (PkEngine *engine, EggTest *test)
-{
-	g_object_get (engine,
-		      "locked", &_locked,
-		      NULL);
-}
-
-/**
- * pk_test_updates_changed_cb:
- **/
-static void
-pk_test_updates_changed_cb (PkEngine *engine, EggTest *test)
-{
-	egg_test_loop_quit (test);
-}
-
-/**
- * pk_test_repo_list_changed_cb:
- **/
-static void
-pk_test_repo_list_changed_cb (PkEngine *engine, EggTest *test)
-{
-	egg_test_loop_quit (test);
-}
-
-/**
- * pk_test_restart_schedule_cb:
- **/
-static void
-pk_test_restart_schedule_cb (PkEngine *engine, EggTest *test)
-{
-	_restart_schedule = TRUE;
-	egg_test_loop_quit (test);
-}
-
-/**
- * pk_test_emit_updates_changed_cb:
- **/
-static gboolean
-pk_test_emit_updates_changed_cb (EggTest *test)
-{
-	PkNotify *notify2;
-	notify2 = pk_notify_new ();
-	pk_notify_updates_changed (notify2);
-	g_object_unref (notify2);
-	return FALSE;
-}
-
-/**
- * pk_test_emit_repo_list_changed_cb:
- **/
-static gboolean
-pk_test_emit_repo_list_changed_cb (EggTest *test)
-{
-	PkNotify *notify2;
-	notify2 = pk_notify_new ();
-	pk_notify_repo_list_changed (notify2);
-	g_object_unref (notify2);
-	return FALSE;
-}
-
-void
-pk_engine_test (EggTest *test)
-{
-	gboolean ret;
-	PkEngine *engine;
-	PkBackend *backend;
-	PkInhibit *inhibit;
-	guint idle;
-	gchar *state;
-	guint elapsed;
-
-	if (!egg_test_start (test, "PkEngine"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get a backend instance");
-	backend = pk_backend_new ();
-	egg_test_assert (test, backend != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "get a notify instance");
-	notify = pk_notify_new ();
-	egg_test_assert (test, notify != NULL);
-
-	/* set the type, as we have no pk-main doing this for us */
-	/************************************************************/
-	egg_test_title (test, "set the backend name");
-	ret = pk_backend_set_name (backend, "dummy");
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "get an engine instance");
-	engine = pk_engine_new ();
-	egg_test_assert (test, engine != NULL);
-
-	/* connect up signals */
-	g_signal_connect (engine, "quit",
-			  G_CALLBACK (pk_test_quit_cb), test);
-	g_signal_connect (engine, "changed",
-			  G_CALLBACK (pk_test_changed_cb), test);
-	g_signal_connect (engine, "updates-changed",
-			  G_CALLBACK (pk_test_updates_changed_cb), test);
-	g_signal_connect (engine, "repo-list-changed",
-			  G_CALLBACK (pk_test_repo_list_changed_cb), test);
-	g_signal_connect (engine, "restart-schedule",
-			  G_CALLBACK (pk_test_restart_schedule_cb), test);
-
-	/************************************************************
-	 **********           GET IDLE TIMES              ***********
-	 ************************************************************/
-	egg_test_title (test, "get idle at startup");
-	idle = pk_engine_get_seconds_idle (engine);
-	if (idle < 1)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "idle = %i", idle);
-
-	/* wait 5 seconds */
-	egg_test_loop_wait (test, 5000);
-
-	/************************************************************/
-	egg_test_title (test, "get idle at idle");
-	idle = pk_engine_get_seconds_idle (engine);
-	if (idle < 6 && idle > 4)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "idle = %i", idle);
-
-	/************************************************************/
-	egg_test_title (test, "get idle after method");
-	pk_engine_get_daemon_state (engine, &state, NULL);
-	g_free (state);
-	idle = pk_engine_get_seconds_idle (engine);
-	if (idle < 1)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "idle = %i", idle);
-
-	/************************************************************
-	 **********        TEST PROXY NOTIFY              ***********
-	 ************************************************************/
-	egg_test_title (test, "force test notify updates-changed");
-	g_timeout_add (25, (GSourceFunc) pk_test_emit_updates_changed_cb, test);
-	egg_test_success (test, NULL);
-	egg_test_loop_wait (test, 50);
-	egg_test_loop_check (test);
-
-	/************************************************************/
-	egg_test_title (test, "force test notify repo-list-changed");
-	g_timeout_add (25, (GSourceFunc) pk_test_emit_repo_list_changed_cb, test);
-	egg_test_success (test, NULL);
-	egg_test_loop_wait (test, 50);
-	egg_test_loop_check (test);
-
-	/************************************************************/
-	egg_test_title (test, "force test notify wait updates-changed");
-	pk_notify_wait_updates_changed (notify, 500);
-	egg_test_loop_wait (test, 1000);
-	elapsed = egg_test_elapsed (test);
-	if (elapsed > 400 && elapsed < 600)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed to quit (%i)", elapsed);
-
-	/************************************************************
-	 **********               LOCKING                 ***********
-	 ************************************************************/
-	egg_test_title (test, "test locked");
-	inhibit = pk_inhibit_new ();
-	pk_inhibit_add (inhibit, GUINT_TO_POINTER (999));
-	if (_locked)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "not locked");
-
-	/************************************************************/
-	egg_test_title (test, "test locked");
-	pk_inhibit_remove (inhibit, GUINT_TO_POINTER (999));
-	if (!_locked)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "not locked");
-	g_object_unref (inhibit);
-
-	/************************************************************/
-	egg_test_title (test, "test not locked");
-	if (!_locked)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "still locked");
-
-	/************************************************************
-	 **********          BINARY UPGRADE TEST          ***********
-	 ************************************************************/
-	egg_test_title_assert (test, "restart_schedule not set", !_restart_schedule);
-	ret = g_file_set_contents (SBINDIR "/packagekitd", "overwrite", -1, NULL);
-
-	/************************************************************/
-	egg_test_title_assert (test, "touched binary file", ret);
-	egg_test_loop_wait (test, 5000);
-
-	/************************************************************/
-	egg_test_title (test, "get idle after we touched the binary");
-	idle = pk_engine_get_seconds_idle (engine);
-	if (idle == G_MAXUINT)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "idle = %i", idle);
-
-	/************************************************************/
-	egg_test_title_assert (test, "restart_schedule set", _restart_schedule);
-
-	/************************************************************
-	 **********             DAEMON QUIT               ***********
-	 ************************************************************/
-	egg_test_title_assert (test, "not already quit", !_quit);
-	egg_test_title (test, "suggest quit with no transactions (should get quit signal)");
-	pk_engine_suggest_daemon_quit (engine, NULL);
-	if (_quit)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "did not quit");
-
-	g_object_unref (backend);
-	g_object_unref (notify);
-	g_object_unref (engine);
-
-	egg_test_end (test);
-}
-#endif
 

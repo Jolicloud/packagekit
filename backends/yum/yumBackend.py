@@ -50,6 +50,7 @@ import time
 import os.path
 import logging
 import socket
+import gio
 
 import tarfile
 import tempfile
@@ -58,7 +59,6 @@ import ConfigParser
 
 from yumFilter import *
 from yumComps import *
-from yumMediaManager import MediaManager
 
 # Global vars
 yumbase = None
@@ -237,8 +237,20 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
         config = ConfigParser.ConfigParser()
         try:
             config.read('/etc/PackageKit/Yum.conf')
+        except Exception, e:
+            raise PkError(ERROR_REPO_CONFIGURATION_ERROR, "Failed to load Yum.conf: %s" % _to_unicode(e))
+
+        # if this key does not exist, it's not fatal
+        try:
             self.system_packages = config.get('Backend', 'SystemPackages').split(';')
+        except ConfigParser.NoOptionError, e:
+            self.system_packages = []
+        except Exception, e:
+            raise PkError(ERROR_REPO_CONFIGURATION_ERROR, "Failed to load Yum.conf: %s" % _to_unicode(e))
+        try:
             self.infra_packages = config.get('Backend', 'InfrastructurePackages').split(';')
+        except ConfigParser.NoOptionError, e:
+            self.infra_packages = []
         except Exception, e:
             raise PkError(ERROR_REPO_CONFIGURATION_ERROR, "Failed to load Yum.conf: %s" % _to_unicode(e))
 
@@ -260,8 +272,11 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
         # use idle bandwidth by setting congestion control algorithm to TCP Low Priority
         if self.background:
             socket.TCP_CONGESTION = 13
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, "lp")
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, "lp")
+            except socket.error, e:
+                pass;
 
         # we only check these types
         self.transaction_sig_check_map = [TS_UPDATE, TS_INSTALL, TS_TRUEINSTALL, TS_OBSOLETING]
@@ -2667,7 +2682,7 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
             self.error(ERROR_INTERNAL_ERROR, _format_str(traceback.format_exc()))
             return
         for repo in repos:
-            if filters != FILTER_NOT_DEVELOPMENT or not _is_development_repo(repo.id):
+            if not FILTER_NOT_DEVELOPMENT in filters or not _is_development_repo(repo.id):
                 enabled = repo.isEnabled()
                 self.repo_detail(repo.id, repo.name, enabled)
 
@@ -2950,7 +2965,14 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
         # disable repos that are not contactable
         for repo in self.yumbase.repos.listEnabled():
             try:
-                repo.repoXML
+                if not repo.mediaid:
+                    repo.repoXML
+                else:
+                    root = self.yumbase._media_find_root(repo.mediaid)
+                    if not root:
+                        self.yumbase.repos.disableRepo(repo.id)
+                        self.message(MESSAGE_REPO_METADATA_DOWNLOAD_FAILED,
+                                     "Could not contact media source '%s', so it will be disabled" % repo.id)
             except exceptions.IOError, e:
                 self.error(ERROR_NO_SPACE_ON_DEVICE, "Disk error: %s" % _to_unicode(e))
             except yum.Errors.RepoError, e:
@@ -3219,6 +3241,8 @@ class PackageKitYumBase(yum.YumBase):
         try:
             config.read('/etc/PackageKit/Yum.conf')
             disabled_plugins = config.get('Backend', 'DisabledPlugins').split(';')
+        except ConfigParser.NoOptionError, e:
+            disabled_plugins = []
         except Exception, e:
             raise PkError(ERROR_REPO_CONFIGURATION_ERROR, "Failed to load Yum.conf: %s" % _to_unicode(e))
         disabled_plugins.append('refresh-packagekit')
@@ -3240,9 +3264,8 @@ class PackageKitYumBase(yum.YumBase):
         self.missingGPGKey = None
         self.dsCallback = DepSolveCallback(backend)
         self.backend = backend
-        # disable until we have a backend we can use by default
-        # self.mediagrabber = self.MediaGrabber
-        # Setup Repo GPG support callbacks
+        self.mediagrabber = self.MediaGrabber
+        # setup Repo GPG support callbacks
         try:
             self.repos.confirm_func = self._repo_gpg_confirm
             self.repos.gpg_import_func = self._repo_gpg_import
@@ -3255,106 +3278,73 @@ class PackageKitYumBase(yum.YumBase):
             else:
                 raise PkError(ERROR_INTERNAL_ERROR, _format_str(traceback.format_exc()))
 
+    def _media_find_root(self, media_id, disc_number=1):
+        """ returns the root "/media/Fedora Extras" or None """
+
+        # search all the disks
+        vm = gio.volume_monitor_get()
+        mounts = vm.get_mounts()
+        for mount in mounts:
+            # is it mounted
+            root = mount.get_root().get_path()
+
+            # is it a media disc
+            discinfo = "%s/.discinfo" % root
+            if not os.path.exists(discinfo):
+                continue
+
+            # get the contents
+            f = open(discinfo, "r")
+            lines = f.readlines()
+            f.close()
+
+            # not enough lines to be a valid .discinfo
+            if len(lines) < 4:
+                continue
+
+            # check this is the right disk
+            media_id_tmp = lines[0].strip()
+            if cmp(media_id_tmp, media_id) != 0:
+                continue
+
+            # disc number can be random things like 'ALL'
+            disc_number_tmp = 1
+            try:
+                disc_number_tmp = int(lines[3].strip())
+            except ValueError, e:
+                pass
+            if disc_number_tmp != disc_number:
+                continue
+            return root
+
+        # nothing remaining
+        return None
+
     def MediaGrabber(self, *args, **kwargs):
         """
         Handle physical media.
-
-        This module can be summarized like this:
-        For all media:
-        - Lock it
-        - If not mounted: mount it
-        - If it's the wanted media: break
-        - If no media found: ask the user to insert it and loop again
-        ....
-        Release the media
         """
-        media_id = kwargs["mediaid"]
-        disc_number = kwargs["discnum"]
-        name = kwargs["name"]
-        discs_s = ''
-        found = False
+        root = self._media_find_root(kwargs["mediaid"], kwargs["discnum"])
+        if root:
+            # the actual copying is done by URLGrabber
+            ug = URLGrabber(checkfunc = kwargs["checkfunc"])
+            try:
+                ug.urlgrab("%s/%s" % (root, kwargs["relative"]),
+                           kwargs["local"], text=kwargs["text"],
+                           range=kwargs["range"], copy_local=1)
+            except (IOError, URLGrabError), e:
+                pass
 
-        try:
-            manager = MediaManager()
-        except NotImplementedError, e:
-            # yumRepo will catch this
-            raise yum.Errors.MediaError, "media handling is not implemented"
-
-        media = None
-        found = False
-
-        # loop over and over, retry because the user might insert disc #2 when we need disc #5
-        while 1:
-            # check for the needed media in every media provided by yumMediaManager
-            for media in manager:
-                # mnt now holds the mount point
-                mnt = media.acquire()
-                found = False
-
-                # if not mounted skip this media for this loop
-                if not mnt:
-                    continue
-
-                # load ".discinfo" from the media and parse it
-                if os.path.exists("%s/.discinfo" %(mnt,)):
-                    f = open("%s/.discinfo" %(mnt,), "r")
-                    lines = f.readlines()
-                    f.close()
-                    theid = lines[0].strip()
-                    discs_s = lines[3].strip()
-
-                    # if discs_s == ALL then no need to match disc number
-                    if discs_s != 'ALL':
-                        discs = map(lambda x: int(x), discs_s.split(","))
-                        samenum = disc_number in discs
-                    else:
-                        samenum = True
-
-                    # if the media is different or of different number skip it and loop over
-                    if media_id != theid or not samenum:
-                        continue
-
-                    # the actual copying is done by URLGrabber
-                    ug = URLGrabber(checkfunc = kwargs["checkfunc"])
-                    try:
-                        ug.urlgrab("%s/%s" %(mnt, kwargs["relative"]),
-                                   kwargs["local"], text=kwargs["text"],
-                                   range=kwargs["range"], copy_local=1)
-                    except (IOError, URLGrabError):
-                        pass
-                    else:
-                        found = True
-
-                # if we found it end the for loop
-                if found:
-                    break
-
-            # if we found it end the while loop
-            if found:
-                break
-
-            # construct human readable media_text
-            if disc_number:
-                media_text = "%s #%d" % (name, disc_number)
-            else:
-                media_text = name
-
-            # see http://lists.freedesktop.org/archives/packagekit/2009-May/004808.html
-            # and http://cgit.freedesktop.org/packagekit/commit/?id=79e8736197b552a5ce206a712cd3b6c80cf2e86d
-            self.backend.media_change_required(MEDIA_TYPE_DISC, name, media_text)
+        # we have to send a message to the client
+        if not root:
+            name = kwargs["name"]
+            self.backend.media_change_required(MEDIA_TYPE_DISC, name, name)
             self.backend.error(ERROR_MEDIA_CHANGE_REQUIRED,
-                               "Insert media labeled '%s' or disable media repos" % media_text,
-                               exit = False)
-            break
-
-        # if we got a media object destruct it to release the media (which will unmount and unlock if needed)
-        if media:
-            del media
-
-        # I guess we come here when the user in PK clicks cancel
-        if not found:
-            # yumRepo will catch this
+                               "Insert media labeled '%s' or disable media repos" % name,
+                               exit=False)
             raise yum.Errors.MediaError, "The disc was not inserted"
+
+        # yay
         return kwargs["local"]
 
     def _repo_gpg_confirm(self, keyData):

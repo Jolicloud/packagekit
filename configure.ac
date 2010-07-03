@@ -3,7 +3,7 @@ AC_PREREQ(2.63)
 
 m4_define([pk_major_version], [0])
 m4_define([pk_minor_version], [6])
-m4_define([pk_micro_version], [5])
+m4_define([pk_micro_version], [6])
 m4_define([pk_version],
           [pk_major_version.pk_minor_version.pk_micro_version])
 
@@ -37,7 +37,7 @@ AC_SUBST(PK_VERSION)
 # AGE		If libpackagekit can be linked into executables which can be
 # 		built with previous versions of this library. Don't use.
 LT_CURRENT=14
-LT_REVISION=1
+LT_REVISION=2
 LT_AGE=0
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
@@ -438,12 +438,24 @@ dnl ---------------------------------------------------------------------------
 AC_ARG_ENABLE(gtk_module, AS_HELP_STRING([--enable-gtk-module],[Build GTK module functionality]),
 	      enable_gtk_module=$enableval,enable_gtk_module=yes)
 if test x$enable_gtk_module = xyes; then
-	PKG_CHECK_MODULES(PK_GTK_MODULE, gtk+-2.0 >= 2.14.0 pangoft2 fontconfig dbus-glib-1,
-	                  build_gtk_module=yes, build_gtk_module=no)
+	PKG_CHECK_MODULES(PK_GTK_MODULE_GTK2, gtk+-2.0 >= 2.14.0 pangoft2 fontconfig dbus-glib-1,
+	                  build_gtk_module_gtk2=yes, build_gtk_module_gtk2=no)
+	PKG_CHECK_MODULES(PK_GTK_MODULE_GTK3, gtk+-3.0 pangoft2 fontconfig dbus-glib-1,
+	                  build_gtk_module_gtk3=yes, build_gtk_module_gtk3=no)
+	# if either are true, visit the gtk-module directory
+	if test $build_gtk_module_gtk2 = "yes" -o $build_gtk_module_gtk3 = "yes"; then
+		build_gtk_module=yes
+	else
+		build_gtk_module=no
+	fi
 else
 	build_gtk_module=no
+	build_gtk_module_gtk2=no
+	build_gtk_module_gtk3=no
 fi
 AM_CONDITIONAL(PK_BUILD_GTK_MODULE, test $build_gtk_module = "yes")
+AM_CONDITIONAL(PK_BUILD_GTK_MODULE_GTK2, test $build_gtk_module_gtk2 = "yes")
+AM_CONDITIONAL(PK_BUILD_GTK_MODULE_GTK3, test $build_gtk_module_gtk3 = "yes")
 
 dnl ---------------------------------------------------------------------------
 dnl - Able to build BASH command-not-found functionality
@@ -635,50 +647,22 @@ fi
 AC_DEFINE_UNQUOTED(DEFAULT_BACKEND, "$with_default_backend", [default backend prefix])
 AC_SUBST(DEFAULT_BACKEND, "$with_default_backend")
 
+build_zif=no
 if test x$enable_yum = xyes; then
-	PKG_CHECK_MODULES(SQLITE, sqlite3)
-	PKG_CHECK_MODULES(RPM, rpm)
-	PKG_CHECK_MODULES(SOUP, libsoup-2.4)
-
 	dnl ---------------------------------------------------------------------------
-	dnl - libarchive
+	dnl - Zif is an experimental library for direct metadata access
 	dnl ---------------------------------------------------------------------------
-	AC_CHECK_HEADERS(archive.h,
-			 HAVE_ARCHIVE_H="yes",
-			 HAVE_ARCHIVE_H="no")
-	if test "x$HAVE_ARCHIVE_H" = "xyes"; then
-		ARCHIVE_LIBS=-larchive
-		AC_SUBST(ARCHIVE_LIBS)
-	else
-		AC_MSG_ERROR([Cannot find archive.h])
+	AC_ARG_ENABLE(zif, AS_HELP_STRING([--enable-zif],[Build ZIF experimental code]),
+		      enable_zif=$enableval,enable_zif=yes)
+	if test x$enable_zif = xyes; then
+		PKG_CHECK_MODULES(ZIF, zif,
+			          build_zif=yes, build_zif=no)
 	fi
-
-	dnl ---------------------------------------------------------------------------
-	dnl - libbzip2
-	dnl ---------------------------------------------------------------------------
-	AC_CHECK_HEADERS(bzlib.h,
-			 HAVE_BZLIB_H="yes",
-			 HAVE_BZLIB_H="no")
-	if test "x$HAVE_BZLIB_H" = "xyes"; then
-		BZLIB_LIBS=-lbz2
-		AC_SUBST(BZLIB_LIBS)
-	else
-		AC_MSG_ERROR([Cannot find bzlib.h])
-	fi
-
-	dnl ---------------------------------------------------------------------------
-	dnl - zlib
-	dnl ---------------------------------------------------------------------------
-	AC_CHECK_HEADERS(zlib.h,
-			 HAVE_ZLIB_H="yes",
-			 HAVE_ZLIB_H="no")
-	if test "x$HAVE_BZLIB_H" = "xyes"; then
-		ZLIB_LIBS=-lz
-		AC_SUBST(ZLIB_LIBS)
-	else
-		AC_MSG_ERROR([Cannot find zlib.h])
+	if test "x$build_zif" = "xyes"; then
+		AC_DEFINE([HAVE_ZIF], [1], [If Zif support should be enabled])
 	fi
 fi
+AM_CONDITIONAL(PK_BUILD_ZIF, test $build_zif = "yes")
 
 if test x$enable_apt = xyes; then
 	PY_CHECK_MOD([apt_pkg],,,AC_MSG_ERROR([Apt backend needs python-apt]))
@@ -802,6 +786,8 @@ contrib/Makefile
 contrib/browser-plugin/Makefile
 contrib/gstreamer-plugin/Makefile
 contrib/gtk-module/Makefile
+contrib/gtk-module/gtk-2.0/Makefile
+contrib/gtk-module/gtk-3.0/Makefile
 contrib/yum-packagekit/Makefile
 contrib/command-not-found/Makefile
 contrib/cron/Makefile
@@ -874,7 +860,8 @@ echo "
         Networking stacks:         ${networking_apis}
         Browser plugin:            ${build_browser_plugin}
         GStreamer plugin:          ${build_gstreamer_plugin}
-        Pango module:              ${build_gtk_module}
+        Pango module (GTK2):       ${build_gtk_module_gtk2}
+        Pango module (GTK3):       ${build_gtk_module_gtk3}
         BASH Command not found:    ${build_command_not_found}
         Cron scripts:              ${build_cron}
         debuginfo-install:         ${build_debuginfo_install}
@@ -902,6 +889,7 @@ echo "
         SMART backend:             ${enable_smart}
         URPMI backend:             ${enable_urpmi}
         YUM backend:               ${enable_yum}
+          (with zif):              ${build_zif}
         Zypp backend:              ${enable_zypp}
         Default backend:           ${with_default_backend}
 "

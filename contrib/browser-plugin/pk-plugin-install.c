@@ -123,6 +123,9 @@ pk_plugin_install_set_status (PkPluginInstall *self, PkPluginInstallPackageStatu
 
 		if (status == INSTALLING) {
 			self->priv->timeout = g_timeout_add (80, spinner_timeout, self);
+#if GLIB_CHECK_VERSION(2,25,8)
+			g_source_set_name_by_id (self->priv->timeout, "[PkPluginInstall] spinner");
+#endif
 		}
 		else if (self->priv->timeout) {
 			g_source_remove (self->priv->timeout);
@@ -446,7 +449,7 @@ pk_plugin_install_set_source_from_rgba (cairo_t *cr, guint32 rgba)
  * the window.
  **/
 static void
-pk_plugin_install_get_style (PangoFontDescription **font_desc, guint32 *foreground, guint32 *background, guint32 *link)
+pk_plugin_install_get_style (PangoFontDescription **font_desc, guint32 *foreground, guint32 *background, guint32 *linked)
 {
 	GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	GtkStyle *style;
@@ -465,8 +468,7 @@ pk_plugin_install_get_style (PangoFontDescription **font_desc, guint32 *foregrou
 		gdk_color_free (tmp);
 	}
 
-	*link = pk_plugin_install_rgba_from_gdk_color (&link_color);
-
+	*linked = pk_plugin_install_rgba_from_gdk_color (&link_color);
 	*font_desc = pango_font_description_copy (style->font_desc);
 
 	gtk_widget_destroy (window);
@@ -680,7 +682,7 @@ pk_plugin_install_rounded_rectangle (cairo_t *cr, gdouble x, gdouble y,
 static gboolean
 pk_plugin_install_draw (PkPlugin *plugin, cairo_t *cr)
 {
-	guint32 foreground, background, link;
+	guint32 foreground, background, linked;
 	PangoFontDescription *font_desc;
 	guint x;
 	guint y;
@@ -722,7 +724,7 @@ pk_plugin_install_draw (PkPlugin *plugin, cairo_t *cr)
 	pk_debug ("drawing on %ux%u (%ux%u)", x, y, width, height);
 
 	/* get properties */
-	pk_plugin_install_get_style (&font_desc, &foreground, &background, &link);
+	pk_plugin_install_get_style (&font_desc, &foreground, &background, &linked);
 	if (self->priv->update_spinner) {
 		self->priv->update_spinner = FALSE;
 		goto update_spinner;
@@ -761,7 +763,7 @@ pk_plugin_install_draw (PkPlugin *plugin, cairo_t *cr)
 
 skip:
 	/* write text */
-	pk_plugin_install_ensure_layout (self, cr, font_desc, link);
+	pk_plugin_install_ensure_layout (self, cr, font_desc, linked);
 	pango_layout_get_pixel_extents (self->priv->pango_layout, &rect, NULL);
 	cairo_move_to (cr, x + sep + 48 + sep, y + (height - (rect.height + 48) / 2) / 2);
 	pk_plugin_install_set_source_from_rgba (cr, foreground);
@@ -808,14 +810,14 @@ pk_plugin_install_line_is_terminated (PangoLayoutIter *iter)
 	 */
 	PangoLayoutLine *line = pango_layout_iter_get_line (iter);
 	GSList *lines = pango_layout_get_lines (pango_layout_iter_get_layout (iter));
-	GSList *link = g_slist_find (lines, line);
-	if (!link) {
+	GSList *found = g_slist_find (lines, line);
+	if (!found) {
 		pk_warning ("Can't find line in layout line list");
 		return FALSE;
 	}
 
-	if (link->next) {
-		PangoLayoutLine *next_line = (PangoLayoutLine *)link->next->data;
+	if (found->next) {
+		PangoLayoutLine *next_line = (PangoLayoutLine *)found->next->data;
 		if (next_line->is_paragraph_start)
 			return TRUE;
 	}

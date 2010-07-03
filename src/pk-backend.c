@@ -79,6 +79,16 @@
  */
 #define PK_BACKEND_FINISHED_TIMEOUT_GRACE	10 /* ms */
 
+
+/**
+ * PK_BACKEND_CANCEL_ACTION_TIMEOUT:
+ *
+ * The time in ms we cancel the transaction ourselves if the backend is ignoring
+ * us. This means the backend will still be running, but results will not be
+ * sent over the dbus interface.
+ */
+#define PK_BACKEND_CANCEL_ACTION_TIMEOUT	2000 /* ms */
+
 struct _PkBackendPrivate
 {
 	gboolean		 during_initialize;
@@ -106,6 +116,7 @@ struct _PkBackendPrivate
 	guint			 signal_error_timeout;
 	guint			 signal_finished;
 	guint			 speed;
+	guint			 cancel_id;
 	GHashTable		*eulas;
 	GModule			*handle;
 	GThread			*thread;
@@ -1781,6 +1792,15 @@ pk_backend_repo_list_changed (PkBackend *backend)
 }
 
 /**
+ * pk_backend_get_is_finished:
+ **/
+gboolean
+pk_backend_get_is_finished (PkBackend *backend)
+{
+	return backend->priv->finished;
+}
+
+/**
  * pk_backend_error_timeout_delay_cb:
  *
  * We have to call Finished() within PK_BACKEND_FINISHED_ERROR_TIMEOUT of ErrorCode(), enforce this.
@@ -1875,6 +1895,9 @@ pk_backend_error_code (PkBackend *backend, PkErrorEnum error_code, const gchar *
 	/* we only allow a short time to send finished after error_code */
 	backend->priv->signal_error_timeout = g_timeout_add (PK_BACKEND_FINISHED_ERROR_TIMEOUT,
 							     pk_backend_error_timeout_delay_cb, backend);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (backend->priv->signal_error_timeout, "[PkBackend] error-code");
+#endif
 
 	/* some error codes have a different exit code */
 	need_untrusted = pk_backend_error_code_is_need_untrusted (error_code);
@@ -1966,8 +1989,9 @@ pk_backend_set_role_internal (PkBackend *backend, PkRoleEnum role)
 {
 	/* Should only be called once... */
 	if (backend->priv->role != PK_ROLE_ENUM_UNKNOWN) {
-		egg_warning ("cannot set role more than once, already %s",
-			    pk_role_enum_to_string (backend->priv->role));
+		egg_warning ("cannot set role to %s, already %s",
+			     pk_role_enum_to_string (role),
+			     pk_role_enum_to_string (backend->priv->role));
 		return FALSE;
 	}
 
@@ -2059,6 +2083,12 @@ pk_backend_finished (PkBackend *backend)
 	/* safe to check now */
 	g_return_val_if_fail (backend->priv->locked != FALSE, FALSE);
 
+	/* no longer need to cancel */
+	if (backend->priv->cancel_id != 0) {
+		g_source_remove (backend->priv->cancel_id);
+		backend->priv->cancel_id = 0;
+	}
+
 	/* find out what we just did */
 	role_text = pk_role_enum_to_string (backend->priv->role);
 	egg_debug ("finished role %s", role_text);
@@ -2123,7 +2153,11 @@ pk_backend_finished (PkBackend *backend)
 	/* we have to run this idle as the command may finish before the transaction
 	 * has been sent to the client. I love async... */
 	egg_debug ("adding finished %p to timeout loop", backend);
-	backend->priv->signal_finished = g_timeout_add (PK_BACKEND_FINISHED_TIMEOUT_GRACE, pk_backend_finished_delay, backend);
+	backend->priv->signal_finished = g_timeout_add (PK_BACKEND_FINISHED_TIMEOUT_GRACE,
+							pk_backend_finished_delay, backend);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (backend->priv->signal_finished, "[PkBackend] finished");
+#endif
 	return TRUE;
 }
 
@@ -2143,7 +2177,11 @@ pk_backend_thread_finished_cb (PkBackend *backend)
 void
 pk_backend_thread_finished (PkBackend *backend)
 {
-	g_idle_add ((GSourceFunc) pk_backend_thread_finished_cb, backend);
+	guint idle_id;
+	idle_id = g_idle_add ((GSourceFunc) pk_backend_thread_finished_cb, backend);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (idle_id, "[PkBackend] finished");
+#endif
 }
 
 /**
@@ -2489,6 +2527,9 @@ pk_backend_finalize (GObject *object)
 	g_object_unref (backend->priv->conf);
 	g_hash_table_destroy (backend->priv->eulas);
 
+	if (backend->priv->cancel_id > 0)
+		g_source_remove (backend->priv->cancel_id);
+
 	if (backend->priv->handle != NULL)
 		g_module_close (backend->priv->handle);
 	egg_debug ("parent_class->finalize");
@@ -2702,6 +2743,22 @@ pk_backend_reset (PkBackend *backend)
 }
 
 /**
+ * pk_backend_cancel_cb:
+ */
+static gboolean
+pk_backend_cancel_cb (PkBackend *backend)
+{
+	/* set an error if the backend didn't do it for us */
+	if (!backend->priv->set_error) {
+		egg_warning ("backend failed to exit in %ims, cancelling ourselves", PK_BACKEND_CANCEL_ACTION_TIMEOUT);
+		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "transaction was cancelled");
+		pk_backend_finished (backend);
+	}
+	backend->priv->cancel_id = 0;
+	return FALSE;
+}
+
+/**
  * pk_backend_cancel:
  */
 void
@@ -2713,8 +2770,11 @@ pk_backend_cancel (PkBackend *backend)
 	backend->priv->desc->cancel (backend);
 
 	/* set an error if the backend didn't do it for us */
-	if (!backend->priv->set_error)
-		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "transaction was cancelled");
+	backend->priv->cancel_id = g_timeout_add (PK_BACKEND_CANCEL_ACTION_TIMEOUT,
+						  (GSourceFunc) pk_backend_cancel_cb, backend);
+#if GLIB_CHECK_VERSION(2,25,8)
+	g_source_set_name_by_id (backend->priv->cancel_id, "[PkBackend] cancel");
+#endif
 }
 
 /**
@@ -3141,6 +3201,7 @@ pk_backend_init (PkBackend *backend)
 	backend->priv->locked = FALSE;
 	backend->priv->use_threads = FALSE;
 	backend->priv->signal_finished = 0;
+	backend->priv->cancel_id = 0;
 	backend->priv->speed = 0;
 	backend->priv->signal_error_timeout = 0;
 	backend->priv->during_initialize = FALSE;
@@ -3182,385 +3243,4 @@ pk_backend_new (void)
 	}
 	return PK_BACKEND (pk_backend_object);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-#include <glib/gstdio.h>
-
-static guint number_messages = 0;
-static guint number_packages = 0;
-
-/**
- * pk_backend_test_message_cb:
- **/
-static void
-pk_backend_test_message_cb (PkBackend *backend, PkMessageEnum message, const gchar *details, gpointer data)
-{
-	egg_debug ("details=%s", details);
-	number_messages++;
-}
-
-/**
- * pk_backend_test_finished_cb:
- **/
-static void
-pk_backend_test_finished_cb (PkBackend *backend, PkExitEnum exit, EggTest *test)
-{
-	egg_test_loop_quit (test);
-}
-
-/**
- * pk_backend_test_watch_file_cb:
- **/
-static void
-pk_backend_test_watch_file_cb (PkBackend *backend, gpointer data)
-{
-	EggTest *test = (EggTest *) data;
-	egg_test_loop_quit (test);
-}
-
-static gboolean
-pk_backend_test_func_true (PkBackend *backend)
-{
-	g_usleep (1000*1000);
-	/* trigger duplicate test */
-	pk_backend_package (backend, PK_INFO_ENUM_AVAILABLE, "vips-doc;7.12.4-2.fc8;noarch;linva", "The vips documentation package.");
-	pk_backend_package (backend, PK_INFO_ENUM_AVAILABLE, "vips-doc;7.12.4-2.fc8;noarch;linva", "The vips documentation package.");
-	pk_backend_finished (backend);
-	return TRUE;
-}
-
-static gboolean
-pk_backend_test_func_immediate_false (PkBackend *backend)
-{
-	pk_backend_finished (backend);
-	return FALSE;
-}
-
-/**
- * pk_backend_test_package_cb:
- **/
-static void
-pk_backend_test_package_cb (PkBackend *backend, PkPackage *item, EggTest *test)
-{
-	egg_debug ("package:%s", pk_package_get_id (item));
-	number_packages++;
-}
-
-void
-pk_backend_test (EggTest *test)
-{
-	PkBackend *backend;
-	PkConf *conf;
-	gchar *text;
-	gchar *text_safe;
-	gboolean ret;
-	const gchar *filename;
-	gboolean developer_mode;
-
-	if (!egg_test_start (test, "PkBackend"))
-		return;
-
-	/************************************************************
-	 ****************       REPLACE CHARS      ******************
-	 ************************************************************/
-	egg_test_title (test, "test replace unsafe (okay)");
-	text_safe = pk_backend_strsafe ("Richard Hughes");
-	if (g_strcmp0 (text_safe, "Richard Hughes") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed the replace unsafe '%s'", text_safe);
-	g_free (text_safe);
-
-	/************************************************************/
-	egg_test_title (test, "test replace UTF8 unsafe (okay)");
-	text_safe = pk_backend_strsafe ("Gölas");
-	if (g_strcmp0 (text_safe, "Gölas") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed the replace unsafe '%s'", text_safe);
-	g_free (text_safe);
-
-	/************************************************************/
-	egg_test_title (test, "test replace unsafe (one invalid)");
-	text_safe = pk_backend_strsafe ("Richard\rHughes");
-	if (g_strcmp0 (text_safe, "Richard Hughes") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed the replace unsafe '%s'", text_safe);
-	g_free (text_safe);
-
-	/************************************************************/
-	egg_test_title (test, "test replace unsafe (multiple invalid)");
-	text_safe = pk_backend_strsafe (" Richard\rHughes\f");
-	if (g_strcmp0 (text_safe, " Richard Hughes ") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed the replace unsafe '%s'", text_safe);
-	g_free (text_safe);
-
-	/************************************************************/
-	egg_test_title (test, "get an backend");
-	backend = pk_backend_new ();
-	if (backend != NULL)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	/* connect */
-	g_signal_connect (backend, "package",
-			  G_CALLBACK (pk_backend_test_package_cb), test);
-
-	/************************************************************/
-	egg_test_title (test, "create a config file");
-	filename = "/tmp/dave";
-	ret = g_file_set_contents (filename, "foo", -1, NULL);
-	if (ret) {
-		egg_test_success (test, "set contents");
-	} else
-		egg_test_failed (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "set up a watch file on a config file");
-	ret = pk_backend_watch_file (backend, filename, pk_backend_test_watch_file_cb, test);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "eula valid");
-
-	/************************************************************/
-	egg_test_title (test, "change the config file");
-	ret = g_file_set_contents (filename, "bar", -1, NULL);
-	if (ret) {
-		egg_test_success (test, "set contents");
-	} else
-		egg_test_failed (test, NULL);
-
-	/* wait for config file change */
-	egg_test_loop_wait (test, 2000);
-	egg_test_loop_check (test);
-
-	/************************************************************/
-	egg_test_title (test, "delete the config file");
-	ret = g_unlink (filename);
-	egg_test_assert (test, !ret);
-
-	g_signal_connect (backend, "message", G_CALLBACK (pk_backend_test_message_cb), NULL);
-	g_signal_connect (backend, "finished", G_CALLBACK (pk_backend_test_finished_cb), test);
-
-	/************************************************************/
-	egg_test_title (test, "get eula that does not exist");
-	ret = pk_backend_is_eula_valid (backend, "license_foo");
-	if (!ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "eula valid");
-
-	/************************************************************/
-	egg_test_title (test, "accept eula");
-	ret = pk_backend_accept_eula (backend, "license_foo");
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "eula was not accepted");
-
-	/************************************************************/
-	egg_test_title (test, "get eula that does exist");
-	ret = pk_backend_is_eula_valid (backend, "license_foo");
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "eula valid");
-
-	/************************************************************/
-	egg_test_title (test, "accept eula (again)");
-	ret = pk_backend_accept_eula (backend, "license_foo");
-	if (!ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "eula was accepted twice");
-
-	/************************************************************/
-	egg_test_title (test, "load an invalid backend");
-	ret = pk_backend_set_name (backend, "invalid");
-	if (ret == FALSE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, NULL);
-
-	/************************************************************/
-	egg_test_title (test, "try to load a valid backend");
-	ret = pk_backend_set_name (backend, "dummy");
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "load an valid backend again");
-	ret = pk_backend_set_name (backend, "dummy");
-	if (ret == FALSE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "loaded twice");
-
-	/************************************************************/
-	egg_test_title (test, "lock an valid backend");
-	ret = pk_backend_lock (backend);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed to lock");
-
-	/************************************************************/
-	egg_test_title (test, "lock a backend again");
-	ret = pk_backend_lock (backend);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "locked twice should succeed");
-
-	/************************************************************/
-	egg_test_title (test, "check we are out of init");
-	if (backend->priv->during_initialize == FALSE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "not out of init");
-
-	/************************************************************/
-	egg_test_title (test, "get backend name");
-	text = pk_backend_get_name (backend);
-	if (g_strcmp0 (text, "dummy") == 0)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "invalid name %s", text);
-	g_free (text);
-
-	/************************************************************/
-	egg_test_title (test, "unlock an valid backend");
-	ret = pk_backend_unlock (backend);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed to unlock");
-
-	/************************************************************/
-	egg_test_title (test, "unlock an valid backend again");
-	ret = pk_backend_unlock (backend);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "unlocked twice, should succeed");
-
-	/************************************************************/
-	egg_test_title (test, "check we are not finished");
-	if (backend->priv->finished == FALSE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "we did not clear finish!");
-
-	/************************************************************/
-	egg_test_title (test, "check we have no error");
-	if (backend->priv->set_error == FALSE)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "an error has already been set");
-
-	/************************************************************/
-	egg_test_title (test, "lock again");
-	ret = pk_backend_lock (backend);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "failed to unlock");
-
-	/************************************************************/
-	egg_test_title (test, "wait for a thread to return true");
-	ret = pk_backend_thread_create (backend, pk_backend_test_func_true);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "wait for a thread failed");
-
-	/* wait for Finished */
-	egg_test_loop_wait (test, 2000);
-	egg_test_loop_check (test);
-
-	/************************************************************/
-	egg_test_title (test, "check duplicate filter");
-	if (number_packages == 1)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "wrong number of packages: %i", number_packages);
-
-	/* reset */
-	pk_backend_reset (backend);
-
-	/************************************************************/
-	egg_test_title (test, "wait for a thread to return false (straight away)");
-	ret = pk_backend_thread_create (backend, pk_backend_test_func_immediate_false);
-	if (ret)
-		egg_test_success (test, NULL);
-	else
-		egg_test_failed (test, "returned false!");
-
-	/* wait for Finished */
-	egg_test_loop_wait (test, PK_BACKEND_FINISHED_TIMEOUT_GRACE + 100);
-	egg_test_loop_check (test);
-
-	/************************************************************/
-	pk_backend_reset (backend);
-	pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE, "test error");
-
-	/* wait for finished */
-	egg_test_loop_wait (test, PK_BACKEND_FINISHED_ERROR_TIMEOUT + 400);
-	egg_test_loop_check (test);
-
-	/************************************************************
-	 ****************     CANCEL TRISTATE      ******************
-	 ************************************************************/
-	egg_test_title (test, "get allow cancel after reset");
-	pk_backend_reset (backend);
-	ret = pk_backend_get_allow_cancel (backend);
-	egg_test_assert (test, !ret);
-
-	/************************************************************/
-	egg_test_title (test, "set allow cancel TRUE");
-	ret = pk_backend_set_allow_cancel (backend, TRUE);
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "set allow cancel TRUE (repeat)");
-	ret = pk_backend_set_allow_cancel (backend, TRUE);
-	egg_test_assert (test, !ret);
-
-	/************************************************************/
-	egg_test_title (test, "set allow cancel FALSE");
-	ret = pk_backend_set_allow_cancel (backend, FALSE);
-	egg_test_assert (test, ret);
-
-	/************************************************************/
-	egg_test_title (test, "set allow cancel FALSE (after reset)");
-	pk_backend_reset (backend);
-	ret = pk_backend_set_allow_cancel (backend, FALSE);
-	egg_test_assert (test, ret);
-
-	/* if running in developer mode, then expect a Message */
-	conf = pk_conf_new ();
-	developer_mode = pk_conf_get_bool (conf, "DeveloperMode");
-	g_object_unref (conf);
-	if (developer_mode) {
-		/************************************************************/
-		egg_test_title (test, "check we enforce finished after error_code");
-		if (number_messages == 1)
-			egg_test_success (test, NULL);
-		else
-			egg_test_failed (test, "we messaged %i times!", number_messages);
-	}
-
-	g_object_unref (backend);
-
-	egg_test_end (test);
-}
-#endif
 

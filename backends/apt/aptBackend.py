@@ -73,10 +73,6 @@ else:
         pklog.debug("Use XAPIAN for the search")
         XAPIAN_SUPPORT = True
 
-STDOUT_ENCODING = sys.stdout.encoding or sys.getfilesystemencoding()
-FS_ENCODING = sys.getfilesystemencoding()
-DEFAULT_ENCODING = locale.getpreferredencoding()
-
 # SoftwareProperties is required to proivde information about repositories
 try:
     import softwareproperties.SoftwareProperties
@@ -162,11 +158,17 @@ HREF_CVE="http://web.nvd.nist.gov/view/vuln/detail?vulnId=%s"
 
 SYNAPTIC_PIN_FILE = "/var/lib/synaptic/preferences"
 
+DEFAULT_ENCODING = "UTF-8"
+
 # Required to get translated descriptions
 try:
     locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pklog.debug("Failed to unset LC_ALL")
+
+# Allows to write unicode to stdout
+import codecs
+sys.stdout = codecs.getwriter(DEFAULT_ENCODING)(sys.stdout)
 
 # Required to parse RFC822 time stamps
 try:
@@ -277,7 +279,7 @@ class DpkgInstallProgress(apt.progress.InstallProgress):
             pkg = statusl[1].strip()
             #print status
             if status == "error":
-                self.error(pkg, status)
+                self.error(pkg, format_string(status))
             elif status == "conffile-prompt":
                 # we get a string like this:
                 # 'current-conffile' 'new-conffile' useredited distedited
@@ -328,22 +330,35 @@ class PackageKitFetchProgress(apt.progress.FetchProgress):
     def __init__(self, backend, prange=(0,100), status=STATUS_DOWNLOAD):
         self._backend = backend
         apt.progress.FetchProgress.__init__(self)
-        self.pstart = prange[0]
-        self.pend = prange[1]
-        self.pprev = None
+        self.start_progress = prange[0]
+        self.end_progress = prange[1]
+        self.last_progress = None
+        self.last_sub_progress = None
         self.status = status
         self.package_states = {}
 
-    def pulse(self):
+    def pulse_items(self, items):
         apt.progress.FetchProgress.pulse(self)
-        progress = int(self.pstart + self.percent/100 * \
-                       (self.pend - self.pstart))
+        progress = int(self.start_progress + self.percent/100 * \
+                       (self.end_progress - self.start_progress))
         # A backwards running progress is reported as a not available progress
-        if self.pprev > progress:
+        if self.last_progress > progress:
             self._backend.percentage()
         else:
             self._backend.percentage(progress)
-            self.pprev = progress
+            self.last_progress = progress
+        for item in items:
+            uri, desc, shortdesc, file_size, partial_size = item
+            try:
+                pkg = self._backend._cache[shortdesc]
+            except KeyError:
+                pass
+            else:
+                self._backend._emit_package(pkg, INFO_DOWNLOADING, True)
+                sub_progress = partial_size * 100 / file_size
+                if sub_progress > self.last_sub_progress:
+                    self._last_sub_progress = sub_progress
+                    self._backend.sub_percentage(sub_progress)
         return True
 
     def updateStatus(self, uri, descr, pkg_name, status):
@@ -368,7 +383,7 @@ class PackageKitFetchProgress(apt.progress.FetchProgress):
         self._backend.allow_cancel(True)
 
     def stop(self):
-        self._backend.percentage(self.pend)
+        self._backend.percentage(self.end_progress)
         self._backend.allow_cancel(False)
 
     def mediaChange(self, medium, drive):
@@ -528,18 +543,20 @@ class PackageKitAptBackend(PackageKitBaseBackend):
 
     # Methods ( client -> engine -> backend )
 
-    def search_files(self, filters, filenames_string):
+    def search_file(self, filters_str, filenames):
         """Search for files in packages.
 
         Works only for installed file if apt-file isn't installed.
         """
-        pklog.info("Searching for file: %s" % filenames_string)
+        pklog.info("Searching for file: %s" % filenames)
         self.status(STATUS_QUERY)
         self.percentage(None)
         self._check_init(progress=False)
         self.allow_cancel(True)
 
-        filenames = filenames_string.split("&")
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
+
         result_names = set()
         # Optionally make use of apt-file's Contents cache to search for not
         # installed files. But still search for installed files additionally
@@ -571,7 +588,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                 result_names.update(stdout.split())
                 self._emit_visible_packages_by_name(filters, result_names)
             else:
-                self.error(ERROR_INTERNAL_ERROR, "%s %s" % (stdout, stderr))
+                self.error(ERROR_INTERNAL_ERROR,
+                           format_string("%s %s" % (stdout, stderr)))
         # Search for installed files
         filenames_regex = []
         for filename in filenames:
@@ -589,37 +607,47 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     self._emit_visible_package(filters, pkg)
                     break
 
-    def search_groups(self, filters, group):
+    def search_group(self, filters_str, groups):
         """
         Implement the apt2-search-group functionality
         """
-        pklog.info("Searching for group: %s" % group)
+        pklog.info("Searching for groups: %s" % groups)
         self.status(STATUS_QUERY)
         self.percentage(None)
         self._check_init(progress=False)
         self.allow_cancel(True)
 
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
+
         for pkg in self._cache:
-            if self._get_package_group(pkg) == group:
+            if self._get_package_group(pkg) in groups:
                 self._emit_visible_package(filters, pkg)
 
-    def search_names(self, filters, search):
+    def search_name(self, filters_str, values):
         """
         Implement the apt2-search-name functionality
         """
-        pklog.info("Searching for package name: %s" % search)
+        def matches(searches, text):
+            for search in searches:
+                if not search in text:
+                    return False
+            return True
+        pklog.info("Searching for package name: %s" % values)
         self.status(STATUS_QUERY)
         self.percentage(None)
         self._check_init(progress=False)
         self.allow_cancel(True)
 
-        for pkg_name in self._cache.keys():
-            for pkg_name2 in search:
-                if pkg_name2 in pkg_name:
-                    self._emit_all_visible_pkg_versions(filters,
-                                                        self._cache[pkg_name])
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
 
-    def search_details(self, filters, values):
+        for pkg_name in self._cache.keys():
+            if matches(values, pkg_name):
+                self._emit_all_visible_pkg_versions(filters,
+                                                    self._cache[pkg_name])
+
+    def search_details(self, filters_str, values):
         """
         Implement the apt2-search-details functionality
         """
@@ -629,6 +657,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self._check_init(progress=False)
         self.allow_cancel(True)
         results = []
+
+        #FIXME: Should be done by the backend class
+        filters = filters_str.split(";")
 
         if XAPIAN_SUPPORT == True:
             search_flags = (xapian.QueryParser.FLAG_BOOLEAN |
@@ -662,7 +693,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     txt += pkg.candidate._translated_records.long_desc.lower()
                 except AttributeError:
                     pass
-                if matches(values, unicode(txt, DEFAULT_ENCODING, "replace")):
+                if matches(values, txt.decode(DEFAULT_ENCODING, "replace")):
                     self._emit_visible_package(filters, pkg)
 
     def get_distro_upgrades(self):
@@ -842,7 +873,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             obsoletes = ""
             vendor_url = ""
             restart = "none"
-            update_text = ""
+            update_text = u""
             state = ""
             issued = ""
             updated = ""
@@ -854,29 +885,27 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             changelog_raw = pkg.getChangelog()
             # The internal download error string of python-apt ist not
             # provided as unicode object
-            try:
+            if not isinstance(changelog_raw, unicode):
                 changelog_raw = changelog_raw.decode(DEFAULT_ENCODING)
-            except:
-                pass
             # Convert the changelog to markdown syntax
-            changelog = ""
+            changelog = u""
             for line in changelog_raw.split("\n"):
                 if line == "":
                     changelog += " \n"
                 else:
-                    changelog += "    %s  \n" % line
+                    changelog += u"    %s  \n" % line
                 if line.startswith(pkg.candidate.source_name):
                     match = re.match(r"(?P<source>.+) \((?P<version>.*)\) "
                                       "(?P<dist>.+); urgency=(?P<urgency>.+)",
                                      line)
-                    update_text += "%s\n%s\n\n" % (match.group("version"),
-                                                   "=" * \
-                                                   len(match.group("version")))
+                    update_text += u"%s\n%s\n\n" % (match.group("version"),
+                                                    "=" * \
+                                                    len(match.group("version")))
                 elif line.startswith("  "):
-                    update_text += "  %s  \n" % line
+                    update_text += u"  %s  \n" % line
                 elif line.startswith(" --"):
                     #FIXME: Add %z for the time zone - requires Python 2.6
-                    update_text += "  \n"
+                    update_text += u"  \n"
                     match = re.match("^ -- (?P<maintainer>.+) (?P<mail><.+>)  "
                                      "(?P<date>.+) (?P<offset>[-\+][0-9]+)$",
                                      line)
@@ -893,8 +922,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             self.update_detail(pkg_id, updates, obsoletes, vendor_url,
                                bugzilla_url, cve_url, restart,
                                format_string(update_text),
-                               format_string(changelog), state, issued,
-                               updated)
+                               format_string(changelog),
+                               state, issued, updated)
 
     def get_details(self, pkg_ids):
         """
@@ -918,7 +947,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             group = self._get_package_group(pkg)
             self.details(pkg_id, license, group,
                          format_string(pkg.description),
-                         pkg.homepage, pkg.packageSize)
+                         pkg.homepage.decode(DEFAULT_ENCODING),
+                         pkg.packageSize)
 
     @lock_cache
     def update_system(self, only_trusted):
@@ -1079,8 +1109,10 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                                                comp.name)
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_download_state(comp)[0]
-            if not FILTER_DEVELOPMENT in filtes:
-                self.repo_detail(repo_id, description, enabled)
+            if not FILTER_DEVELOPMENT in filters:
+                self.repo_detail(repo_id,
+                                 description.decode(DEFAULT_ENCODING),
+                                 enabled)
         # Emit distro's virtual update repositories
         for template in repos.distro.source_template.children:
             repo_id = "%s_child_%s" % (repos.distro.id, template.name)
@@ -1091,7 +1123,9 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             #FIXME: There is no inconsitent state in PackageKit
             enabled = repos.get_comp_child_state(template)[0]
             if not FILTER_DEVELOPMENT in filters:
-                self.repo_detail(repo_id, description, enabled)
+                self.repo_detail(repo_id,
+                                 description.decode(DEFAULT_ENCODING),
+                                 enabled)
         # Emit distro's cdrom sources
         for source in repos.get_cdrom_sources():
             if FILTER_NOT_DEVELOPMENT in filters and \
@@ -1102,15 +1136,17 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             description = re.sub(r"</?b>", "", repos.render_source(source))
             repo_id = "cdrom_%s_%s" % (source.uri, source.dist)
             repo_id.join(map(lambda c: "_%s" % c, source.comps))
-            self.repo_detail(repo_id, description, enabled)
+            self.repo_detail(repo_id, description.decode(DEFAULT_ENCODING),
+                             enabled)
         # Emit distro's virtual source code repositoriy
         if not FILTER_NOT_DEVELOPMENT in filters:
             repo_id = "%s_source" % repos.distro.id
             enabled = repos.get_source_code_state() or False
             #FIXME: no translation :(
-            description = "%s %s - Source code" % (repos.distro.id, 
+            description = "%s %s - Source code" % (repos.distro.id,
                                                    repos.distro.release)
-            self.repo_detail(repo_id, description, enabled)
+            self.repo_detail(repo_id, description.decode(DEFAULT_ENCODING),
+                             enabled)
         # Emit third party repositories
         for source in repos.get_isv_sources():
             if FILTER_NOT_DEVELOPMENT in filters and \
@@ -1121,7 +1157,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             description = re.sub(r"</?b>", "", repos.render_source(source))
             repo_id = "isv_%s_%s" % (source.uri, source.dist)
             repo_id.join(map(lambda c: "_%s" % c, source.comps))
-            self.repo_detail(repo_id, description, enabled)
+            self.repo_detail(repo_id, description.decode(DEFAULT_ENCODING),
+                             enabled)
 
     def repo_enable(self, repo_id, enable):
         """
@@ -1321,7 +1358,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             try:
                 ver.fetch_binary(dest, progress)
             except Exception, error:
-                self.error(ERROR_PACKAGE_DOWNLOAD_FAILED, error.message)
+                self.error(ERROR_PACKAGE_DOWNLOAD_FAILED,
+                           format_string(error.message))
             else:
                 self.files(id, os.path.join(dest,
                                             os.path.basename(ver.filename)))
@@ -1415,7 +1453,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             deb = apt.debfile.DebPackage(path, self._cache)
             packages.append(deb)
             if not deb.check():
-                self.error(ERROR_LOCAL_INSTALL_FAILED, deb._failureString)
+                self.error(ERROR_LOCAL_INSTALL_FAILED,
+                           format_string(deb._failureString))
             (install, remove, unauthenticated) = deb.required_changes
             pklog.debug("Changes: Install %s, Remove %s, Unauthenticated "
                         "%s" % (install, remove, unauthenticated))
@@ -1440,17 +1479,18 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         except InstallTimeOutPKError, e:
             self._recover()
             #FIXME: should provide more information
-            self.error(ERROR_INTERNAL_ERROR,
-                       "Transaction was cancelled since the installation "
-                       "of a package hung.\n"
-                       "This can be caused by maintainer scripts which "
-                       "require input on the terminal:\n%s" % e.message)
+            msg = "Transaction was cancelled since the installation " \
+                  "of a package hung.\n" \
+                  "This can be caused by maintainer scripts which " \
+                  "require input on the terminal:\n%s" % e.message
+            self.error(ERROR_INTERNAL_ERROR, format_string(msg))
         except PackageManagerFailedPKError, e:
             self._recover()
-            self.error(ERROR_INTERNAL_ERROR, "%s\n%s" % (e.message, e.output))
+            self.error(ERROR_INTERNAL_ERROR,
+                       format_string("%s\n%s" % (e.message, e.output)))
         except Exception, e:
             self._recover()
-            self.error(ERROR_INTERNAL_ERROR, e.message)
+            self.error(ERROR_INTERNAL_ERROR, format_string(e.message))
         self.percentage(100)
 
     def simulate_install_files(self, inst_files):
@@ -1468,7 +1508,8 @@ class PackageKitAptBackend(PackageKitBaseBackend):
             deb = apt.debfile.DebPackage(path, self._cache)
             pkgs.append(deb.pkgname)
             if not deb.check():
-                self.error(ERROR_LOCAL_INSTALL_FAILED, deb._failureString)
+                self.error(ERROR_LOCAL_INSTALL_FAILED,
+                           format_string(deb._failureString))
         self._emit_changes(pkgs)
 
     @lock_cache
@@ -1550,14 +1591,14 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                 if not self._is_package_visible(pkg, filters):
                     return
             else:
-                summary = ""
+                summary = u""
             if base_dependency.relation:
                 version = "%s%s" % (base_dependency.relation,
                                     base_dependency.version)
             else:
                 version = base_dependency.version
             self.package("%s;%s;;" % (base_dependency.name, version),
-                         INFO_BLOCKED, summary)
+                         INFO_BLOCKED, unicode(summary, DEFAULT_ENCODING))
 
         def check_dependency(pkg, base_dep):
             """Check if the given apt.package.Package can satisfy the
@@ -1836,24 +1877,26 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         try:
             self._cache.commit(PackageKitFetchProgress(self, fetch_range), 
                                PackageKitInstallProgress(self, install_range))
-        except apt.cache.FetchFailedException, e:
+        except apt.cache.FetchFailedException, err:
             self._open_cache(prange=(95,100))
-            pklog.critical(format_string(e.message))
-            self.error(ERROR_PACKAGE_DOWNLOAD_FAILED, format_string(e.message))
+            pklog.critical(format_string(err.message))
+            self.error(ERROR_PACKAGE_DOWNLOAD_FAILED,
+                       format_string(err.message))
         except apt.cache.FetchCancelledException:
             self._open_cache(prange=(95,100))
-        except InstallTimeOutPKError, e:
+        except InstallTimeOutPKError, err:
             self._recover()
             self._open_cache(prange=(95,100))
             #FIXME: should provide more information
-            self.error(ERROR_INTERNAL_ERROR,
-                       "Transaction was cancelled since the installation "
-                       "of a package hung.\n"
-                       "This can be caused by maintainer scripts which "
-                       "require input on the terminal:\n%s" % e.message)
-        except PackageManagerFailedPKError, e:
+            msg = "Transaction was cancelled since the installation " \
+                  "of a package hung.\n" \
+                  "This can be caused by maintainer scripts which " \
+                  "require input on the terminal:\n%s" % err.message
+            self.error(ERROR_INTERNAL_ERROR, format_string(msg))
+        except PackageManagerFailedPKError, err:
             self._recover()
-            self.error(ERROR_INTERNAL_ERROR, "%s\n%s" % (e.message, e.output))
+            self.error(ERROR_INTERNAL_ERROR,
+                       format_string("%s\n%s" % (err.message, err.output)))
         else:
             return True
         return False
@@ -1926,7 +1969,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
                     info = INFO_COLLECTION_AVAILABLE
                 else:
                     info = INFO_AVAILABLE
-        self.package(id, info, version.summary)
+        self.package(id, info, unicode(version.summary, DEFAULT_ENCODING))
 
     def _emit_all_visible_pkg_versions(self, filters, pkg):
         """Emit all available versions of a package."""

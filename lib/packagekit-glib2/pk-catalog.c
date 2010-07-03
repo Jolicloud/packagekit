@@ -2,21 +2,21 @@
  *
  * Copyright (C) 2008-2009 Richard Hughes <richard@hughsie.com>
  *
- * Licensed under the GNU General Public License Version 2
+ * Licensed under the GNU Lesser General Public License Version 2.1
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -648,91 +648,3 @@ pk_catalog_new (void)
 	catalog = g_object_new (PK_TYPE_CATALOG, NULL);
 	return PK_CATALOG (catalog);
 }
-
-/***************************************************************************
- ***                          MAKE CHECK TESTS                           ***
- ***************************************************************************/
-#ifdef EGG_TEST
-#include "egg-test.h"
-
-static void
-pk_catalog_test_lookup_cb (GObject *object, GAsyncResult *res, EggTest *test)
-{
-	PkCatalog *catalog = PK_CATALOG (object);
-	GError *error = NULL;
-	GPtrArray *array;
-	guint i;
-	PkPackage *package;
-
-	/* get the results */
-	array = pk_catalog_lookup_finish (catalog, res, &error);
-	if (array == NULL) {
-		egg_test_failed (test, "failed to lookup catalog: %s", error->message);
-		g_error_free (error);
-		goto out;
-	}
-
-	/* check size */
-	if (array->len != 3) {
-		egg_test_failed (test, "incorrect size, expecting 3 got %i", array->len);
-		goto out;
-	}
-
-	/* list for shits and giggles */
-	for (i=0; i<array->len; i++) {
-		package = g_ptr_array_index (array, i);
-		egg_debug ("%i\t%s", i, pk_package_get_id (package));
-	}
-out:
-	if (array != NULL)
-		g_ptr_array_unref (array);
-	egg_test_loop_quit (test);
-}
-
-static void
-pk_catalog_test_progress_cb (PkProgress *progress, PkProgressType type, EggTest *test)
-{
-	PkStatusEnum status;
-	if (type == PK_PROGRESS_TYPE_STATUS) {
-		g_object_get (progress,
-			      "status", &status,
-			      NULL);
-		egg_debug ("now %s", pk_status_enum_to_string (status));
-	}
-}
-
-void
-pk_catalog_test (gpointer user_data)
-{
-	EggTest *test = (EggTest *) user_data;
-	PkCatalog *catalog;
-	gchar *path;
-
-	if (!egg_test_start (test, "PkCatalog"))
-		return;
-
-	/************************************************************/
-	egg_test_title (test, "get an instance");
-	catalog = pk_catalog_new ();
-	egg_test_assert (test, catalog != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "get test file");
-	path = egg_test_get_data_file ("test.catalog");
-	egg_test_assert (test, path != NULL);
-
-	/************************************************************/
-	egg_test_title (test, "lookup catalog");
-	pk_catalog_lookup_async (catalog, path, NULL,
-			 	 (PkProgressCallback) pk_catalog_test_progress_cb, test,
-				 (GAsyncReadyCallback) pk_catalog_test_lookup_cb, test);
-	egg_test_loop_wait (test, 150000);
-	egg_test_success (test, "resolvd, searched, etc. in %i", egg_test_elapsed (test));
-
-	g_object_unref (catalog);
-	g_free (path);
-
-	egg_test_end (test);
-}
-#endif
-

@@ -1,3 +1,99 @@
+Version 0.6.6
+~~~~~~~~~~~~~
+Released: 2010-07-01
+
+Translations:
+ - Updates to Chinese translation (chenh)
+ - Updates to Japanese translation (khasida)
+ - Updates to Chinese (Taiwan) translation (zerng07)
+
+Libraries:
+ - glib: Explicitly mark the library as LGPLv2 by using the correct boilerplate code (Richard Hughes)
+
+Backends:
+ - apt: Adapt to split arguments from the Python backend (Sebastian Heinlein)
+ - apt: Adapt to an API change to allow OR searches (Sebastian Heinlein)
+ - apt: Fix group searching (Sebastian Heinlein)
+ - aptcc: Added distro upgrade support (Daniel Nicoletti)
+ - entropy: Implement forward compatibility support (Fabio Erculiani)
+ - pacman: Update for pacman-glib 3.4.0 (Jonathan Conder)
+ - ports: Use distfiles size, for uninstalled packages (Anders F Bjorklund)
+ - urpmi: Fix update-system command and only_trusted parameter (Aurelien Lefebvre)
+ - yum: Don't crash with an internal error if the .discinfo is malformed (Richard Hughes)
+ - zypp: Disable get_zypp in intialize (Michael Meeks)
+ - zypp: Fix FPE when there are no repos (Michael Meeks)
+ - zypp: Don't crash checking status of non-patches (Michael Meeks)
+
+New Features:
+ - Add a MaxSearchTime entry in CommandNotFound.conf and default to 2000ms (Richard Hughes)
+ - Assign names to our idle sources when using new versions of glib2 (Richard Hughes)
+ - Build the gtk-module for gtk-3.0 as well as gtk-2.0 if available (Richard Hughes)
+ - Port 'make check' to GTest rather than using our homegrown EggTest functionality (Richard Hughes)
+ - Get the control properties async when the user starts the pkmon tool (Richard Hughes)
+
+Bugfixes:
+ - Only set a cancelled error after we've given the backend a fighting chance to process the request (Richard Hughes)
+ - Move the packagekitd binary to libexec (Richard Hughes)
+ - Ensure we clear the cancel timer when we finish a PkBackend transaction (Richard Hughes)
+ - Ensure filters are properly split for spawned backends (Richard Hughes)
+
+Version 0.6.5
+~~~~~~~~~~~~~
+Released: 2010-06-02
+
+Notes:
+ - Added pacman-glib backend (Jonathan Conder)
+
+Translations:
+ - Updates to Chinese (Taiwan) (zh_TW) translation (zerng07)
+ - Updates to Danish (da) translation (kristho)
+ - Updates to Finnish (fi) translation (vpv)
+
+Libraries:
+ - glib: Add some new PkTask methods that handle the Media and Eula callbacks (Richard Hughes)
+ - qt: Add Q_ENUMS to DaemonError (Adrien Bustany)
+ - python: Fix a typo in format_string (Sebastian Heinlein)
+
+Backends:
+ - APT: Adapt patch for name searching to the 0.6 API (Sebastian Heinlein)
+ - APT: Allow to do an AND search for multiple package names (Sebastian Heinlein)
+ - APT: Make sure to use format_string consequently on every output (Sebastian Heinlein)
+ - APT: Show a sub progress for package downloads (Sebastian Heinlein)
+ - APT: Use UTF-8 as default encoding and allow to write unicode to stdout (Sebastian Heinlein)
+ - entropy: Make backend working with latest Entropy releases (Fabio Erculiani)
+ - pacman: Add basic transaction infrastructure (Jonathan Conder)
+ - pacman: Add cancellation infrastructure (Jonathan Conder)
+ - pacman: Add dependency lookup (Jonathan Conder)
+ - pacman: Add error reporting infrastructure (Jonathan Conder)
+ - pacman: Add package-related methods and helpers (Jonathan Conder)
+ - pacman: Add searching support (Jonathan Conder)
+ - pacman: Add support for installing packages (Jonathan Conder)
+ - pacman: Add support for managing repos (Jonathan Conder)
+ - pacman: Add support for package groups (Jonathan Conder)
+ - pacman: Add support for removing packages (Jonathan Conder)
+ - pacman: Add support for updating packages (Jonathan Conder)
+ - yum: Attempt to use removable disk repos if they exist at backend startup (Richard Hughes)
+ - yum: Catch and ignore the socket exception on oddball systems. Fixes rh#596779
+ - yum: Do not abort init when Yum.conf does not contain some required keys (Richard Hughes)
+ - yum: Fix up the filter check when doing GetRepoList(). Fixes rh#598697
+ - yum: Remove all the MediaManager implementations and write a small GIO based callback (Richard Hughes)
+ - yum: The transaction root is not set at _init(), so we have to re-query the root when we start each action (Richard Hughes)
+ - yum: Use the system installed version of the zif accelerator (Richard Hughes)
+ - zypp: Detect and advertise from /etc/meego-release (Peter J Zhu)
+ - zypp: Re-factor to pass PkBackend around (Michael Meeks)
+ - zypp: Re-work install_packages_thread (Michael Meeks)
+ - zypp: Unify code used to generate the list of updates (Michael Meeks)
+
+New Features:
+ - Add --force argument to pkcon refresh (Michael Meeks)
+ - Show the MediaChangeRequired signals in pkmon (Richard Hughes)
+ - Use the new PkTask API in pkcon so we can deal with Media and Eula queries (Richard Hughes)
+
+Bugfixes:
+ - Build conditional BUILD_ZIF needs to be at the top level (Michael Meeks)
+ - Fix problem whereby the terminal wouldn't return data to scanf from a read (Michael Meeks)
+ - Fix up several daemon thinkos when a client tries to set a root other than '/' (Richard Hughes)
+
 Version 0.6.4
 ~~~~~~~~~~~~~
 Released: 2010-05-06
