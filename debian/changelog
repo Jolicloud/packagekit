@@ -3,7 +3,7 @@ packagekit (0.6.4-git~20101005-0jolicloud2) robby; urgency=low
   * Convert properties from dbus types to python in client interface
   * Untrusted packages no longer require user to authenticate
 
- -- Andrew Stormont <andy@jolicloud>  Thu, 03 Jun 2010 10:50:05 +0200
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 03 Jun 2010 10:50:05 +0200
 
 packagekit (0.6.4-git~20101005-0jolicloud1) robby; urgency=low
 
