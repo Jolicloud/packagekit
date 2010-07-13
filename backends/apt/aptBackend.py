@@ -2128,13 +2128,15 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         except:
             self.error(ERROR_PACKAGE_NOT_FOUND,
                        "There isn't any package named %s" % name)
-        #FIXME:This requires a not yet released fix in python-apt
         try:
             version = pkg.versions[version_string]
         except:
-            self.error(ERROR_PACKAGE_NOT_FOUND,
-                       "There isn't any verion %s of %s" % (version_string,
-                                                            name))
+            try:
+                version = pkg.installed
+            except:
+                self.error(ERROR_PACKAGE_NOT_FOUND,
+                           "There isn't any verion %s of %s" % (version_string,
+                                                                name))
         if version.architecture != arch:
             self.error(ERROR_PACKAGE_NOT_FOUND,
                        "Version %s of %s isn't available for architecture "
