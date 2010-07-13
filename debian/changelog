@@ -1,3 +1,12 @@
+packagekit (0.6.6-git~20100703-0jolicloud2) robby; urgency=low
+
+  * Filters are done by the backend class now, not need to do them in
+    the apt backend
+  * Bind SimulateRemovePackages in python client interface
+  * We don't need to fix python-apt after all!
+
+ -- Andrew Stormont <andy@jolicloud.org>  Tue, 13 Jul 2010 12:56:28 +0200
+
 packagekit (0.6.6-git~20100703-0jolicloud1) robby; urgency=low
 
   [ Michael Meeks ]
