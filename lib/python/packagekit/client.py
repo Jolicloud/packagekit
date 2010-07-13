@@ -292,6 +292,13 @@ class PackageKitClient:
         '''
         return self._run_transaction("RefreshCache", (force,), exit_handler)
 
+    def simulate_remove_packages(self, packages, auto_remove=True, exit_handler=None):
+        '''Simulate removal of packages with the given package ids'''
+        package_ids = self._to_package_id_list(packages)
+        return self._run_transaction("SimulateRemovePackages",
+                                     [package_ids, auto_remove], 
+                                     exit_handler)
+
     def get_repo_list(self, filters=FILTER_NONE, exit_handler=None):
         '''Get the repositories'''
         return self._run_transaction("GetRepoList", (filters,), exit_handler)
