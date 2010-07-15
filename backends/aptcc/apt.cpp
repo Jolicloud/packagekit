@@ -1703,6 +1703,12 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 
 		// dump errors into cerr (pass it to the parent process)
 		_error->DumpErrors();
+		
+		// HACK: try to correct the situation
+		if(res == pkgPackageManager::Failed) {
+				cerr << "Aptcc: A package failed to install.  Trying to recover:" << endl;
+				system("dpkg --configure -a");
+		}
 
 		close(readFromChildFD[0]);
 		close(writeToChildFD[1]);
