@@ -1,3 +1,9 @@
+packagekit (0.6.6-git~20100703-0jolicloud3) robby; urgency=low
+
+  * Run dpkg --configure -a when an error occurs
+
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 15 Jul 2010 19:00:08 +0200
+
 packagekit (0.6.6-git~20100703-0jolicloud2) robby; urgency=low
 
   * Filters are done by the backend class now, not need to do them in
