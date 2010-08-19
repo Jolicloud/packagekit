@@ -1625,6 +1625,8 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 		return false;
 	}
 
+	pk_backend_set_status (m_backend, PK_STATUS_ENUM_DOWNLOAD);
+	pk_backend_set_simultaneous_mode(m_backend, true);
 	// Download and check if we can continue
 	if (fetcher.Run() != pkgAcquire::Continue
 	    && _cancel == false)
@@ -1633,6 +1635,7 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 		show_errors(m_backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
 		return false;
 	}
+	pk_backend_set_simultaneous_mode(m_backend, false);
 
 	if (_error->PendingError() == true) {
 		cout << "PendingError download" << endl;
