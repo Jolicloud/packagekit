@@ -1498,6 +1498,13 @@ bool aptcc::checkUpdates()
    happen and then calls the download routines */
 bool aptcc::installPackages(pkgCacheFile &Cache)
 {
+	// Run dpkg --configure -a if needed
+	if (checkUpdates() == true) {
+		setenv("DEBIAN_FRONTEND", "noninteractive", 1);
+		system("dpkg --configure -a");
+		unsetenv("DEBIAN_FRONTEND");
+	}
+
 	//cout << "installPackages() called" << endl;
 	if (_config->FindB("APT::Get::Purge",false) == true)
 	{
@@ -1596,8 +1603,8 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	if (DebBytes != Cache->DebSize())
 	{
  	    cout << DebBytes << ',' << Cache->DebSize() << endl;
-cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
-		_error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");
+	    cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
+	    _error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");
 	}
 
 	// Number of bytes
@@ -1731,10 +1738,6 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 			setenv("LANG", locale, 1);
 		//setenv("LANG", "C", 1);
 		}
-
-		// Run dpkg --configure -a if needed
-		if (checkUpdates() == true)
-			system("dpkg --configure -a");
 
 		// Pass the write end of the pipe to the install function
 		res = PM->DoInstallPostFork(readFromChildFD[1]);
