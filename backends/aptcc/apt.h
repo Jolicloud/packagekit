@@ -118,6 +118,11 @@ public:
 	void emit_update_detail(const pkgCache::PkgIterator &pkg);
 
 	/**
+	 *  seems to checkUpdates packages
+	 */
+	bool checkUpdates();
+
+	/**
 	 *  seems to install packages
 	 */
 	bool installPackages(pkgCacheFile &Cache);
