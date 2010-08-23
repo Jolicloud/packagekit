@@ -1367,6 +1367,14 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 	bool WithLock = !simulate; // Check to see if we are just simulating,
 				   //since for that no lock is needed
 
+	// Run dpkg --configure -a if needed
+	if (WithLock == true && checkUpdates() == true) {
+		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
+		setenv("DEBIAN_FRONTEND", "noninteractive", 1);
+		system("dpkg --configure -a");
+		unsetenv("DEBIAN_FRONTEND");
+	}
+
 	pkgCacheFile Cache;
 	OpTextProgress Prog(*_config);
 	int timeout = 10;
@@ -1498,14 +1506,6 @@ bool aptcc::checkUpdates()
    happen and then calls the download routines */
 bool aptcc::installPackages(pkgCacheFile &Cache)
 {
-	// Run dpkg --configure -a if needed
-	if (checkUpdates() == true) {
-		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
-		setenv("DEBIAN_FRONTEND", "noninteractive", 1);
-		system("dpkg --configure -a");
-		unsetenv("DEBIAN_FRONTEND");
-	}
-
 	//cout << "installPackages() called" << endl;
 	if (_config->FindB("APT::Get::Purge",false) == true)
 	{
