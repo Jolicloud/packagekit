@@ -1535,7 +1535,41 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 }
 
 									/*}}}*/
+// System::checkUpdates - Check if the updates dir is dirty		/*{{{*/
+// ---------------------------------------------------------------------
+/* This does a check of the updates directory (dpkg journal) to see if it has 
+   any entries in it. */
+bool aptcc::checkUpdates()
+{
+   // Check for updates.. (dirty)
+   string File = flNotFile(_config->Find("Dir::State::status")) + "updates/";
+   DIR *DirP = opendir(File.c_str());
+   if (DirP == 0)
+      return false;
+   
+   /* We ignore any files that are not all digits, this skips .,.. and 
+      some tmp files dpkg will leave behind.. */
+   bool Damaged = false;
+   for (struct dirent *Ent = readdir(DirP); Ent != 0; Ent = readdir(DirP))
+   {
+      Damaged = true;
+      for (unsigned int I = 0; Ent->d_name[I] != 0; I++)
+      {
+	 // Check if its not a digit..
+	 if (isdigit(Ent->d_name[I]) == 0)
+	 {
+	    Damaged = false;
+	    break;
+	 }
+      }
+      if (Damaged == true)
+	 break;
+   }
+   closedir(DirP);
 
+   return Damaged;
+}
+									/*}}}*/
 // InstallPackages - Actually download and install the packages		/*{{{*/
 // ---------------------------------------------------------------------
 /* This displays the informative messages describing what is going to
@@ -1779,18 +1813,16 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 		//setenv("LANG", "C", 1);
 		}
 
+		// Run dpkg --configure -a if needed
+		if (checkUpdates() == true)
+			system("dpkg --configure -a");
+
 		// Pass the write end of the pipe to the install function
 		res = PM->DoInstallPostFork(readFromChildFD[1]);
 
 		// dump errors into cerr (pass it to the parent process)
 		_error->DumpErrors();
 		
-		// HACK: try to correct the situation
-		if(res == pkgPackageManager::Failed) {
-				cerr << "Aptcc: A package failed to install.  Trying to recover:" << endl;
-				system("dpkg --configure -a");
-		}
-
 		close(readFromChildFD[0]);
 		close(writeToChildFD[1]);
 		close(readFromChildFD[1]);
@@ -1822,4 +1854,5 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 	cout << "Parent finished..." << endl;
 	return true;
 }
+
 
