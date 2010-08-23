@@ -1370,9 +1370,7 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 	// Run dpkg --configure -a if needed
 	if (WithLock == true && checkUpdates() == true) {
 		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
-		setenv("DEBIAN_FRONTEND", "noninteractive", 1);
-		system("dpkg --configure -a");
-		unsetenv("DEBIAN_FRONTEND");
+		system("DEBIAN_FRONTEND=noninteractive dpkg --configure -a");
 	}
 
 	pkgCacheFile Cache;

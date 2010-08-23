@@ -1,3 +1,10 @@
+packagekit (0.6.6-git~20100703-0jolicloud5) robby; urgency=low
+
+  * Print message before running dpkg --configure -a
+  * Moving dpkg --configure -a code in to runTransaction in apt.cpp
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 23 Aug 2010 16:40:38 +0200
+
 packagekit (0.6.6-git~20100703-0jolicloud4) robby; urgency=low
 
   * Aptcc: Run dpkg --configure -a if it needs it before starting.
