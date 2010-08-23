@@ -48,7 +48,7 @@ Depends: ${shlibs:Depends},
 	 ${python:Depends},
 	 libpackagekit-glib2-14 (= ${binary:Version}),
 	 dbus,
-	 packagekit-backend-aptcc | packagekit-backend-apt | packagekit-backend-smart
+	 packagekit-backend-aptcc (= ${binary:Version}) | packagekit-backend-apt (= ${binary:Version}) | packagekit-backend-smart (= ${binary:Version})
 Description: provides a software installation daemon
  PackageKit allows to perform simple software management tasks over a DBus 
  interface e.g. refreshing the cache, updating, installing and removing 
