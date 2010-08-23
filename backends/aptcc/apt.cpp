@@ -1500,6 +1500,7 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 {
 	// Run dpkg --configure -a if needed
 	if (checkUpdates() == true) {
+		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
 		setenv("DEBIAN_FRONTEND", "noninteractive", 1);
 		system("dpkg --configure -a");
 		unsetenv("DEBIAN_FRONTEND");
