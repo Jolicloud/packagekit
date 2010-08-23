@@ -412,8 +412,7 @@ void aptcc::emitUpdates(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator
 			} else if (ends_with(archive, "-updates")) {
 				state = PK_INFO_ENUM_BUGFIX;
 			}
-		} else if (origin.compare("Backports.org archive") == 0 ||
-				   ends_with(origin, "-backports")) {
+		} else if (origin.compare("Backports.org archive") == 0) {
 			state = PK_INFO_ENUM_ENHANCEMENT;
 		}
 
