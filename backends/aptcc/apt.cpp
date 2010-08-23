@@ -57,8 +57,7 @@ aptcc::aptcc(PkBackend *backend, bool &cancel)
 	Policy(0),
 	m_backend(backend),
 	_cancel(cancel),
-	m_terminalTimeout(120),
-	m_lastSubProgress(0)
+	m_terminalTimeout(120)
 {
 	_cancel = false;
 }
@@ -381,7 +380,8 @@ void aptcc::emit_packages(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterat
 void aptcc::emitUpdates(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > &output,
 			 PkBitfield filters)
 {
-	PkInfoEnum state;
+	// the default update info
+	PkInfoEnum state = PK_INFO_ENUM_NORMAL;
 	// Sort so we can remove the duplicated entries
 	sort(output.begin(), output.end(), compare());
 	// Remove the duplicated entries
@@ -396,9 +396,6 @@ void aptcc::emitUpdates(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator
 		if (_cancel) {
 			break;
 		}
-
-		// the default update info
-		state = PK_INFO_ENUM_NORMAL;
 
 		// let find what kind of upgrade this is
 		pkgCache::VerFileIterator vf = i->second.FileList();
@@ -1200,11 +1197,11 @@ void aptcc::updateInterface(int fd, int writeFd)
 			}
 			//cout << "got line: " << line << endl;
 
-			gchar **split  = g_strsplit(line, ":",5);
-			gchar *status  = g_strstrip(split[0]);
-			gchar *pkg     = g_strstrip(split[1]);
+			gchar **split = g_strsplit(line, ":",5);
+			gchar *status = g_strstrip(split[0]);
+			gchar *pkg = g_strstrip(split[1]);
 			gchar *percent = g_strstrip(split[2]);
-			gchar *str     = g_strdup(g_strstrip(split[3]));
+			gchar *str = g_strdup(g_strstrip(split[3]));
 
 			// major problem here, we got unexpected input. should _never_ happen
 			if(!(pkg && status)) {
@@ -1454,10 +1451,11 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 		// failed to open cache, try checkDeps then..
 		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
 		if (WithLock == false || (timeout <= 0)) {
-			show_errors(m_backend, PK_ERROR_ENUM_CANNOT_GET_LOCK);
+			pk_backend_error_code(m_backend,
+					      PK_ERROR_ENUM_NO_CACHE,
+					      "Could not open package cache.");
 			return false;
 		} else {
-			_error->Discard();
 			pk_backend_set_status (m_backend, PK_STATUS_ENUM_WAITING_FOR_LOCK);
 			sleep(1);
 			timeout--;
@@ -1674,8 +1672,8 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	if (DebBytes != Cache->DebSize())
 	{
  	    cout << DebBytes << ',' << Cache->DebSize() << endl;
-cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
-/*		_error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");*/
+	    cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
+	    _error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");
 	}
 
 	// Number of bytes
@@ -1725,8 +1723,6 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 		return false;
 	}
 
-	pk_backend_set_status (m_backend, PK_STATUS_ENUM_DOWNLOAD);
-	pk_backend_set_simultaneous_mode(m_backend, true);
 	// Download and check if we can continue
 	if (fetcher.Run() != pkgAcquire::Continue
 	    && _cancel == false)
@@ -1735,7 +1731,6 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 		show_errors(m_backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
 		return false;
 	}
-	pk_backend_set_simultaneous_mode(m_backend, false);
 
 	if (_error->PendingError() == true) {
 		cout << "PendingError download" << endl;
@@ -1812,10 +1807,6 @@ cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
 			setenv("LANG", locale, 1);
 		//setenv("LANG", "C", 1);
 		}
-
-		// Run dpkg --configure -a if needed
-		if (checkUpdates() == true)
-			system("dpkg --configure -a");
 
 		// Pass the write end of the pipe to the install function
 		res = PM->DoInstallPostFork(readFromChildFD[1]);
