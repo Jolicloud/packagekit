@@ -1,3 +1,9 @@
+packagekit (0.6.6-git~20100703-0jolicloud4) robby; urgency=low
+
+  * Aptcc: Run dpkg --configure -a if it needs it before starting.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 23 Aug 2010 14:47:34 +0200
+
 packagekit (0.6.6-git~20100703-0jolicloud3) robby; urgency=low
 
   * Run dpkg --configure -a when an error occurs
