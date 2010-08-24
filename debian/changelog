@@ -1,3 +1,9 @@
+packagekit (0.6.6-git~20100703-0jolicloud7~adam1) adam-dev; urgency=low
+
+  * Port to lucid.
+
+ -- Adam McDaniel <adam@jolicloud.org>  Tue, 24 Aug 2010 12:42:01 -0600
+
 packagekit (0.6.6-git~20100703-0jolicloud6) robby; urgency=low
 
   * Bind backend version to PackageKit version
