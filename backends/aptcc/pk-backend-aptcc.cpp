@@ -397,12 +397,6 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 
-	// Run dpkg --configure -a if needed
-	if (m_apt->checkUpdates() == true) {
-		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
-		system("DEBIAN_FRONTEND=noninteractive dpkg --configure -a");
-	}
-
 	pkgCacheFile Cache;
 	OpTextProgress Prog(*_config);
 	int timeout = 10;

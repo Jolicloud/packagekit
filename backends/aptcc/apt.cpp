@@ -70,6 +70,12 @@ bool aptcc::init()
 
 	// Set PackageKit status
 	pk_backend_set_status(m_backend, PK_STATUS_ENUM_LOADING_CACHE);
+	
+	// Run dpkg --configure -a if needed
+	if (checkUpdates() == true) {
+		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
+		system("DEBIAN_FRONTEND=noninteractive dpkg --configure -a");
+	}
 
 	// set locale
 	if (locale = pk_backend_get_locale(m_backend)) {
@@ -1441,12 +1447,6 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 	//cout << "runTransaction" << simulate << remove << endl;
 	bool WithLock = !simulate; // Check to see if we are just simulating,
 				   //since for that no lock is needed
-
-	// Run dpkg --configure -a if needed
-	if (WithLock == true && checkUpdates() == true) {
-		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
-		system("DEBIAN_FRONTEND=noninteractive dpkg --configure -a");
-	}
 
 	pkgCacheFile Cache;
 	OpTextProgress Prog(*_config);
