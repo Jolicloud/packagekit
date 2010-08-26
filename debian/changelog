@@ -1,3 +1,10 @@
+packagekit (0.6.6-git~20100703-0jolicloud7) robby; urgency=low
+
+  * Move the dpkg configure code init apt::init of aptcc backend
+  * Fix dpkg --configure -a when calling packages/check_updates
+
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 26 Aug 2010 15:17:42 +0200
+
 packagekit (0.6.6-git~20100703-0jolicloud6) robby; urgency=low
 
   * Bind backend version to PackageKit version
