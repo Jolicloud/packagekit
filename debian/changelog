@@ -1,3 +1,9 @@
+packagekit (0.6.6-git~20100703-0jolicloud7+lucid0) robby-lucid; urgency=low
+
+  * Port to lucid.
+
+ -- Adam McDaniel <adam@jolicloud.org>  Tue, 24 Aug 2010 12:42:01 -0600
+
 packagekit (0.6.6-git~20100703-0jolicloud7) robby; urgency=low
 
   * Move the dpkg configure code init apt::init of aptcc backend
