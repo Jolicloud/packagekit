@@ -1,3 +1,9 @@
+packagekit (0.6.6-git~20100703-0jolicloud8) robby; urgency=low
+
+  * aptcc: added archives cleaning after a system update.
+
+ -- Jérémy Bethmont <jerem@jolicloud.org>  Fri, 03 Sep 2010 16:09:24 +0200
+
 packagekit (0.6.6-git~20100703-0jolicloud7) robby; urgency=low
 
   * Move the dpkg configure code init apt::init of aptcc backend
