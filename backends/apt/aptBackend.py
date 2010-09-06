@@ -755,7 +755,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self.percentage(None)
         self._check_init(progress=False)
         # Start with a safe upgrade
-        self._cache.upgrade()
+        self._cache.upgrade(distUpgrade = True)
         upgrades_safe = self._cache.getChanges()
         resolver = apt.cache.ProblemResolver(self._cache)
         for upgrade in upgrades_safe:

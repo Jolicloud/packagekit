@@ -1,0 +1,7 @@
+debian/tmp/usr/include/*
+debian/tmp/usr/lib/lib*.a
+debian/tmp/usr/lib/libpackagekit.so
+debian/tmp/usr/lib/pkgconfig/*
+docs/html/*.html usr/share/doc/packagekit-dev/html/
+docs/html/*.css usr/share/doc/packagekit-dev/html/
+docs/html/img/*.png usr/share/doc/packagekit-dev/html/img/

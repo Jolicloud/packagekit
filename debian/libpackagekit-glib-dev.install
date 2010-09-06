@@ -1,0 +1,5 @@
+debian/tmp/usr/include/PackageKit/packagekit-glib
+debian/tmp/usr/lib/libpackagekit-glib.la
+debian/tmp/usr/lib/libpackagekit-glib.so
+debian/tmp/usr/lib/pkgconfig/packagekit-glib.pc
+debian/tmp/usr/share/gtk-doc/html/PackageKit
