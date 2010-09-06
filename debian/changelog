@@ -1,8 +1,8 @@
-packagekit (0.6.6-git~20100703-0jolicloud7+lucid0) robby-lucid; urgency=low
+packagekit (0.6.6-git~20100703-0jolicloud8) robby; urgency=low
 
-  * Port to lucid.
+  * aptcc: added archives cleaning after a system update.
 
- -- Adam McDaniel <adam@jolicloud.org>  Tue, 24 Aug 2010 12:42:01 -0600
+ -- Jérémy Bethmont <jerem@jolicloud.org>  Fri, 03 Sep 2010 16:09:24 +0200
 
 packagekit (0.6.6-git~20100703-0jolicloud7) robby; urgency=low
 
