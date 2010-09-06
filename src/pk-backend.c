@@ -67,7 +67,7 @@
  * If backends do not do this, they will be Finished() manually,
  * and a Message() will be sent to warn the developer
  */
-#define PK_BACKEND_FINISHED_ERROR_TIMEOUT	500 /* ms */
+#define PK_BACKEND_FINISHED_ERROR_TIMEOUT	2000 /* ms */
 
 /**
  * PK_BACKEND_FINISHED_TIMEOUT_GRACE:
@@ -171,6 +171,7 @@ enum {
 	PROP_STATUS,
 	PROP_ROLE,
 	PROP_TRANSACTION_ID,
+	PROP_SPEED,
 	PROP_LAST
 };
 
@@ -1801,6 +1802,15 @@ pk_backend_get_is_finished (PkBackend *backend)
 }
 
 /**
+ * pk_backend_get_is_error_set:
+ **/
+gboolean
+pk_backend_get_is_error_set (PkBackend *backend)
+{
+	return backend->priv->set_error;
+}
+
+/**
  * pk_backend_error_timeout_delay_cb:
  *
  * We have to call Finished() within PK_BACKEND_FINISHED_ERROR_TIMEOUT of ErrorCode(), enforce this.
@@ -1822,7 +1832,10 @@ pk_backend_error_timeout_delay_cb (gpointer data)
 	item = pk_message_new ();
 	g_object_set (item,
 		      "type", PK_MESSAGE_ENUM_BACKEND_ERROR,
-		      "details", "ErrorCode() has to be followed with Finished()!",
+		      "details", "ErrorCode() has to be followed immediately with Finished()!\n"
+		      "Failure to do so, results in PK assuming the thread has hung, and desparately "
+		      " starting another backend thread to process future requests: be warned, "
+		      " your code is about to break in exotic ways.",
 		      NULL);
 
 	/* warn the backend developer that they've done something worng
@@ -2001,6 +2014,7 @@ pk_backend_set_role_internal (PkBackend *backend, PkRoleEnum role)
 	egg_debug ("setting role to %s", pk_role_enum_to_string (role));
 	backend->priv->role = role;
 	backend->priv->status = PK_STATUS_ENUM_WAIT;
+	g_signal_emit (backend, signals[SIGNAL_STATUS_CHANGED], 0, backend->priv->status);
 	return TRUE;
 }
 
@@ -2463,6 +2477,9 @@ pk_backend_get_property (GObject *object, guint prop_id, GValue *value, GParamSp
 	case PROP_TRANSACTION_ID:
 		g_value_set_string (value, priv->transaction_id);
 		break;
+	case PROP_SPEED:
+		g_value_set_uint (value, priv->speed);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -2495,6 +2512,9 @@ pk_backend_set_property (GObject *object, guint prop_id, const GValue *value, GP
 		g_free (priv->transaction_id);
 		priv->transaction_id = g_value_dup_string (value);
 		egg_debug ("setting backend tid as %s", priv->transaction_id);
+		break;
+	case PROP_SPEED:
+		priv->speed = g_value_get_uint (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2587,6 +2607,14 @@ pk_backend_class_init (PkBackendClass *klass)
 				     NULL,
 				     G_PARAM_READWRITE);
 	g_object_class_install_property (object_class, PROP_TRANSACTION_ID, pspec);
+
+	/**
+	 * PkBackend:speed:
+	 */
+	pspec = g_param_spec_uint ("speed", NULL, NULL,
+				   0, G_MAXUINT, PK_STATUS_ENUM_UNKNOWN,
+				   G_PARAM_READWRITE);
+	g_object_class_install_property (object_class, PROP_SPEED, pspec);
 
 	/* properties */
 	signals[SIGNAL_STATUS_CHANGED] =
@@ -2731,6 +2759,7 @@ pk_backend_reset (PkBackend *backend)
 	backend->priv->last_remaining = 0;
 	backend->priv->last_percentage = PK_BACKEND_PERCENTAGE_DEFAULT;
 	backend->priv->last_subpercentage = PK_BACKEND_PERCENTAGE_INVALID;
+	backend->priv->speed = 0;
 	pk_store_reset (backend->priv->store);
 	pk_time_reset (backend->priv->time);
 

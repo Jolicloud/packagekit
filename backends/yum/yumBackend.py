@@ -850,6 +850,13 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
         '''
         Implement the get-categories functionality
         '''
+        try:
+            self._check_init(lazy_cache=True)
+        except PkError, e:
+            self.error(e.code, e.details, exit=False)
+            return
+        self.yumbase.conf.cache = 0 # Allow new files
+        self.percentage(None)
         self.status(STATUS_QUERY)
         self.allow_cancel(True)
         cats = []
@@ -2738,6 +2745,14 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
             if desc:
                 desc = desc.replace("\t", " ")
 
+            # add link to bohdi if available
+            if notice['from'].find('updates@fedoraproject.org') != -1:
+                if notice['update_id']:
+                    releasever = self.yumbase.conf.yumvar['releasever']
+                    href = "https://admin.fedoraproject.org/updates/F%s/%s" % (releasever, notice['update_id'])
+                    title = "%s Update %s" % (notice['release'], notice['update_id'])
+                    urls['vendor'].append("%s;%s" % (href, title))
+
             # Update References (Bugzilla, CVE ...)
             refs = notice['references']
             if refs:
@@ -2755,18 +2770,13 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
                         else:
                             urls['vendor'].append("%s;%s" % (href, title))
 
-            # add link to bohdi if available
-            if notice['update_id']:
-                releasever = self.yumbase.conf.yumvar['releasever']
-                href = "https://admin.fedoraproject.org/updates/F%s/%s" % (releasever, notice['update_id'])
-                title = "%s Update %s" % (notice['release'], notice['update_id'])
-                urls['vendor'].append("%s;%s" % (href, title))
-
             # other interesting data:
             changelog = ''
             state = notice['status'] or ''
             issued = notice['issued'] or ''
             updated = notice['updated'] or ''
+            if updated == issued:
+                updated = ''
 
             # Reboot flag
             if notice.get_metadata().has_key('reboot_suggested') and notice['reboot_suggested']:
@@ -2846,7 +2856,11 @@ class PackageKitYumBackend(PackageKitBaseBackend, PackagekitPackage):
 
                     # is older than what we have already?
                     if instpkg:
-                        evr = _getEVR(version[1])
+                        evr = ('0', '0', '0')
+                        try:
+                            evr = _getEVR(version[1])
+                        except Exception, e:
+                            pass
                         if evr == ('0', '0', '0'):
                             changelog += ";*Could not parse header:* '%s', *expected*: 'Firstname Lastname <email@account.com> - version-release';" % header
                         rc = rpmUtils.miscutils.compareEVR((instpkg.epoch, instpkg.version, instpkg.release.split('.')[0]), evr)

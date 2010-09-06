@@ -57,7 +57,8 @@ aptcc::aptcc(PkBackend *backend, bool &cancel)
 	Policy(0),
 	m_backend(backend),
 	_cancel(cancel),
-	m_terminalTimeout(120)
+	m_terminalTimeout(120),
+	m_lastSubProgress(0)
 {
 	_cancel = false;
 }
@@ -386,8 +387,7 @@ void aptcc::emit_packages(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterat
 void aptcc::emitUpdates(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > &output,
 			 PkBitfield filters)
 {
-	// the default update info
-	PkInfoEnum state = PK_INFO_ENUM_NORMAL;
+	PkInfoEnum state;
 	// Sort so we can remove the duplicated entries
 	sort(output.begin(), output.end(), compare());
 	// Remove the duplicated entries
@@ -402,6 +402,9 @@ void aptcc::emitUpdates(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator
 		if (_cancel) {
 			break;
 		}
+
+		// the default update info
+		state = PK_INFO_ENUM_NORMAL;
 
 		// let find what kind of upgrade this is
 		pkgCache::VerFileIterator vf = i->second.FileList();
@@ -418,7 +421,8 @@ void aptcc::emitUpdates(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator
 			} else if (ends_with(archive, "-updates")) {
 				state = PK_INFO_ENUM_BUGFIX;
 			}
-		} else if (origin.compare("Backports.org archive") == 0) {
+		} else if (origin.compare("Backports.org archive") == 0 ||
+				   ends_with(origin, "-backports")) {
 			state = PK_INFO_ENUM_ENHANCEMENT;
 		}
 
@@ -497,7 +501,7 @@ void aptcc::povidesCodec(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterato
 			}
 			g_free(itemreg);
 		} else {
-			egg_debug("Did not match: %", value);
+			egg_debug("Did not match: %s", value);
 		}
 	}
 	regfree(&pkre);
@@ -1202,11 +1206,11 @@ void aptcc::updateInterface(int fd, int writeFd)
 			}
 			//cout << "got line: " << line << endl;
 
-			gchar **split = g_strsplit(line, ":",5);
-			gchar *status = g_strstrip(split[0]);
-			gchar *pkg = g_strstrip(split[1]);
+			gchar **split  = g_strsplit(line, ":",5);
+			gchar *status  = g_strstrip(split[0]);
+			gchar *pkg     = g_strstrip(split[1]);
 			gchar *percent = g_strstrip(split[2]);
-			gchar *str = g_strdup(g_strstrip(split[3]));
+			gchar *str     = g_strdup(g_strstrip(split[3]));
 
 			// major problem here, we got unexpected input. should _never_ happen
 			if(!(pkg && status)) {
@@ -1253,37 +1257,112 @@ void aptcc::updateInterface(int fd, int writeFd)
 				pk_backend_message(m_backend,
 						   PK_MESSAGE_ENUM_CONFIG_FILES_CHANGED,
 						   confmsg);
-				write(writeFd, "N\n", 2);
+				if (write(writeFd, "N\n", 2) != 2) {
+					// TODO we need a DPKG patch to use debconf
+					egg_debug("Failed to write");
+				}
 			} else if (strstr(status, "pmstatus") != NULL) {
+				// INSTALL & UPDATE
+				// - Running dpkg
+				// loops ALL
+				// -  0 Installing pkg (sometimes this is skiped)
+				// - 25 Preparing pkg
+				// - 50 Unpacking pkg
+				// - 75 Preparing to configure pkg
+				//   ** Some pkgs have
+				//   - Running post-installation
+				//   - Running dpkg
+				// reloops all
+				// -   0 Configuring pkg
+				// - +25 Configuring pkg (SOMETIMES)
+				// - 100 Installed pkg
+				// after all
+				// - Running post-installation
+
+				// REMOVE
+				// - Running dpkg
+				// loops
+				// - 25  Removing pkg
+				// - 50  Preparing for removal of pkg
+				// - 75  Removing pkg
+				// - 100 Removed pkg
+				// after all
+				// - Running post-installation
+
 				// Let's start parsing the status:
-				if (starts_with(str, "Preparing")) {
+				if (starts_with(str, "Preparing to configure")) {
+					// Preparing to Install/configure
+					cout << "Found Preparing to configure! " << line << endl;
+					// The next item might be Configuring so better it be 100
+					m_lastSubProgress = 100;
+					emitTransactionPackage(pkg, PK_INFO_ENUM_PREPARING);
+					pk_backend_set_sub_percentage(m_backend, 75);
+				} else if (starts_with(str, "Preparing for removal")) {
+					// Preparing to Install/configure
+					cout << "Found Preparing for removal! " << line << endl;
+					m_lastSubProgress = 50;
+					emitTransactionPackage(pkg, PK_INFO_ENUM_REMOVING);
+					pk_backend_set_sub_percentage(m_backend, m_lastSubProgress);
+				} else if (starts_with(str, "Preparing")) {
 					// Preparing to Install/configure
 					cout << "Found Preparing! " << line << endl;
+					// if last package is different then finish it
+					if (!m_lastPackage.empty() && m_lastPackage.compare(pkg) != 0) {
+						cout << "FINISH the last package: " << m_lastPackage << endl;
+						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
+					}
 					emitTransactionPackage(pkg, PK_INFO_ENUM_PREPARING);
+					pk_backend_set_sub_percentage(m_backend, 25);
 				} else if (starts_with(str, "Unpacking")) {
 					cout << "Found Unpacking! " << line << endl;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_DECOMPRESSING);
+					pk_backend_set_sub_percentage(m_backend, 50);
 				} else if (starts_with(str, "Configuring")) {
 					// Installing Package
 					cout << "Found Configuring! " << line << endl;
+					if (m_lastSubProgress >= 100 && !m_lastPackage.empty()) {
+						cout << "FINISH the last package: " << m_lastPackage << endl;
+						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
+						m_lastSubProgress = 0;
+					}
 					emitTransactionPackage(pkg, PK_INFO_ENUM_INSTALLING);
+					pk_backend_set_sub_percentage(m_backend, m_lastSubProgress);
+					m_lastSubProgress += 25;
 				} else if (starts_with(str, "Running dpkg")) {
 					cout << "Found Running dpkg! " << line << endl;
 				} else if (starts_with(str, "Running")) {
 					cout << "Found Running! " << line << endl;
-					emitTransactionPackage(pkg, PK_INFO_ENUM_CLEANUP);
+					pk_backend_set_status (m_backend, PK_STATUS_ENUM_COMMIT);
 				} else if (starts_with(str, "Installing")) {
 					cout << "Found Installing! " << line << endl;
+					// FINISH the last package
+					if (!m_lastPackage.empty()) {
+						cout << "FINISH the last package: " << m_lastPackage << endl;
+						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
+					}
+					m_lastSubProgress = 0;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_INSTALLING);
+					pk_backend_set_sub_percentage(m_backend, 0);
 				} else if (starts_with(str, "Removing")) {
 					cout << "Found Removing! " << line << endl;
+					if (m_lastSubProgress >= 100 && !m_lastPackage.empty()) {
+						cout << "FINISH the last package: " << m_lastPackage << endl;
+						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
+					}
+					m_lastSubProgress += 25;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_REMOVING);
+					pk_backend_set_sub_percentage(m_backend, m_lastSubProgress);
 				} else if (starts_with(str, "Installed") ||
-					   starts_with(str, "Removed")) {
+					       starts_with(str, "Removed")) {
 					cout << "Found FINISHED! " << line << endl;
+					m_lastSubProgress = 100;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_FINISHED);
 				} else {
 					cout << ">>>Unmaped value<<< :" << line << endl;
+				}
+
+				if (!starts_with(str, "Running")) {
+					m_lastPackage = pkg;
 				}
 				m_startCounting = true;
 			} else {
@@ -1328,7 +1407,7 @@ void aptcc::updateInterface(int fd, int writeFd)
 /* Remove unused automatic packages */
 bool aptcc::DoAutomaticRemove(pkgCacheFile &Cache)
 {
-	bool doAutoRemove = _config->FindB("APT::Get::AutomaticRemove", true);
+	bool doAutoRemove = _config->FindB("APT::Get::AutomaticRemove", false);
 	pkgDepCache::ActionGroup group(*Cache);
 
 	if (_config->FindB("APT::Get::Remove",true) == false &&
@@ -1381,11 +1460,10 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 		// failed to open cache, try checkDeps then..
 		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
 		if (WithLock == false || (timeout <= 0)) {
-			pk_backend_error_code(m_backend,
-					      PK_ERROR_ENUM_NO_CACHE,
-					      "Could not open package cache.");
+			show_errors(m_backend, PK_ERROR_ENUM_CANNOT_GET_LOCK);
 			return false;
 		} else {
+			_error->Discard();
 			pk_backend_set_status (m_backend, PK_STATUS_ENUM_WAITING_FOR_LOCK);
 			sleep(1);
 			timeout--;
@@ -1602,8 +1680,8 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	if (DebBytes != Cache->DebSize())
 	{
  	    cout << DebBytes << ',' << Cache->DebSize() << endl;
-	    cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
-	    _error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");
+cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
+/*		_error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");*/
 	}
 
 	// Number of bytes
@@ -1653,6 +1731,8 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 		return false;
 	}
 
+	pk_backend_set_status (m_backend, PK_STATUS_ENUM_DOWNLOAD);
+	pk_backend_set_simultaneous_mode(m_backend, true);
 	// Download and check if we can continue
 	if (fetcher.Run() != pkgAcquire::Continue
 	    && _cancel == false)
@@ -1661,11 +1741,15 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 		show_errors(m_backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
 		return false;
 	}
+	pk_backend_set_simultaneous_mode(m_backend, false);
 
 	if (_error->PendingError() == true) {
 		cout << "PendingError download" << endl;
 		return false;
 	}
+
+	// Right now it's not safe to cancel
+	pk_backend_set_allow_cancel (m_backend, false);
 
 	// TODO true or false?
 	if (_cancel) {
