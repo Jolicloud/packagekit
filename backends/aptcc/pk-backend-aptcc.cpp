@@ -380,10 +380,17 @@ backend_get_details (PkBackend *backend, gchar **package_ids)
 static gboolean
 backend_get_or_update_system_thread (PkBackend *backend)
 {
+	bool getUpdates = pk_backend_get_bool(backend, "getUpdates");
+
+	/* check network state */
+	if (!pk_backend_is_online (backend) && !getUpdates) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot update when offline");
+		pk_backend_finished (backend);
+		return false;
+	}
+
 	PkBitfield filters;
-	bool getUpdates;
 	filters = (PkBitfield) pk_backend_get_uint (backend, "filters");
-	getUpdates = pk_backend_get_bool(backend, "getUpdates");
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
@@ -716,6 +723,13 @@ backend_download_packages (PkBackend *backend, gchar **package_ids, const gchar 
 static gboolean
 backend_refresh_cache_thread (PkBackend *backend)
 {
+	/* check network state */
+	if (!pk_backend_is_online (backend)) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot refresh when offline");
+		pk_backend_finished (backend);
+		return false;
+	}
+
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
@@ -1174,14 +1188,18 @@ backend_search_details (PkBackend *backend, PkBitfield filters, gchar **values)
 static gboolean
 backend_manage_packages_thread (PkBackend *backend)
 {
-	gchar **package_ids;
-	gchar *pi;
-	bool simulate;
-	bool remove;
+	bool simulate = pk_backend_get_bool (backend, "simulate");
+	bool remove = pk_backend_get_bool (backend, "remove");
 
-	package_ids = pk_backend_get_strv (backend, "package_ids");
-	simulate = pk_backend_get_bool (backend, "simulate");
-	remove = pk_backend_get_bool (backend, "remove");
+	/* check network state */
+	if (!pk_backend_is_online (backend) && !simulate && !remove) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot install when offline");
+		pk_backend_finished (backend);
+		return false;
+	}
+
+        gchar *pi;
+	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 
 	pk_backend_set_allow_cancel (backend, true);
 
