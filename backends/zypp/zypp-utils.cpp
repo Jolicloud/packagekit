@@ -156,7 +156,7 @@ zypp_build_pool (PkBackend *backend, gboolean include_local)
 	zypp::ZYpp::Ptr zypp = get_zypp (backend);
 
 	if (include_local) {
-		//FIXME have to wait for fix in zypp (repeated loading of target)
+		// FIXME have to wait for fix in zypp (repeated loading of target)
 		if (zypp::sat::Pool::instance().reposFind( zypp::sat::Pool::systemRepoAlias() ).solvablesEmpty ())
 		{
 			// Add local resolvables
@@ -391,8 +391,8 @@ zypp_get_package_by_id (PkBackend *backend, const gchar *package_id)
 	}
 
 	gchar **id_parts = pk_package_id_split(package_id);
-	std::vector<zypp::sat::Solvable> *v = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::package, TRUE);
-	std::vector<zypp::sat::Solvable> *v2 = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::patch, TRUE);
+	std::vector<zypp::sat::Solvable> *v = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::package);
+	std::vector<zypp::sat::Solvable> *v2 = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::patch);
 
 	v->insert (v->end (), v2->begin (), v2->end ());
 
@@ -565,6 +565,17 @@ system_and_package_are_x86 (zypp::sat::Solvable item)
 			!strcmp (zypp::ZConfig::defaultSystemArchitecture ().asString().c_str(), "i686"));
 }
 
+static gboolean
+zypp_package_is_devel (const zypp::sat::Solvable &item)
+{
+	const std::string &name = item.name();
+	const char *cstr = name.c_str();
+
+	return ( g_str_has_suffix (cstr, "-debuginfo") ||
+		 g_str_has_suffix (cstr, "-debugsource") ||
+		 g_str_has_suffix (cstr, "-devel") );
+}
+
 /* should we filter out this package ? */
 gboolean
 zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item)
@@ -572,8 +583,6 @@ zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item)
 	// iterate through the given filters
 	if (!filters)
 		return FALSE;
-
-	//const gchar * myarch = zypp::ZConfig::defaultSystemArchitecture().asString().c_str();
 
 	for (guint i = 0; i < PK_FILTER_ENUM_LAST; i++) {
 		if ((filters & pk_bitfield_value (i)) == 0)
@@ -593,17 +602,18 @@ zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item)
 			    system_and_package_are_x86 (item))
 				return TRUE;
 		}
-		if (i == PK_FILTER_ENUM_SOURCE && !(zypp::isKind<zypp::SrcPackage>(item))) {
+		if (i == PK_FILTER_ENUM_SOURCE && !(zypp::isKind<zypp::SrcPackage>(item)))
 			return TRUE;
-		}
-		if (i == PK_FILTER_ENUM_NOT_SOURCE && zypp::isKind<zypp::SrcPackage>(item)) {
+		if (i == PK_FILTER_ENUM_NOT_SOURCE && zypp::isKind<zypp::SrcPackage>(item))
 			return TRUE;
-		}
+		if (i == PK_FILTER_ENUM_DEVELOPMENT && !zypp_package_is_devel (item))
+			return TRUE;
+		if (i == PK_FILTER_ENUM_NOT_DEVELOPMENT && zypp_package_is_devel (item))
+			return TRUE;
 
-		// FIXME: add enums
-		// PK_FILTER_ENUM_DEVELOPMENT,
-		// PK_FILTER_ENUM_NOT_DEVELOPMENT,
-
+		// FIXME: add more enums - cf. libzif logic and pk-enum.h
+		// PK_FILTER_ENUM_SUPPORTED, 
+		// PK_FILTER_ENUM_NOT_SUPPORTED,
 	}
 
 	return FALSE;
@@ -812,22 +822,22 @@ zypp_get_updates (PkBackend *backend)
 	return candidates;
 }
 
-gboolean
-zypp_get_restart (PkRestartEnum &restart, zypp::Patch::constPtr patch)
+void
+zypp_check_restart (PkRestartEnum *restart, zypp::Patch::constPtr patch)
 {
-	if (patch == NULL)
-		return false;
+	if (patch == NULL || restart == NULL)
+		return;
 
 	// set the restart flag if a restart is needed
-	if (restart != PK_RESTART_ENUM_SYSTEM && (patch->reloginSuggested () ||
-						  patch->restartSuggested () ||
-						  patch->rebootSuggested ())) {
-			if (patch->reloginSuggested () || patch->restartSuggested ())
-				restart = PK_RESTART_ENUM_SESSION;
-			if (patch->rebootSuggested ())
-				restart = PK_RESTART_ENUM_SYSTEM;
+	if (*restart != PK_RESTART_ENUM_SYSTEM &&
+	    ( patch->reloginSuggested () ||
+	      patch->restartSuggested () ||
+	      patch->rebootSuggested ()) ) {
+		if (patch->reloginSuggested () || patch->restartSuggested ())
+			*restart = PK_RESTART_ENUM_SESSION;
+		if (patch->rebootSuggested ())
+			*restart = PK_RESTART_ENUM_SYSTEM;
 	}
-	return true;
 }
 
 gboolean

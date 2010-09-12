@@ -115,7 +115,7 @@ PkGroupEnum get_enum_group (std::string group);
  * Returns a list of packages that match the specified package_name.
  */
 std::vector<zypp::sat::Solvable> * zypp_get_packages_by_name (PkBackend *backend, const gchar *package_name,
-							      const zypp::ResKind kind, gboolean include_local);
+							      const zypp::ResKind kind, gboolean include_local = TRUE);
 
 /**
  * Returns a list of packages that owns the specified file.
@@ -169,7 +169,7 @@ std::set<zypp::PoolItem> * zypp_get_updates (PkBackend *backend);
 /**
   * Sets the restart flag of a patch
   */
-gboolean zypp_get_restart (PkRestartEnum &restart, zypp::Patch::constPtr patch);
+void zypp_check_restart (PkRestartEnum *restart, zypp::Patch::constPtr patch);
 
 /**
   * simulate, or perform changes in pool to the system
