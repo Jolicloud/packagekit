@@ -435,17 +435,20 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 	bool res = true;
 	if (getUpdates) {
-		vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > update,
-									    kept;
+		vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > update, kept, install;
 
 		for(pkgCache::PkgIterator pkg=m_apt->packageCache->PkgBegin();
 		    !pkg.end();
 		    ++pkg)
 		{
-			if((*Cache)[pkg].Upgrade()    == true &&
-			(*Cache)[pkg].NewInstall() == false) {
-				update.push_back(
-					pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
+			if ((*Cache)[pkg].Upgrade() == true) {
+				if ((*Cache)[pkg].NewInstall() == true) {
+					install.push_back(
+						pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
+				} else {
+					update.push_back(
+						pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
+				}
 			} else if ((*Cache)[pkg].Upgradable() == true &&
 				pkg->CurrentVer != 0 &&
 				(*Cache)[pkg].Delete() == false) {
@@ -456,6 +459,7 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 		m_apt->emitUpdates(update, filters);
 		m_apt->emit_packages(kept, filters, PK_INFO_ENUM_BLOCKED);
+		m_apt->emit_packages(install, filters, PK_INFO_ENUM_INSTALLING);
 	} else {
 		res = m_apt->installPackages(Cache);
 		// We clean the archives directory
