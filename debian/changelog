@@ -1,3 +1,9 @@
+packagekit (0.6.8-git~20100913-0jolicloud1) robby; urgency=low
+
+  * Fix package version.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 13 Sep 2010 10:09:22 +0200
+
 packagekit (0.6.6-git~20100912-0jolicloud1) robby; urgency=low
 
   * sync with upstream git master
