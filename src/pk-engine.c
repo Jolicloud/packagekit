@@ -72,6 +72,7 @@ struct PkEnginePrivate
 	GTimer			*timer;
 	gboolean		 notify_clients_of_upgrade;
 	gboolean		 shutdown_as_soon_as_possible;
+	gboolean		 using_hardcoded_proxy;
 	PkTransactionList	*transaction_list;
 	PkTransactionDb		*transaction_db;
 	PkCache			*cache;
@@ -600,7 +601,8 @@ pk_engine_state_has_changed (PkEngine *engine, const gchar *reason, GError **err
 	if (is_priority && engine->priv->timeout_normal_id != 0) {
 		/* clear normal, as we are about to schedule a priority */
 		g_source_remove (engine->priv->timeout_normal_id);
-		engine->priv->timeout_normal_id = 0;	}
+		engine->priv->timeout_normal_id = 0;
+	}
 
 	/* wait a little delay in case we get multiple requests */
 	if (is_priority) {
@@ -787,6 +789,13 @@ pk_engine_action_obtain_proxy_authorization_finished_cb (PolkitAuthority *author
 		error = g_error_new_literal (PK_ENGINE_ERROR, PK_ENGINE_ERROR_CANNOT_SET_PROXY,
 					     "failed to obtain auth");
 		dbus_g_method_return_error (state->context, error);
+		goto out;
+	}
+
+	/* admin already set value, so silently refuse value */
+	if (priv->using_hardcoded_proxy) {
+		egg_debug ("cannot override admin set proxy");
+		dbus_g_method_return (state->context);
 		goto out;
 	}
 
@@ -1587,6 +1596,9 @@ pk_engine_init (PkEngine *engine)
 	gchar *root;
 	gchar *proxy_http;
 	gchar *proxy_ftp;
+#ifdef USE_SECURITY_POLKIT_NEW
+	GError *error = NULL;
+#endif
 
 	engine->priv = PK_ENGINE_GET_PRIVATE (engine);
 	engine->priv->notify_clients_of_upgrade = FALSE;
@@ -1677,7 +1689,15 @@ pk_engine_init (PkEngine *engine)
 
 #ifdef USE_SECURITY_POLKIT
 	/* protect the session SetProxy with a PolicyKit action */
+#ifdef USE_SECURITY_POLKIT_NEW
+	engine->priv->authority = polkit_authority_get_sync (NULL, &error);
+	if (engine->priv->authority == NULL) {
+		g_error ("failed to get pokit authority: %s", error->message);
+		g_error_free (error);
+	}
+#else
 	engine->priv->authority = polkit_authority_get ();
+#endif
 #endif
 
 	/* monitor the binary file for changes */
@@ -1690,6 +1710,11 @@ pk_engine_init (PkEngine *engine)
 	proxy_http = pk_conf_get_string (engine->priv->conf, "ProxyHTTP");
 	proxy_ftp = pk_conf_get_string (engine->priv->conf, "ProxyFTP");
 	pk_backend_set_proxy (engine->priv->backend, proxy_http, proxy_ftp);
+
+	/* if either of these is set, we ignore the users proxy setting */
+	if (proxy_http != NULL || proxy_ftp != NULL)
+		engine->priv->using_hardcoded_proxy = TRUE;
+
 	g_free (proxy_http);
 	g_free (proxy_ftp);
 

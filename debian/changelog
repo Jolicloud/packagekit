@@ -1,3 +1,22 @@
+packagekit (0.6.8-git~20100913-0jolicloud2) robby; urgency=low
+
+  * aptcc: get-updates should return new packages too
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 15 Sep 2010 10:38:57 +0100
+
+packagekit (0.6.8-git~20100913-0jolicloud1) robby; urgency=low
+
+  * Fix package version.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 13 Sep 2010 10:09:22 +0200
+
+packagekit (0.6.6-git~20100912-0jolicloud1) robby; urgency=low
+
+  * sync with upstream git master
+  * aptcc: Take notice of network state like other backends do
+
+ -- Andrew Stormont <andy@jolicloud.org>  Sun, 12 Sep 2010 11:38:11 +0100
+
 packagekit (0.6.6-git~20100703-0jolicloud8+lucid0) robby-lucid; urgency=low
 
   * Port to lucid.

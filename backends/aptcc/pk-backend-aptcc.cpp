@@ -34,9 +34,12 @@
 #include "rsources.h"
 
 #include <config.h>
+#include <pk-backend.h>
+#include <pk-backend-spawn.h>
 
 /* static bodges */
 static bool _cancel = false;
+static PkBackendSpawn *spawn;
 
 /**
  * backend_initialize:
@@ -46,15 +49,14 @@ backend_initialize (PkBackend *backend)
 {
 	egg_debug ("APTcc Initializing");
 
-	// make sure we do not get a graphical debconf
-	setenv("DEBIAN_FRONTEND", "noninteractive", 1);
-	setenv("APT_LISTCHANGES_FRONTEND", "none", 1);
-
 	if (pkgInitConfig(*_config) == false ||
 	    pkgInitSystem(*_config, _system) == false)
 	{
 		egg_debug ("ERROR initializing backend");
 	}
+
+	spawn = pk_backend_spawn_new ();
+	pk_backend_spawn_set_name (spawn, "aptcc");
 }
 
 /**
@@ -221,49 +223,13 @@ backend_get_requires (PkBackend *backend, PkBitfield filters, gchar **package_id
 	pk_backend_thread_create (backend, backend_get_depends_or_requires_thread);
 }
 
-
-static gboolean
-backend_get_distro_upgrades_thread (PkBackend *backend)
-{
-	FILE *fpipe;
-	char releaseName[256];
-	char releaseVersion[256];
-
-	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
-
-	if (!(fpipe = (FILE*)popen("./get-distro-upgrade.py", "r"))) {
-	    goto out;
-	}
-
-	if (fgets(releaseName, sizeof releaseName, fpipe)) {
-	    goto out;
-	}
-
-	if (fgets(releaseVersion, sizeof releaseVersion, fpipe)) {
-	    goto out;
-	}
-	pclose(fpipe);
-
-	pk_backend_distro_upgrade (backend,
-				   PK_DISTRO_UPGRADE_ENUM_STABLE,
-				   g_strdup_printf("%s %s", releaseName, releaseVersion),
-				   "The latest stable release");
-
-	pk_backend_finished (backend);
-	return true;
-
-out:
-	pk_backend_finished (backend);
-	return false;
-}
-
 /**
  * backend_get_distro_upgrades:
  */
 static void
 backend_get_distro_upgrades (PkBackend *backend)
 {
-	pk_backend_thread_create (backend, backend_get_distro_upgrades_thread);
+	pk_backend_spawn_helper (spawn, "get-distro-upgrade.py", "get-distro-upgrades", NULL);
 }
 
 static gboolean
@@ -414,10 +380,17 @@ backend_get_details (PkBackend *backend, gchar **package_ids)
 static gboolean
 backend_get_or_update_system_thread (PkBackend *backend)
 {
+	bool getUpdates = pk_backend_get_bool(backend, "getUpdates");
+
+	/* check network state */
+	if (!pk_backend_is_online (backend) && !getUpdates) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot update when offline");
+		pk_backend_finished (backend);
+		return false;
+	}
+
 	PkBitfield filters;
-	bool getUpdates;
 	filters = (PkBitfield) pk_backend_get_uint (backend, "filters");
-	getUpdates = pk_backend_get_bool(backend, "getUpdates");
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
@@ -462,17 +435,20 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 	bool res = true;
 	if (getUpdates) {
-		vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > update,
-									    kept;
+		vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > update, kept, install;
 
 		for(pkgCache::PkgIterator pkg=m_apt->packageCache->PkgBegin();
 		    !pkg.end();
 		    ++pkg)
 		{
-			if((*Cache)[pkg].Upgrade()    == true &&
-			(*Cache)[pkg].NewInstall() == false) {
-				update.push_back(
-					pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
+			if ((*Cache)[pkg].Upgrade() == true) {
+				if ((*Cache)[pkg].NewInstall() == true) {
+					install.push_back(
+						pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
+				} else {
+					update.push_back(
+						pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
+				}
 			} else if ((*Cache)[pkg].Upgradable() == true &&
 				pkg->CurrentVer != 0 &&
 				(*Cache)[pkg].Delete() == false) {
@@ -483,6 +459,7 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 		m_apt->emitUpdates(update, filters);
 		m_apt->emit_packages(kept, filters, PK_INFO_ENUM_BLOCKED);
+		m_apt->emit_packages(install, filters, PK_INFO_ENUM_INSTALLING);
 	} else {
 		res = m_apt->installPackages(Cache);
 		// We clean the archives directory
@@ -750,6 +727,13 @@ backend_download_packages (PkBackend *backend, gchar **package_ids, const gchar 
 static gboolean
 backend_refresh_cache_thread (PkBackend *backend)
 {
+	/* check network state */
+	if (!pk_backend_is_online (backend)) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot refresh when offline");
+		pk_backend_finished (backend);
+		return false;
+	}
+
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
@@ -779,9 +763,7 @@ backend_refresh_cache_thread (PkBackend *backend)
 	AcqPackageKitStatus Stat(m_apt, backend, _cancel);
 
 	// do the work
-	if (_config->FindB("APT::Get::Download",true) == true) {
-		ListUpdate(Stat, *m_apt->packageSourceList);
-	}
+	ListUpdate(Stat, *m_apt->packageSourceList);
 
 	// Rebuild the cache.
 	pkgCacheFile Cache;
@@ -1210,14 +1192,18 @@ backend_search_details (PkBackend *backend, PkBitfield filters, gchar **values)
 static gboolean
 backend_manage_packages_thread (PkBackend *backend)
 {
-	gchar **package_ids;
-	gchar *pi;
-	bool simulate;
-	bool remove;
+	bool simulate = pk_backend_get_bool (backend, "simulate");
+	bool remove = pk_backend_get_bool (backend, "remove");
 
-	package_ids = pk_backend_get_strv (backend, "package_ids");
-	simulate = pk_backend_get_bool (backend, "simulate");
-	remove = pk_backend_get_bool (backend, "remove");
+	/* check network state */
+	if (!pk_backend_is_online (backend) && !simulate && !remove) {
+		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot install when offline");
+		pk_backend_finished (backend);
+		return false;
+	}
+
+        gchar *pi;
+	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 
 	pk_backend_set_allow_cancel (backend, true);
 

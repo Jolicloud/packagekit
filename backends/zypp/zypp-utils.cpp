@@ -156,7 +156,7 @@ zypp_build_pool (PkBackend *backend, gboolean include_local)
 	zypp::ZYpp::Ptr zypp = get_zypp (backend);
 
 	if (include_local) {
-		//FIXME have to wait for fix in zypp (repeated loading of target)
+		// FIXME have to wait for fix in zypp (repeated loading of target)
 		if (zypp::sat::Pool::instance().reposFind( zypp::sat::Pool::systemRepoAlias() ).solvablesEmpty ())
 		{
 			// Add local resolvables
@@ -391,8 +391,8 @@ zypp_get_package_by_id (PkBackend *backend, const gchar *package_id)
 	}
 
 	gchar **id_parts = pk_package_id_split(package_id);
-	std::vector<zypp::sat::Solvable> *v = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::package, TRUE);
-	std::vector<zypp::sat::Solvable> *v2 = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::patch, TRUE);
+	std::vector<zypp::sat::Solvable> *v = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::package);
+	std::vector<zypp::sat::Solvable> *v2 = zypp_get_packages_by_name (backend, id_parts[PK_PACKAGE_ID_NAME], zypp::ResKind::patch);
 
 	v->insert (v->end (), v2->begin (), v2->end ());
 
@@ -432,6 +432,41 @@ zypp_get_Repository (PkBackend *backend, const gchar *alias)
 	return info;
 }
 
+/*
+ * PK requires a transaction (backend method call) to abort immediately
+ * after an error is set. Unfortunately, zypp's 'refresh' methods call
+ * these signature methods on errors - and provide no way to signal an
+ * abort - instead the refresh continuing on with the next repository.
+ * PK (pk_backend_error_timeout_delay_cb) uses this as an excuse to
+ * abort the (still running) transaction, and to start another - which
+ * leads to multi-threaded use of zypp and hence sudden, random death.
+ *
+ * To cure this, we throw this custom exception across zypp and catch
+ * it outside (hopefully) the only entry point (zypp_refresh_meta_and_cache)
+ * that can cause these (zypp_signature_required) methods to be called.
+ *
+ */
+class AbortTransactionException {
+ public:
+	AbortTransactionException() {}
+};
+
+gboolean
+zypp_refresh_meta_and_cache (zypp::RepoManager &manager, zypp::RepoInfo &repo, bool force)
+{
+	try {
+		manager.refreshMetadata (repo, force ?
+					 zypp::RepoManager::RefreshForced :
+					 zypp::RepoManager::RefreshIfNeeded);
+		manager.buildCache (repo, force ?
+				    zypp::RepoManager::BuildForced :
+				    zypp::RepoManager::BuildIfNeeded);
+		return TRUE;
+	} catch (const AbortTransactionException &ex) {
+		return FALSE;
+	}
+}
+
 gboolean
 zypp_signature_required (PkBackend *backend, const zypp::PublicKey &key)
 {
@@ -439,12 +474,11 @@ zypp_signature_required (PkBackend *backend, const zypp::PublicKey &key)
 
 	if (std::find (_signatures[backend]->begin (), _signatures[backend]->end (), key.id ()) == _signatures[backend]->end ()) {
 		zypp::RepoInfo info = zypp_get_Repository (backend, _repoName);
-		if (info.type () == zypp::repo::RepoType::NONE) {
-			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "Repository unknown");
-			return FALSE;
-		}
-
-        	pk_backend_repo_signature_required (backend,
+		if (info.type () == zypp::repo::RepoType::NONE)
+			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR,
+					       "Repository unknown");
+		else {
+			pk_backend_repo_signature_required (backend,
 				"dummy;0.0.1;i386;data",
 	                        _repoName,
         	                info.baseUrlsBegin ()->asString ().c_str (),
@@ -453,10 +487,12 @@ zypp_signature_required (PkBackend *backend, const zypp::PublicKey &key)
 	                        key.fingerprint ().c_str (),
         	                key.created ().asString ().c_str (),
                 	        PK_SIGTYPE_ENUM_GPG);
-		pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE, "Signature verification for Repository %s failed", _repoName);
-	} else {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE,
+					       "Signature verification for Repository %s failed", _repoName);
+		}
+		throw AbortTransactionException();
+	} else
 		ok = TRUE;
-	}
 
         return ok;
 }
@@ -468,12 +504,11 @@ zypp_signature_required (PkBackend *backend, const std::string &file, const std:
 
 	if (std::find (_signatures[backend]->begin (), _signatures[backend]->end (), id) == _signatures[backend]->end ()) {
 		zypp::RepoInfo info = zypp_get_Repository (backend, _repoName);
-		if (info.type () == zypp::repo::RepoType::NONE) {
-			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "Repository unknown");
-			return FALSE;
-		}
-
-		pk_backend_repo_signature_required (backend,
+		if (info.type () == zypp::repo::RepoType::NONE)
+			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR,
+					       "Repository unknown");
+		else {
+			pk_backend_repo_signature_required (backend,
 				"dummy;0.0.1;i386;data",
 	                        _repoName,
         	                info.baseUrlsBegin ()->asString ().c_str (),
@@ -482,10 +517,12 @@ zypp_signature_required (PkBackend *backend, const std::string &file, const std:
 	                        "UNKNOWN",
         	                "UNKNOWN",
                 	        PK_SIGTYPE_ENUM_GPG);
-		pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE, "Signature verification for Repository %s failed", _repoName);
-	} else {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE,
+					       "Signature verification for Repository %s failed", _repoName);
+		}
+		throw AbortTransactionException();
+	} else
 		ok = TRUE;
-	}
 
         return ok;
 }
@@ -497,12 +534,11 @@ zypp_signature_required (PkBackend *backend, const std::string &file)
 
 	if (std::find (_signatures[backend]->begin (), _signatures[backend]->end (), file) == _signatures[backend]->end ()) {
         	zypp::RepoInfo info = zypp_get_Repository (backend, _repoName);
-		if (info.type () == zypp::repo::RepoType::NONE) {
-			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR, "Repository unknown");
-			return FALSE;
-		}
-
-		pk_backend_repo_signature_required (backend,
+		if (info.type () == zypp::repo::RepoType::NONE)
+			pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR,
+					       "Repository unknown");
+		else {
+			pk_backend_repo_signature_required (backend,
 				"dummy;0.0.1;i386;data",
 	                        _repoName,
         	                info.baseUrlsBegin ()->asString ().c_str (),
@@ -511,10 +547,12 @@ zypp_signature_required (PkBackend *backend, const std::string &file)
                 	        "UNKNOWN",
                         	"UNKNOWN",
 	                        PK_SIGTYPE_ENUM_GPG);
-		pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE, "Signature verification for Repository %s failed", _repoName);
-	} else {
+			pk_backend_error_code (backend, PK_ERROR_ENUM_GPG_FAILURE,
+					       "Signature verification for Repository %s failed", _repoName);
+		}
+		throw AbortTransactionException();
+	} else
 		ok = TRUE;
-	}
 
         return ok;
 }
@@ -527,6 +565,17 @@ system_and_package_are_x86 (zypp::sat::Solvable item)
 			!strcmp (zypp::ZConfig::defaultSystemArchitecture ().asString().c_str(), "i686"));
 }
 
+static gboolean
+zypp_package_is_devel (const zypp::sat::Solvable &item)
+{
+	const std::string &name = item.name();
+	const char *cstr = name.c_str();
+
+	return ( g_str_has_suffix (cstr, "-debuginfo") ||
+		 g_str_has_suffix (cstr, "-debugsource") ||
+		 g_str_has_suffix (cstr, "-devel") );
+}
+
 /* should we filter out this package ? */
 gboolean
 zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item)
@@ -534,8 +583,6 @@ zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item)
 	// iterate through the given filters
 	if (!filters)
 		return FALSE;
-
-	//const gchar * myarch = zypp::ZConfig::defaultSystemArchitecture().asString().c_str();
 
 	for (guint i = 0; i < PK_FILTER_ENUM_LAST; i++) {
 		if ((filters & pk_bitfield_value (i)) == 0)
@@ -555,17 +602,18 @@ zypp_filter_solvable (PkBitfield filters, const zypp::sat::Solvable &item)
 			    system_and_package_are_x86 (item))
 				return TRUE;
 		}
-		if (i == PK_FILTER_ENUM_SOURCE && !(zypp::isKind<zypp::SrcPackage>(item))) {
+		if (i == PK_FILTER_ENUM_SOURCE && !(zypp::isKind<zypp::SrcPackage>(item)))
 			return TRUE;
-		}
-		if (i == PK_FILTER_ENUM_NOT_SOURCE && zypp::isKind<zypp::SrcPackage>(item)) {
+		if (i == PK_FILTER_ENUM_NOT_SOURCE && zypp::isKind<zypp::SrcPackage>(item))
 			return TRUE;
-		}
+		if (i == PK_FILTER_ENUM_DEVELOPMENT && !zypp_package_is_devel (item))
+			return TRUE;
+		if (i == PK_FILTER_ENUM_NOT_DEVELOPMENT && zypp_package_is_devel (item))
+			return TRUE;
 
-		// FIXME: add enums
-		// PK_FILTER_ENUM_DEVELOPMENT,
-		// PK_FILTER_ENUM_NOT_DEVELOPMENT,
-
+		// FIXME: add more enums - cf. libzif logic and pk-enum.h
+		// PK_FILTER_ENUM_SUPPORTED, 
+		// PK_FILTER_ENUM_NOT_SUPPORTED,
 	}
 
 	return FALSE;
@@ -774,22 +822,22 @@ zypp_get_updates (PkBackend *backend)
 	return candidates;
 }
 
-gboolean
-zypp_get_restart (PkRestartEnum &restart, zypp::Patch::constPtr patch)
+void
+zypp_check_restart (PkRestartEnum *restart, zypp::Patch::constPtr patch)
 {
-	if (patch == NULL)
-		return false;
+	if (patch == NULL || restart == NULL)
+		return;
 
 	// set the restart flag if a restart is needed
-	if (restart != PK_RESTART_ENUM_SYSTEM && (patch->reloginSuggested () ||
-						  patch->restartSuggested () ||
-						  patch->rebootSuggested ())) {
-			if (patch->reloginSuggested () || patch->restartSuggested ())
-				restart = PK_RESTART_ENUM_SESSION;
-			if (patch->rebootSuggested ())
-				restart = PK_RESTART_ENUM_SYSTEM;
+	if (*restart != PK_RESTART_ENUM_SYSTEM &&
+	    ( patch->reloginSuggested () ||
+	      patch->restartSuggested () ||
+	      patch->rebootSuggested ()) ) {
+		if (patch->reloginSuggested () || patch->restartSuggested ())
+			*restart = PK_RESTART_ENUM_SESSION;
+		if (patch->rebootSuggested ())
+			*restart = PK_RESTART_ENUM_SYSTEM;
 	}
-	return true;
 }
 
 gboolean
@@ -1025,7 +1073,6 @@ zypp_refresh_cache (PkBackend *backend, gboolean force)
 	{
 		// FIXME: make sure this dumps out the right sring.
 		pk_backend_error_code (backend, PK_ERROR_ENUM_REPO_NOT_FOUND, e.asUserString().c_str() );
-		pk_backend_finished (backend);
 		return FALSE;
 	}
 
@@ -1035,6 +1082,9 @@ zypp_refresh_cache (PkBackend *backend, gboolean force)
 
 	for (std::list <zypp::RepoInfo>::iterator it = repos.begin(); it != repos.end(); it++, i++) {
 		zypp::RepoInfo repo (*it);
+
+		if (pk_backend_get_is_error_set (backend))
+			break;
 
 		// skip disabled repos
 		if (repo.enabled () == false)
@@ -1047,13 +1097,10 @@ zypp_refresh_cache (PkBackend *backend, gboolean force)
 
 		try {
 			// Refreshing metadata
+			g_free (_repoName);
 			_repoName = g_strdup (repo.alias ().c_str ());
-			manager.refreshMetadata (repo, force ?
-				zypp::RepoManager::RefreshForced :
-				zypp::RepoManager::RefreshIfNeeded);
-			manager.buildCache (repo, force ?
-				zypp::RepoManager::BuildForced :
-				zypp::RepoManager::BuildIfNeeded);
+			if (zypp_refresh_meta_and_cache (manager, repo, force))
+				break;
 		} catch (const zypp::Exception &ex) {
 			if (repo_messages == NULL) {
 				repo_messages = g_strdup_printf ("%s: %s%s", repo.alias ().c_str (), ex.asUserString ().c_str (), "\n");

@@ -1299,6 +1299,10 @@ pk_transaction_status_changed_cb (PkBackend *backend, PkStatusEnum status, PkTra
 	g_return_if_fail (PK_IS_TRANSACTION (transaction));
 	g_return_if_fail (transaction->priv->tid != NULL);
 
+	/* don't proxy this on the bus, just for use internal */
+	if (status == PK_STATUS_ENUM_WAIT)
+		return;
+
 	/* have we already been marked as finished? */
 	if (transaction->priv->finished) {
 		egg_warning ("Already finished, so can't proxy status %s", pk_status_enum_to_string (status));
@@ -5484,12 +5488,15 @@ pk_transaction_class_init (PkTransactionClass *klass)
 static void
 pk_transaction_init (PkTransaction *transaction)
 {
+#ifdef USE_SECURITY_POLKIT_NEW
+	GError *error = NULL;
+#endif
 	transaction->priv = PK_TRANSACTION_GET_PRIVATE (transaction);
 	transaction->priv->finished = FALSE;
 	transaction->priv->running = FALSE;
 	transaction->priv->has_been_run = FALSE;
 	transaction->priv->waiting_for_auth = FALSE;
-	transaction->priv->allow_cancel = TRUE;
+	transaction->priv->allow_cancel = FALSE;
 	transaction->priv->emit_eula_required = FALSE;
 	transaction->priv->emit_signature_required = FALSE;
 	transaction->priv->emit_media_change_required = FALSE;
@@ -5523,6 +5530,7 @@ pk_transaction_init (PkTransaction *transaction)
 	transaction->priv->background = PK_HINT_ENUM_UNSET;
 	transaction->priv->elapsed_time = 0;
 	transaction->priv->remaining_time = 0;
+	transaction->priv->speed = 0;
 	transaction->priv->backend = pk_backend_new ();
 	transaction->priv->cache = pk_cache_new ();
 	transaction->priv->conf = pk_conf_new ();
@@ -5533,7 +5541,15 @@ pk_transaction_init (PkTransaction *transaction)
 	transaction->priv->dbus = pk_dbus_new ();
 	transaction->priv->results = pk_results_new ();
 #ifdef USE_SECURITY_POLKIT
+#ifdef USE_SECURITY_POLKIT_NEW
+	transaction->priv->authority = polkit_authority_get_sync (NULL, &error);
+	if (transaction->priv->authority == NULL) {
+		g_error ("failed to get pokit authority: %s", error->message);
+		g_error_free (error);
+	}
+#else
 	transaction->priv->authority = polkit_authority_get ();
+#endif
 	transaction->priv->cancellable = g_cancellable_new ();
 #endif
 
