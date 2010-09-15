@@ -1,3 +1,9 @@
+packagekit (0.6.8-git~20100913-0jolicloud2) robby; urgency=low
+
+  * aptcc: get-updates should return new packages too
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 15 Sep 2010 10:38:57 +0100
+
 packagekit (0.6.8-git~20100913-0jolicloud1) robby; urgency=low
 
   * Fix package version.
