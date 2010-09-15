@@ -1,3 +1,9 @@
+packagekit (0.6.8-git~20100913-0jolicloud2+lucid0) robby; urgency=low
+
+  * Port to lucid.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 15 Sep 2010 12:43:01 +0100
+
 packagekit (0.6.8-git~20100913-0jolicloud2) robby; urgency=low
 
   * aptcc: get-updates should return new packages too
