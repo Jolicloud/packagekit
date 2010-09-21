@@ -1,3 +1,9 @@
+packagekit (0.6.8-git~20100913-0jolicloud3) robby; urgency=low
+
+  * aptcc: use g_usleep instead of sleep as it plays nicer with glib
+
+ -- Andrew Stormont <andy@jolicloud>  Tue, 21 Sep 2010 10:33:21 +0200
+
 packagekit (0.6.8-git~20100913-0jolicloud2) robby; urgency=low
 
   * aptcc: get-updates should return new packages too
