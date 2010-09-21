@@ -1386,7 +1386,7 @@ void aptcc::updateInterface(int fd, int writeFd)
 	time_t now = time(NULL);
 
 	if(!m_startCounting) {
-		usleep(100000);
+		g_usleep(100 * G_USEC_PER_SEC);
 		// wait until we get the first message from apt
 		m_lastTermAction = now;
 	}
@@ -1399,7 +1399,7 @@ void aptcc::updateInterface(int fd, int writeFd)
 	}
 
 	// sleep for a while to don't obcess over it
-	usleep(5000);
+	g_usleep(5 * G_USEC_PER_SEC);
 }
 
 // DoAutomaticRemove - Remove all automatic unused packages		/*{{{*/
@@ -1465,7 +1465,7 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 		} else {
 			_error->Discard();
 			pk_backend_set_status (m_backend, PK_STATUS_ENUM_WAITING_FOR_LOCK);
-			sleep(1);
+			g_usleep(1 * G_USEC_PER_SEC);
 			timeout--;
 		}
 	}

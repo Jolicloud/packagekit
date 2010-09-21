@@ -409,8 +409,6 @@ backend_get_or_update_system_thread (PkBackend *backend)
 	int timeout = 10;
 	// TODO test this
 	while (Cache.Open(Prog, !getUpdates) == false) {
-		// failed to open cache, try checkDeps then..
-		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
 		if (getUpdates == true || (timeout <= 0)) {
 			pk_backend_error_code(backend,
 					      PK_ERROR_ENUM_NO_CACHE,
@@ -418,7 +416,7 @@ backend_get_or_update_system_thread (PkBackend *backend)
 			return false;
 		} else {
 			pk_backend_set_status (backend, PK_STATUS_ENUM_WAITING_FOR_LOCK);
-			sleep(1);
+			g_usleep(1 * G_USEC_PER_SEC);
 			timeout--;
 		}
 	}
@@ -756,7 +754,6 @@ backend_refresh_cache_thread (PkBackend *backend)
 			delete m_apt;
 			pk_backend_finished (backend);
 			return false;
-	// 	 return _error->Error(_("Unable to lock the list directory"));
 		}
 	}
 	// Create the progress
@@ -1192,6 +1189,8 @@ backend_search_details (PkBackend *backend, PkBitfield filters, gchar **values)
 static gboolean
 backend_manage_packages_thread (PkBackend *backend)
 {
+        gchar *pi;
+	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 	bool simulate = pk_backend_get_bool (backend, "simulate");
 	bool remove = pk_backend_get_bool (backend, "remove");
 
@@ -1201,9 +1200,6 @@ backend_manage_packages_thread (PkBackend *backend)
 		pk_backend_finished (backend);
 		return false;
 	}
-
-        gchar *pi;
-	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
 
 	pk_backend_set_allow_cancel (backend, true);
 
