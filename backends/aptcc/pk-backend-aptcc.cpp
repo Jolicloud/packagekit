@@ -416,7 +416,7 @@ backend_get_or_update_system_thread (PkBackend *backend)
 			return false;
 		} else {
 			pk_backend_set_status (backend, PK_STATUS_ENUM_WAITING_FOR_LOCK);
-			g_usleep(1 * G_USEC_PER_SEC);
+			g_usleep(G_USEC_PER_SEC);
 			timeout--;
 		}
 	}
