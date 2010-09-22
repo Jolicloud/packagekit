@@ -1,3 +1,16 @@
+packagekit (0.6.8-git~20100913-0jolicloud5) robby; urgency=low
+
+  * aptcc: fiddle with sleep statements to speed things up
+  * aptcc: revert changes in 0jolicloud4
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 22 Sep 2010 15:04:17 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud4) robby; urgency=low
+
+  * aptcc: Revert to using sleep and usleep in pk-backend-aptcc.cpp
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 22 Sep 2010 09:29:17 +0200
+
 packagekit (0.6.8-git~20100913-0jolicloud3) robby; urgency=low
 
   * aptcc: use g_usleep instead of sleep as it plays nicer with glib
