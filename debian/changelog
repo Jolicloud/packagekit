@@ -1,3 +1,16 @@
+packagekit (0.6.8-git~20100913-0jolicloud7) robby; urgency=low
+
+  * aptcc: Go back to g_usleep, it wasn't breaking anything afterall.
+  * aptcc: Remove support for simultaneous mode.  It breaks things.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 27 Sep 2010 15:58:14 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud6) robby; urgency=low
+
+  * Revert back to 0.6.8-git~20100913-0jolicloud2 for now
+
+ -- Andrew Stormont <andy@jolicloud.org>  Fri, 24 Sep 2010 14:29:36 +0200
+
 packagekit (0.6.8-git~20100913-0jolicloud5) robby; urgency=low
 
   * aptcc: fiddle with sleep statements to speed things up
