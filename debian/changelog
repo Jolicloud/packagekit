@@ -1,3 +1,10 @@
+packagekit (0.6.8-git~20100913-0jolicloud8) robby; urgency=low
+
+  * aptcc: Don't mistakenly commit a transaction when dpkg is handling
+    post-installation triggers
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 29 Sep 2010 12:59:16 +0200
+
 packagekit (0.6.8-git~20100913-0jolicloud7) robby; urgency=low
 
   * aptcc: Go back to g_usleep, it wasn't breaking anything afterall.
