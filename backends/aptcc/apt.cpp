@@ -1214,6 +1214,7 @@ void aptcc::updateInterface(int fd, int writeFd)
 
 			// major problem here, we got unexpected input. should _never_ happen
 			if(!(pkg && status)) {
+				egg_debug("Got unexpected input from dpkg");
 				continue;
 			}
 
@@ -1330,6 +1331,8 @@ void aptcc::updateInterface(int fd, int writeFd)
 					m_lastSubProgress += 25;
 				} else if (starts_with(str, "Running dpkg")) {
 					cout << "Found Running dpkg! " << line << endl;
+				} else if (starts_with(str, "Running post-installation trigger")) {
+					cout << "Found Running post-installation trigger! " << line << endl;
 				} else if (starts_with(str, "Running")) {
 					cout << "Found Running! " << line << endl;
 					pk_backend_set_status (m_backend, PK_STATUS_ENUM_COMMIT);
