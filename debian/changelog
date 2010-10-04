@@ -1,3 +1,10 @@
+packagekit (0.6.8-git~20100913-0jolicloud9) robby; urgency=low
+
+  * Add packagekit-gtk-module package to keep gnome-packagekit happy
+  * Add 01_aptcc_fonts_group.diff from maverick
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 04 Oct 2010 17:30:06 +0200
+
 packagekit (0.6.8-git~20100913-0jolicloud8) robby; urgency=low
 
   * aptcc: Don't mistakenly commit a transaction when dpkg is handling
