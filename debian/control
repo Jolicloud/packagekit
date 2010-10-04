@@ -237,3 +237,10 @@ Description: Alternative APT backend for packagekit written in C++
  This backend uses libapt to interface with APT and is writtin in C++ to
  target systems with low memory.
 
+Package: packagekit-gtk-module
+Architecture: any
+Depends: ${shlibs:Depends},
+	 ${misc:Depends},
+Description: Install missing fonts with PackageKit
+ A GtkModule which will automatically detect when an app tries to use
+ a font which is not available and offers to install it for you.

@@ -9,7 +9,6 @@ DEB_CONFIGURE_SCRIPT := ./autogen.sh
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-docbook-docs --enable-gtk-doc \
 			     --enable-apt --enable-aptcc --enable-smart \
 	                     --with-default-backend=aptcc \
-			     --disable-gtk-module \
 			     --disable-service-packs \
 			     --enable-strict=no
 
