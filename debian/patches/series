@@ -1,0 +1,8 @@
+vendor.patch
+defaults.patch
+fix_progress_crash.patch
+glib-2.24-support.patch
+apt-0.7.25-support.patch
+aptcc-network.patch
+aptcc-clean.patch
+aptcc-configure.patch

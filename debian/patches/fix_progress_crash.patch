@@ -1,0 +1,13 @@
+Index: packagekit-0.5.6/backends/apt/aptBackend.py
+===================================================================
+--- packagekit-0.5.6.orig/backends/apt/aptBackend.py	2010-02-15 21:32:59.205764881 -0500
++++ packagekit-0.5.6/backends/apt/aptBackend.py	2010-02-15 21:33:37.217762425 -0500
+@@ -408,6 +408,8 @@
+         if self.pprev < progress:
+             self._backend.percentage(int(progress))
+             self.pprev = progress
++        if not self._backend._cache.has_key(pkg_name):
++            return
+         # Emit a Package signal for the currently processed package
+         if pkg_name != self.last_pkg and self._backend._cache.has_key(pkg_name):
+             pkg = self._backend._cache[pkg_name]

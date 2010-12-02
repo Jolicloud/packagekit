@@ -49,7 +49,6 @@ gtk-doc.make
 py-compile
 *.swp
 tags
-*.patch
 NEWS.new
 .lock-wscript
 .waf-*

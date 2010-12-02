@@ -1,0 +1,1000 @@
+packagekit (0.6.10-0jolicloud1) robby; urgency=low
+
+  * Rebase on 0.6.10. Move jolicloud changes to debian/patches.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 02 Dec 2010 12:30:08 +0100
+
+packagekit (0.6.8-git~20100913-0jolicloud9) robby; urgency=low
+
+  * Add packagekit-gtk-module package to keep gnome-packagekit happy
+  * Add 01_aptcc_fonts_group.diff from maverick
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 04 Oct 2010 17:30:06 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud8) robby; urgency=low
+
+  * aptcc: Don't mistakenly commit a transaction when dpkg is handling
+    post-installation triggers
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 29 Sep 2010 12:59:16 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud7) robby; urgency=low
+
+  * aptcc: Go back to g_usleep, it wasn't breaking anything afterall.
+  * aptcc: Remove support for simultaneous mode.  It breaks things.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 27 Sep 2010 15:58:14 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud6) robby; urgency=low
+
+  * Revert back to 0.6.8-git~20100913-0jolicloud2 for now
+
+ -- Andrew Stormont <andy@jolicloud.org>  Fri, 24 Sep 2010 14:29:36 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud5) robby; urgency=low
+
+  * aptcc: fiddle with sleep statements to speed things up
+  * aptcc: revert changes in 0jolicloud4
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 22 Sep 2010 15:04:17 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud4) robby; urgency=low
+
+  * aptcc: Revert to using sleep and usleep in pk-backend-aptcc.cpp
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 22 Sep 2010 09:29:17 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud3) robby; urgency=low
+
+  * aptcc: use g_usleep instead of sleep as it plays nicer with glib
+
+ -- Andrew Stormont <andy@jolicloud.org>  Tue, 21 Sep 2010 10:33:21 +0200
+
+packagekit (0.6.8-git~20100913-0jolicloud2) robby; urgency=low
+
+  * aptcc: get-updates should return new packages too
+
+ -- Andrew Stormont <andy@jolicloud.org>  Wed, 15 Sep 2010 10:38:57 +0100
+
+packagekit (0.6.8-git~20100913-0jolicloud1) robby; urgency=low
+
+  * Fix package version.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 13 Sep 2010 10:09:22 +0200
+
+packagekit (0.6.6-git~20100912-0jolicloud1) robby; urgency=low
+
+  * sync with upstream git master
+  * aptcc: Take notice of network state like other backends do
+
+ -- Andrew Stormont <andy@jolicloud.org>  Sun, 12 Sep 2010 11:38:11 +0100
+
+packagekit (0.6.6-git~20100703-0jolicloud8) robby; urgency=low
+
+  * aptcc: added archives cleaning after a system update.
+
+ -- Jérémy Bethmont <jerem@jolicloud.org>  Fri, 03 Sep 2010 16:09:24 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud7) robby; urgency=low
+
+  * Move the dpkg configure code init apt::init of aptcc backend
+  * Fix dpkg --configure -a when calling packages/check_updates
+
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 26 Aug 2010 15:17:42 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud6) robby; urgency=low
+
+  * Bind backend version to PackageKit version
+  * Run dpkg --configure -a when performing or checking upgrades
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 23 Aug 2010 17:58:17 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud5) robby; urgency=low
+
+  * Print message before running dpkg --configure -a
+  * Moving dpkg --configure -a code in to runTransaction in apt.cpp
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 23 Aug 2010 16:40:38 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud4) robby; urgency=low
+
+  * Aptcc: Run dpkg --configure -a if it needs it before starting.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 23 Aug 2010 14:47:34 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud3) robby; urgency=low
+
+  * Run dpkg --configure -a when an error occurs
+
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 15 Jul 2010 19:00:08 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud2) robby; urgency=low
+
+  * Filters are done by the backend class now, not need to do them in
+    the apt backend
+  * Bind SimulateRemovePackages in python client interface
+  * We don't need to fix python-apt after all!
+
+ -- Andrew Stormont <andy@jolicloud.org>  Tue, 13 Jul 2010 12:56:28 +0200
+
+packagekit (0.6.6-git~20100703-0jolicloud1) robby; urgency=low
+
+  [ Michael Meeks ]
+  * Detect and advertise from /etc/meego-release
+  * Re-factor to pass PkBackend * around; hopefully we can GObject-ify
+    that
+
+  [ Sebastian Heinlein ]
+  * APT: Show a sub progress for package downloads
+  * APT: use UTF-8 as default encoding and allow to write unicode to
+    stdout.
+  * APT: Allow to do an AND search for multiple package names
+  * APT: Adapt cherry picked patch for name searching to the 0.6 API
+  * Python-Backend: Fix a typo in format_string
+  * APT: Make sure to use format_string consequently on every output
+    which
+
+  [ Richard Hughes ]
+  * yum: Do not abort init when Yum.conf does not contain some required
+    keys
+
+  [ Adrien Bustany ]
+  * PackageKit-Qt: Add Q_ENUMS to DaemonError
+
+  [ Richard Hughes ]
+  * Show the MediaChangeRequired signals in pkmon
+  * glib: Add some new PkTask methods that handle the Media and Eula
+    callbacks for the application
+  * glib: add sync versions of the new API in PkTask
+  * Use the new PkTask API in pkcon so we can deal with Media and Eula
+    queries
+  * yum: Remove all the MediaManager implementations and write a small
+    GIO based callback
+  * Fix up several daemon thinkos when a client tries to set a root
+    other than '/'
+  * yum: The transaction root is not set at _init(), so we have to re-
+    query the root when we start each action
+  * yum: Attempt to use removable disk repos if they exist at backend
+    startup
+  * yum: use the system installed version of the zif accellerator
+  * yum: Update backend to libzif git master
+
+  [ kristho ]
+  * l10n: Updates to Danish (da) translation
+
+  [ Michael Meeks ]
+  * add --force argument to pkcon refresh
+  * build conditional BUILD_ZIF needs to be at the top level
+  * tweak from merge
+
+  [ Fabio Erculiani ]
+  * entropy: make backend working with latest Entropy releases
+
+  [ vpv ]
+  * l10n: Updates to Finnish (fi) translation
+
+  [ Richard Hughes ]
+  * yum: catch and ignore the socket exception on oddball systems. Fixes
+    rh#596779
+
+  [ Marcin Banasiak ]
+  * poldek: port backend to new API
+
+  [ Richard Hughes ]
+  * yum: Fix up the filter check when doing GetRepoList(). Fixes
+    rh#598697
+  * trivial: remove the word link after unistd.h insanity
+  * Release version 0.6.5
+  * trivial: post release version bump
+  * trivial: sync the fedora spec file with upstream
+
+  [ khasida ]
+  * l10n: Updates to Japanese (ja) translation
+
+  [ zerng07 ]
+  * l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+
+  [ Richard Hughes ]
+  * glib: Explicitly mark the library as LGPLv2 by using the correct
+    boilerplate code
+  * Only set a cancelled error after we've given the backend a fighting
+    chance to process the request
+  * cnf: Add a MaxSearchTime entry in CommandNotFound.conf and default
+    to 2000ms
+  * Assign names to our idle sources when using new versions of glib2
+  * yum: don't crash with an internal error if the .discinfo is
+    malformed
+  * Build the gtk-module for gtk-3.0 as well as gtk-2.0 if available
+
+  [ Fabio Erculiani ]
+  * entropy: implement forward compatibility support
+
+  [ chenh ]
+  * l10n: Updates to Chinese (China) (zh_CN) translation
+
+  [ Richard Hughes ]
+  * Move the packagekitd binary to libexec
+
+  [ Jonathan Conder ]
+  * pacman: update for pacman-glib 3.4.0
+
+  [ chenh ]
+  * l10n: Updates to Chinese (China) (zh_CN) translation
+
+  [ Aurelien Lefebvre ]
+  * urpmi: fix update-system command and only_trusted parameter
+  * Updated my email address in source code
+
+  [ Michael Meeks ]
+  * Disable get_zypp in intialize - initialize has to be fairly fast
+    otherwise
+  * fix FPE when there are no repos.
+  * Don't crash checking status of non-patches.
+
+  [ Sebastian Heinlein ]
+  * APT: Adapt to splitted arguments from the Python backend
+  * APT: Trivial. Fix an oversight from the last commit
+  * APT: Adapt to an API change to allow OR searches (from last
+    December)
+  * APT: Fix group searching. Missed an API change.
+
+  [ Anders F Bjorklund ]
+  * ports: use distfiles size, for uninstalled packages
+
+  [ Daniel Nicoletti ]
+  * aptcc: Added distro upgrade support
+
+  [ Richard Hughes ]
+  * trivial: print the overwriting role in
+    pk_backend_set_role_internal()
+  * Ensure we clear the cancel timer when we finish a PkBackend
+    transaction to avoid the next transaction getting cancelled
+    automatically
+  * Port 'make check' to GTest rather than using our homegrown EggTest
+    functionality
+  * trivial: fix 'make distcheck'
+  * Ensure filters are properly split for spawned backends
+  * Get the control properties async when the user starts the pkmon tool
+  * Release version 0.6.6
+
+  [ Andrew Stormont ]
+  * Updating debian/packagekit.install to use packagekitd's new path
+  * Fixing my email address in last changelog entry
+
+ -- Andrew Stormont <andy@jolicloud.org>  Sat, 03 Jul 2010 16:00:47 +0200
+
+packagekit (0.6.4-git~20101005-0jolicloud2) robby; urgency=low
+
+  * Convert properties from dbus types to python in client interface
+  * Untrusted packages no longer require user to authenticate
+
+ -- Andrew Stormont <andy@jolicloud.org>  Thu, 03 Jun 2010 10:50:05 +0200
+
+packagekit (0.6.4-git~20101005-0jolicloud1) robby; urgency=low
+
+  [ Warren Turkal ]
+  * apt: Fix a spelling error in the config file prompt message
+
+  [ Richard Hughes ]
+  * Remove the ruck client, it's been broken for the last few releases
+  * trivial: sync up with libzif from git master
+  * yum: get the correct state for each update. Fixes rh#574658
+
+  [ ruigo ]
+  * l10n: Updates to Portuguese (pt) translation
+
+  [ Richard Hughes ]
+  * yum: Sync with libzif upstream which offers a pretty stellar
+    performance increase
+
+  [ aalam ]
+  * l10n: Updates to Panjabi (Punjabi) (pa) translation
+
+  [ kristho ]
+  * l10n: Updates to Danish (da) translation
+
+  [ dichi ]
+  * l10n: Updates to Indonesian (id) translation
+
+  [ Richard Hughes ]
+  * yum: Ensure we create /var/cache/PackageKit if the user nukes it and
+    then tries to re-create the comps cache
+  * trivial: update the fedora spec file
+  * trivial: don't print a scary error message when there is simply no
+    process running
+  * yum: update to a newer version of libzif that supports getting the
+    file lists for a remote package
+  * yum: Ship a standalone version of licenses.txt for future code
+  * yum: Fix a crash when there are no updates and the user is using zif
+  * yum: fix up two runtime critical warnings when using the zif
+    accellerator
+  * yum: Ensure the lock failure message is proper unicode. Fixes
+    rh#585620
+
+  [ Michael Andres ]
+  * zypp: fix memeory leaks
+  * zypp: attempt to improve backend_find_packages
+  * zypp: let libzypp determine whether a patch is needed.
+
+  [ Richard Hughes ]
+  * Allow clients to request a relocatable root, but only with admin
+    authority
+
+  [ logan ]
+  * l10n: Updates to Spanish (Castilian) (es) translation
+
+  [ yurchor ]
+  * l10n: Updates to Ukrainian (uk) translation
+
+  [ Richard Hughes ]
+  * Ensure we send MESSAGE_OTHER_UPDATES_HELD_BACK when we hold packages
+    back
+
+  [ raven ]
+  * l10n: Updates to Polish (pl) translation
+
+  [ kmilos ]
+  * l10n: Updates to Serbian (sr) translation
+  * l10n: Updates to Serbian (Latin) (sr@latin) translation
+
+  [ warrink ]
+  * l10n: Updates to Dutch (Flemish) (nl) translation
+
+  [ ruigo ]
+  * l10n: Updates to Portuguese (pt) translation
+
+  [ Fabio Erculiani ]
+  * entropy: catch DependenciesNotRemovable exception during reverse
+    dependencies calculation
+
+  [ Michael Meeks ]
+  * Cleanup a certain amount of superstitious coding:
+  * fix parallel-build snafu wrt. MOC generated files
+  * downgrade required autoconf version
+  * fix dummy security model proxy support
+  * cleanup 'resolve' filtering code
+  * cleanup calling convention
+
+  [ Richard Hughes ]
+  * yum: ensure we catch the exception if there are no groups. Fixes
+    rh#587196
+
+  [ Michael Meeks ]
+  * Fix multiple bugs in 'resolve'
+  * Wrap pk_backend_package, use the wrapper to simplify the code,
+  * Yes it is a better idea to use a strong package version compare
+  * share the version / architecture comparison code into
+    zypp_ver_and_arch_equal
+  * introduce a pseudo-architecture "source" to distinguish source
+  * whitespace cleans wrt. }else{
+  * Factor pool item change notification out into
+    zypp_backend_pool_item_notify.
+  * fix whitespace foo
+  * Tweak filtering to ensure that we never emit both 'installed' and
+
+  [ Richard Hughes ]
+  * glib: Add C accessors for PkMessage
+  * Ensure the daemon emits Message() signals when replaying the cached
+    GetUpdates data
+  * yum: Move the list of system packages that cannot be removed to the
+    config file
+  * yum: Move the list of infrastructure packages that are updated first
+    to the config file
+
+  [ Michael Meeks ]
+  * add hint:simulate boolean on the backend, set for all simulation
+  * Get the final 'finished' signal right on remove
+
+  [ Richard Hughes ]
+  * Fix the permission of /etc/sysconfig/packagekit-background to be
+    non-executable
+
+  [ Marko Myllynen ]
+  * Fix system name variable name inconsistency in the cron script
+  * Add maximum wait time limit to cron checks
+
+  [ Richard Hughes ]
+  * trivial: add a link to the cgit pages in pk-download.html
+
+  [ aalam ]
+  * l10n: Updates to Panjabi (Punjabi) (pa) translation
+
+  [ Richard Hughes ]
+  * trivial: use the GLib TRUE/FALSE defines to fix compile
+  * Release version 0.6.4
+
+  [ Michael Meeks ]
+  * Fix problem whereby the terminal wouldn't return data to scanf from
+  * Cleanup: kill unpleasant g_strv_length calls.
+
+  [ Jonathan Conder ]
+  * trivial: set backend role after resetting it
+  * trivial: initialize arrays to NULL when replaying cached GetUpdates
+    data
+  * create skeleton pacman-glib backend
+  * pacman: add error reporting infrastructure
+  * pacman: add trivial backend functions
+  * pacman: add cancellation infrastructure
+  * pacman: add support for managing repos
+  * pacman: add support for package groups
+  * pacman: add package-related methods and helpers
+  * pacman: add searching support
+  * pacman: add dependency lookup
+  * pacman: add basic transaction infrastructure
+  * pacman: add support for installing packages
+  * pacman: add support for removing packages
+  * pacman: add support for updating packages
+  * pacman: Update status in pk-matrix.html
+  * pacman: fixed potential memory leak
+
+  [ zerng07 ]
+  * l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+
+  [ Michael Meeks ]
+  * Remove if (a == TRUE) type sillies; the processor has no boolean
+    type,
+  * add TODO
+  * update
+
+  [ Richard Hughes ]
+  * trivial: post release version bump
+  * trivial: sync the rpm spec file with fedora
+
+  [ Andrew Stormont ]
+  * Adding ruck, whatever that is
+  * Don't ask for authentication for most tasks (like installing a
+    package or updating)
+  * Don't ask for the root password when installing untrusted packages,
+    ask for the users password (and remember it) instead.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Mon, 10 May 2010 11:05:09 +0200
+
+packagekit (0.6.3-git~20101105-0jolicloud1) robby; urgency=low
+
+  * Changing default backend to aptcc as it is now fully functional
+  * Fixing FTBFS
+
+ -- Andrew Stormont <andy@jolicloud.org>  Sun, 09 May 2010 11:16:28 +0200
+
+packagekit (0.6.3-git~20101104) robby; urgency=low
+
+  * Moving to git base.
+  * Lots of hacks to make it work.
+
+ -- Andrew Stormont <andy@jolicloud.org>  Fri, 07 May 2010 16:12:39 +0200
+
+packagekit (0.5.7-0ubuntu2) lucid; urgency=low
+
+  * Add fix_upgrade_distro.diff to run the right thing for distro
+    upgrade
+
+ -- Jonathan Riddell <jriddell@ubuntu.com>  Mon, 08 Mar 2010 18:45:32 +0000
+
+packagekit (0.5.7-0ubuntu1) lucid; urgency=low
+
+  * New upstream bugfix release
+  * Remove add_kubuntu_upgrade_support.patch, merged upstream
+
+ -- Jonathan Riddell <jriddell@ubuntu.com>  Thu, 04 Mar 2010 13:57:39 +0000
+
+packagekit (0.5.6-0ubuntu3) lucid; urgency=low
+
+  * Update VCS entries in debian/control for lucid
+  * Add add_kubuntu_upgrade_support.patch to enable distro upgrades on
+    Kubuntu (also sent upstream via dantii)
+
+ -- Harald Sitter <apachelogger@ubuntu.com>  Sun, 21 Feb 2010 11:11:07 +0100
+
+packagekit (0.5.6-0ubuntu2) lucid; urgency=low
+
+  * Re-add fix_progress_crash.patch. Never was upstreamed and apparently
+    was dropped in 0.5.x (LP: #438279)
+
+ -- Jonathan Thomas <echidnaman@kubuntu.org>  Mon, 15 Feb 2010 21:34:00 -0500
+
+packagekit (0.5.6-0ubuntu1) lucid; urgency=low
+
+  * Add build-depend on policykit-1 to prevent FTBFS
+  * Add build-depend on libxt-dev to prevent FTBFS
+  * Add build-depend on pm-utils for pm-utils support, prevents FTBFS
+  * Fix obsolete-relation-form-in-source warnings throughout the package
+  * Bump Standards-Version to 3.8.3:
+    - Add README.source for quilt patch system info
+
+ -- Jonathan Thomas <echidnaman@kubuntu.org>  Wed, 27 Jan 2010 20:48:54 -0500
+
+packagekit (0.5.6) lucid; urgency=low
+
+  * New upstream snapshot of the 0.5 series with the following highlights:
+    - PolicyKit-1 support
+    - New Simulate(Install|Remove|InstallFile|Update) methods to support
+      complex dependency resolutions
+    - Allow to fail on the installation of not authenticated packages
+    - New glib based library which provides a high level access to
+      PackageKit and performs the "transaction dance". Furthermore it only
+      uses async D-Bus calls.
+  * debian/patches:
+    - delayed_cache_refresh: Removed since it is now a config file option
+    - ftbfs_fix_aptcc_backend: Removed (merged upstream)
+    - fix_unicode: Removed (merged upstream)
+    - fix_unicode_debfile: Removed (merged upstream)
+    - fix_get_depends: Removed (merged upstream)
+    - fix_unset_locale: Removed (merged upstream)
+    - disable_werror: Removed since it is now a configure option
+    - defaults: Updated. Raise the StateChangedPriorityTimeout to avoid a
+      package cache rebuild race (bug in libapt)
+  * debian/control:
+    - Remove "experimental" from the aptcc backend description
+    - Change build deps from policykit to policykit-1
+    - Don't require a specific network manager version as build dependency
+    - Add packages libpackagekit-glib2-(12|dev) to ship the advanced library
+    - Change libpackagekit-glib11 to libpackagekit-glib12 and
+      libpackagekit-qt11 to libpackagekit-qt-12 to make difference between new
+      glib2 library and so names clear
+    - packagekit was ported to glib2, so change dependency accordingly
+  * debian/libpackagekit-(glib2?|qt)-(dev-12):
+    - Adapt so name changes
+  * debian/rules:
+    - Remove obsolete configure options
+    - Disable service pack support
+  * debian/packagekit.install:
+    - Don't ship the service pack tools, since they are not supported by the
+      apt or aptcc backend
+    - Adapt the path to the polkit-1 action definition
+    - Ship the pk-command-not-found helper
+
+ -- Sebastian Heinlein <devel@glatzor.de>  Wed, 04 Nov 2009 10:57:43 +0100
+
+packagekit (0.4.9+20090825-0ubuntu4) UNRELEASED; urgency=low
+
+  * debian/rules, debian/packagekit.install: Don't build and install the GTK
+    module which allows to install required fonts, since it isn't support by
+    any of the shipped backends.
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Sun, 30 Aug 2009 11:30:47 +0200
+
+packagekit (0.4.9+20090825-0ubuntu3) karmic; urgency=low
+
+  * libnm-glib soname transition rebuild for NM 0.8 - LP: #427400
+
+  -- Alexander Sack <asac@ubuntu.com>  Thu, 24 Sep 2009 16:12:54 +0200
+
+packagekit (0.4.9+20090825-0ubuntu2) karmic; urgency=low
+
+  * debian/patches:
+    - Add disable_werror: Unset the Werror compile flag to fix FTBS on armel
+    - Add fix_get_depends: Cherry pick fa693068675742e17177534a23feb627b9ab7455
+      to report the broken packages correctly in get_(depends|requires)
+      (LP: #418834)
+    - Add fix_unset_locale: Cherry pick 42c8fda9e0b3d4109b70035027562fa90b3471be
+      to not fail on unsetting LC_ALL (LP: #420348)
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Sat, 29 Aug 2009 09:23:42 +0200
+
+packagekit (0.4.9+20090825-0ubuntu1) karmic; urgency=low
+
+  * New upstream snapshot provding a lot of APT backend improvements:
+    - Allow to install updates which require the installation of additional
+      packages. Updates depending on the removal of a package are still
+      blocked (LP: #342671, LP: #374011, LP: #374011)
+    - Warn about the installation of untrusted package (LP: #256245)
+    - Don't crash in APT post update hook if system D-Bus daemon isn't 
+      running (LP: #388623)
+    - Don't try to estimate a download progress during cache updating, since
+      APT reports only a forth- and backwards running progress. (LP: #348053)
+    - Support for python-apt 0.7.12 (LP: #415993)
+    - Translated package descriptions
+  * debian/patches:
+    - Remove ignore_packages_in_conffile (Merged upstream)
+    - Remove fix_typo (Merged upstream)
+    - Add fix_unicode: Handle the encoding messages via stdin/stdout correctly
+      (LP: #396513)
+    - Add fix_unicode_debfile: Convert the path of the local file which
+      should be installed to the correct encoding (LP: #347327)
+  * debian/libpackagekit-qt-dev.install: Fix install location of CMake module.
+    Thanks to Sveinung Kvilhaugsvik (LP: #345706)
+  * debian/control: Fix spelling of Qt. Thanks to Sveinung Kvilhaugsvik
+    (LP: #378419)
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Tue, 25 Aug 2009 13:03:26 +0200
+
+packagekit (0.4.8-0ubuntu4) karmic; urgency=low
+
+  * xulrunner-1.9.1 by default transition
+    + see: https://blueprints.launchpad.net/ubuntu/+spec/desktop-karmic-firefox-3.5
+      - bump minimal xulrunner-dev version
+      - adjust mozilla-packagekit depends to firefox-3.5 | abrowser-3.5 and Breaks:
+        firefox-3.0
+
+ -- Alexander Sack <asac@ubuntu.com>  Fri, 07 Aug 2009 10:56:36 +0200
+
+packagekit (0.4.8-0ubuntu3) karmic; urgency=low
+
+  * Add debian/patches/ignore_packages_in_conffiles.patch to avoid crashes
+    when packages that are obsolete but not purged are on the system.
+    (LP: #395459)
+  * Fix typo that caused a NameError on some operations. Thanks to Koray Eyinc
+    (LP: #393326)
+
+ -- James Westby <james.westby@ubuntu.com>  Sat, 04 Jul 2009 15:54:45 -0400
+
+packagekit (0.4.8-0ubuntu2) karmic; urgency=low
+
+  * Install the gtk module in the packagekit package so that it is available
+    for gtk to load. (LP: #389766)
+  * Fix the Vcs-Bzr URIs.
+  * Fix issues found by lintian:
+    - Make the package binNMUable by changing to use ${source:Version} for
+      depending on python-packagekit from the python backends.
+    - Drop absolute paths in debian/packagekit-backend-apt.postinst and
+      debian/packagekit.postinst
+    - Drop duplicated "and" in the description of package-backend-apt.
+    - Fix spelling of "development" in the description of
+      packagekit-backend-aptcc.
+    - Fix capitalisation of "Python" in the description of python-packagekit.
+
+ -- James Westby <james.westby@ubuntu.com>  Thu, 02 Jul 2009 18:26:35 -0400
+
+packagekit (0.4.8-0ubuntu1) karmic; urgency=low
+
+  [ Sebastian Heinlein ]
+  * debian/control: 
+     - Update my email address
+     - Add an or build dependency on xulrunner-dev to make building on Debian 
+       systems more easily
+     - Add build dependency on quilt
+     - Add a package for the aptcc backend
+     - Remove package for yum backend
+     - Add ${python:Depends} and XB-Python-Version to all Python based backends
+     - Raise python-apt dependency version
+     - Add a break: libpackagekit-qt11 introduced an API change which will 
+       break kpackagekit below 0.4.1
+  * debian/patches: Removed obsolete patches
+     - Use quilt the patch management
+     - 03_change_mime_codec_db_path.patch: Included by upstream
+     - 04_dbus_policy.patch: Included by upstream
+     - 05_disable_werror.patch: Not longer required
+     - 10_qt_search_functions.patch: Not longer required
+     - 11_lax_backend_timeout.patch: Not longer required
+     - 99_autogen.patch: Not longer required
+     - Rename 03_vendor.patch to vendor.patch
+     - Update and rename 02_config.patch to defaults.patch
+     - Add delayed_cache_refresh.patch to delay the StateHasChanged signal
+       which resulted in APT cache rebuild races
+  * debian/mozilla-packagekit.install: Install the plugin to
+    /usr/lib/mozilla/plugins and adapt renamed directories
+  * debian/packagekit.install:
+    - Ship the mime type definitions
+    - Ship new command-not-found configuration
+    - job_count.dat ist no longer used
+  * debian/python-packagekit.install: Install modules explictly and not by
+    a wildcard
+  * debian/update-packagekit-app-data: Removed since shipped upstream
+  * debian/packagekit-backend-apt.install: Adapt to the new spawned backend
+  * debian/packagekit-backend-aptcc.install: Ship aptcc backend
+  * debian/packagekit-backend-yum.install: Removed
+  * debian/rules:
+    - Call dh_pycentral for all Python packages
+    - Remove obsolete DEB_PYTHON_SYSTEM
+
+  [ Anthony Mercatante ]
+  * New upstream release
+  * Fixed debian/*.install for 0.4.8 compatibility
+  * Added patch fix_fbtfs_aptcc_backend.patch:
+    Fixes build issue due to missing header inclusion
+
+ -- Anthony Mercatante <tonio@ubuntu.com>  Wed, 10 Jun 2009 22:12:47 +0200
+
+packagekit (0.3.14-0ubuntu4) jaunty; urgency=low
+
+  * debian/packagekit.postinst: ignore errors from dbus-send, there's no
+    requirement that dbus is even running at install time.
+  * debian/control: don't point Vcs-Bzr at edge, since that needlessly
+    confuses debcheckout; and use Vcs-* instead of XS-Vcs-* since these
+    are now official fields.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 10 Mar 2009 11:12:33 -0700
+
+packagekit (0.3.14-0ubuntu3) jaunty; urgency=low
+
+  [ Sebastian Heinlein ]
+  * debian/patches:
+    - Add 10_qt_search_functions.patch: Cherry pick of 2e0a1f3 to backport
+      searchFile and searchDetails function of the qt bindings which are 
+      required by kpackagekit 0.4
+    - Add 11_lax_backend_timeout.patch: Raise the timeout in which a DBus
+      based backend has to response to avoid errors on systems with
+      slow i/o performance.
+  * debian/rules: 
+    - Only use one cdbs class.
+
+  [ Anthony Mercatante ]
+  * Fixed debian/python-packagekit.install:
+    Python 2.6 files are installed in dist-packages instead of
+    site-packages 
+  * Doesn't build-dep on python since build-deps on python-dev
+
+ -- Anthony Mercatante <tonio@ubuntu.com>  Tue, 03 Mar 2009 11:03:51 +0100
+
+packagekit (0.3.14-0ubuntu2) jaunty; urgency=low
+
+  * debian/patches:
+    - Added 05_disable_werror.patch: Needed to get a successful build on ports
+    - Added 99_autogen.patch: Needed to effect the above change.
+
+ -- Michael Casadevall <sonicmctails@gmail.com>  Tue, 17 Feb 2009 17:21:28 -0500
+
+packagekit (0.3.14-0ubuntu1) jaunty; urgency=low
+
+  [ Sebastian Heinlein ]
+  * New upstream version
+  * debian/patches:
+    - Add 04_dbus_policy.patch: Cherry pick of 22c6a71 and 3e2e38e to secure 
+      dbus interface and allow access of introspection and properties
+  * libpackagekit-(glib|qt)11.install:
+    - Adapt so names
+
+ -- Jonathan Riddell <jriddell@ubuntu.com>  Mon, 09 Feb 2009 13:57:52 +0000
+
+packagekit (0.3.13-0ubuntu2) jaunty; urgency=low
+
+  * Edit debian/rules to use langpack.mk to build .pot file
+
+ -- Jonathan Riddell <jriddell@ubuntu.com>  Thu, 22 Jan 2009 12:12:21 +0000
+
+packagekit (0.3.13-0ubuntu1) jaunty; urgency=low
+
+  * New upstream release 
+  * debian/patches:
+    - Remove 02_fix_codec_regex, 04_fix_idle_timeout and 05_fix_update_stamp
+      (merged by upstream)
+  * debian/patches/01_disable_refresh_actions.patch:
+    - adpot to latest file changes
+    - disable the checking for updated processes
+    - rename the patch to 01_config.patch
+  * debian/control:
+    - Add build dependency on libqt4-dev and libcppunit-dev
+    - Remove old libpackagekit8(-dev)
+    - Add new binary packages for qt and glib version of libpackagekit
+    - Add new package for python files
+  * debian/libpackagekit-(glib|qt)(11|-dev).install
+    - ship glib and qt packagekit library files in separate packages
+  * debian/rules: 
+    - build the gtk docs, which is now required explicitly
+  * debian/packagekit.dirs:
+    - ship empty download cache dir
+  * debian/packagekit.install:
+    - use a more fine grained file selection
+    - add moved job_count.db
+    - remove python files
+  * debian/python-packagekit.install:
+    - Include all python files
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Wed, 21 Jan 2009 15:43:44 +0100
+
+packagekit (0.3.6-0ubuntu4) intrepid; urgency=low
+
+  * debian/patches/05_fix_update_stamp.patch:
+    - fix syntax for the -APT::Update::Post-Invoke-Success hook 
+      so that it works together with update-notifier
+
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Mon, 27 Oct 2008 13:25:34 +0100
+
+packagekit (0.3.6-0ubuntu3) intrepid; urgency=low
+
+  * debian/patches:
+    - Rename 01_disable_package_list_refresh to 01_disable_refresh_actions
+      and also disable the scanning of installed applications after refreshing
+    - Add 04_fix_idle_timer: do not exit on pending actions
+      Cherry pick of 69e5277c1aac1ece9c76c499d8c65ae67b2a84f9
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Sun, 19 Oct 2008 19:54:01 +0200
+
+packagekit (0.3.6-0ubuntu2) intrepid; urgency=low
+
+  * Version the conflicts on gnome-app-install from gstreamer0.10-packagekit
+    to (< 0.5.12), as that now installs an alternative for the codec install.
+  * Remove the alternative of the obsolete gnome-codec-install.
+  * Apologies to Sebastian for messing up his beautiful packages by
+    not uploading these changes in the last upload.
+
+ -- James Westby <james.westby@canonical.com>  Mon, 20 Oct 2008 15:28:26 +0100
+
+packagekit (0.3.6-0ubuntu1) intrepid; urgency=low
+
+  * New upstream bugfix release 
+  * debian/patches:
+    - Remove 02_fix_statushaschanged_call.patch (applied upstream)
+    - Add 02_fix_codec_regex.patch: 
+      extract the codec information correctly from the helper script output
+    - Add 03_vendor.patch:
+      Set the vendor information to Canonical
+    - Add 03_change_mime_codec_db_path.patch: Use the databases created by
+      the new update-packagekit-app-data
+  * debian/control:
+    - Ship the gstreamer plugin in a separate package gstreamer0.10-packagekit
+      and therefor add libgstreamer-plugins-base0.10-dev as build dependency
+    - gstreamer0.10-packagekit conflicts with gnome-app-install
+    - packagekit-backend-apt depends on app-install-data
+  * debian/gstreamer0.10-packagekit.(prerm|postinst):
+    - Install pk-codec-install as an alternative for gnome-codec-install
+      and gstreamer-codec-install
+  * debian/update-packagekit-app-data, debian/packagekit-backend-apt.install:
+    - Ship a simplified version of gnome-app-install's update-app-install-data
+      which caches mime type and codec information only
+  * debian/packagekit-backend-apt-postinst:
+    - Run update-packagekit-app-data
+  * debian/packagekit-backend-apt.triggers
+    - State an interest in /usr/share/app-install/desktop
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Thu, 09 Oct 2008 18:17:10 +0200
+
+packagekit (0.3.5-1) UNRELEASED; urgency=low
+
+  * New upstream bugfix release
+  * debian/patches:
+    - Remove 01_cleanup_cache_lock.patch (applied upstream)
+    - Add 01_disable_package_list_refresh.patch: 
+      Disable the creation of the package list after each refresh since 
+      GetPackages() is too slow for the apt backend
+    - Add 02_fix_statushaschanged_call.patch:
+      Cherry pick of d9f49bb24cf0df98ffc2b0216ff458f8671c05be
+      Use the correct apt hook, full path to dbus-send and do not wait for a
+      reply from packagekit
+  * debian/control:
+    - Ship libpackagekit in its own package libpackagekit8
+    - Rename packagekit-dev to libpackagekit-dev
+    - Fix sections of the binary packages
+    - More detailed package descriptions
+    - Move recommendation of app-install-data and apt-xapian-index from
+      packagekit to packagekit-backend-apt
+    - Raise recommendation of update-manager-core and 
+      python-software-properties to build dependecies and dependecies of
+      packagekit-backend-apt (backend capabillities are now detected at
+      build time)
+  * debian/packgekit.install:
+    - Remove pk-generate-package-list and pk-import-desktop (is now done by
+      the packagekitd)
+  * debian/packagekit-backend-apt.install
+    - Adapt apt config file path
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Tue, 30 Sep 2008 10:49:39 +0200
+
+packagekit (0.3.3-0ubuntu1) intrepid; urgency=low
+
+  * Latest release of the 0.3 series with the following apt highlights:
+    - Implement UpdatePackages, GetDepends, GetRequires, SetProxy, SetLocale,
+      InstallFiles, RepoEnable, RepoList, WhatProvides and GetFiles
+    - Show the changelog in UpdateDetails
+    - Several small enhancements
+  * debian/control:
+    - Point to the correct bzr repository in X-Vcs
+    - Ship the mozilla plugin and the apt, yum and smart backends in 
+      separate binary package
+    - Add build dependecy on xulrunner-1.9-dev, libgtk+2.0-dev, 
+      libdbus-glib-1-dev, network-manager-dev, python-dev and
+      libarchive-dev
+    - Packagekit recommands app-install-data to support codecs and
+      mime type handlers in WhatProvides
+    - Recommend update-manager-core to get notified about distro releases and
+      python-software-properties to handle repositories.
+  * debian/patches:
+    - Removed 00_allow_root_own_dbus.patch (too many issues)
+    - Removed 01_apt_license.patch (broken and implemented upstream)
+    - Removed 02_fix_apt_doresolve.patch (applied upstream)
+    - Removed 03_improve_installprogress.patch (applied upstream)
+    - Add 01_cleanup_cache_lock.patch:
+      Cherry pick of f27042cbdd54e8cefd33f64dba1e35a6fcad1eba
+      Make sure that the system apt cache is unlocked after a method which
+      locks it was called
+  * debian/packagekit.install:
+    - Ship documentation from the apt backend
+    - Add debfile.py
+    - Sorted
+  * debian/packagekit-backend-(apt|yum|smart).install:
+    - Added
+  * debian/packagekit-dev.install:
+    - Do not ship useless development files for the backends
+  * debian/packagekit.postinst:
+    - Suggest the daemon to quit after installing
+  * debian/trigger
+    - Suggest the daemon to quit if the backends changed
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Fri, 19 Sep 2008 05:17:00 +0200
+
+packagekit (0.2.4-0ubuntu1) intrepid; urgency=low
+
+  [ Sebastian Heinlein ]
+  * debian/copyright: Fix copyright statement
+  * debian/control: Set required minimum version of libdbus-glib-1-dev to 0.76
+  * debian/packagekit.post(inst|rm):
+     - reload dbus configuration
+     - add/remove the packagkitd system user
+  * debian/patches/00_allow_root_own_dbus.patch:
+     - allow the root user to own org.freedesktop.PackageKit
+  * debian/rules: only run the apt backend as root and use the packagekit
+                  user for the packagekit daemon
+  * New upstream bugfix release:
+   - Bump the soname as we changed ABI some time ago (Richard Hughes)
+   - Don't optimise for the common case in pk-import-desktop as we
+     really want to regenerate the cache even if it's slow (Richard Hughes)
+   - Fix doing pk_transaction_list_remove() on a transaction waiting to
+     timeout, to avoid walking on freed memory (Richard Hughes)
+   - Don't print the '%' chars on the console from python exceptions,
+     else we can crash the daemon when running in verbose mode (Richard Hughes)
+   - Backport a small memory leak in the daemon from master (Richard Hughes)
+   - AllowCancel(FALSE) is allowed when we are finished, but not TRUE (Richard
+     Hughes)
+  
+  [ Michael Vogt ]
+  * debian/patches/03_improve_installprogress.patch:
+    - kill maintainer scripts that hang
+    - send backend.Message() after the install if conffile prompts are
+      detected during the install (default to keep old conffile)
+    - implement doUpdatePackages() 
+    (patch sent to upstream git repo)
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Wed, 06 Aug 2008 05:32:05 +0200
+
+packagekit (0.2.3-0ubuntu1) intrepid; urgency=low
+
+  * New upstream release:
+    - Remove 01_build_format_string.patch, applied upstream.
+  * debian/control: Fix obsolete ${Source-Version}.
+  * debian/control: Bump Standards-Version.
+  * debian/packagekit-dev.install: Adapt to new structure of documentation.
+  * debian/copyright: Update FSF address and small lintian fixes.
+  * debian/control: Make packagekit-dev Arch: any, since it ships architecture
+    dependent static library.
+  * Add 01_apt_license.patch: GetDetails(): Set license field to "free" for
+    main/universe/contrib sections. This gives a slightly better heuristics
+    than always leaving it to "unknown".
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Wed, 09 Jul 2008 12:17:41 +0200
+
+packagekit (0.2.2-0ubuntu2) intrepid; urgency=low
+
+  * debian/control: Replaced 'cash' with 'cache' in description (LP: #238438)
+    (thanks to Nathan Handler)
+  
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Fri, 20 Jun 2008 10:07:31 +0200
+
+packagekit (0.2.2-0ubuntu1) intrepid; urgency=low
+
+  * New upstream release, with much improved apt support.
+  * debian/control: Bump PolicyKit build dependencies to >= 0.8.
+  * debian/control: Drop superfluous python-all-dev build dependency, we do not
+    build compiled Python extensions.
+  * debian/rules: Configure with --enable-apt --with-default-backend=apt.
+  * debian/rules: Use simple-patchsys.
+  * Add debian/patches/01_build_format_string.patch: Fix building with
+    -Wformat-security.
+  * Add debian/patches/02_fix_apt_doresolve.patch: Fix doResolve() in apt
+    backend. (apt backend was completely broken before)
+  * debian/packagekit.install: Do not install the sysconfig, cron.daily, and
+    udev bits, they do not apply to Debian/Ubuntu.
+  * debian/control: Point out that -dev contains documentation as well.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 19 Jun 2008 12:50:59 -0400
+
+packagekit (0.1.6-0ubuntu2) hardy; urgency=low
+
+  * debian/packagekit.install:
+    + Don't install .la files (they break the packagekit-gnome build).
+
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 09 Mar 2008 14:40:00 +0100
+
+packagekit (0.1.6-0ubuntu1) hardy; urgency=low
+
+  * New upstream release
+  * Don't ship the test and dummy backend
+  * Explicitly build the plain search backend
+  * Add build dependency on xmlto, docbook-utils and gtk-doc-tools
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Mon, 11 Feb 2008 16:13:04 +0100
+
+packagekit (0.1.3-ubuntu1) gutsy; urgency=low
+
+  * Initial release
+
+ -- Sebastian Heinlein <glatzor@ubuntu.com>  Wed, 21 Nov 2007 01:12:42 +0100

@@ -1,0 +1,199 @@
+--- packagekit/backends/aptcc/pk-backend-aptcc.cpp.orig	2010-12-02 14:46:22.364106549 +0100
++++ packagekit/backends/aptcc/pk-backend-aptcc.cpp	2010-12-02 14:58:13.257957194 +0100
+@@ -408,7 +408,7 @@
+ 	OpTextProgress Prog(*_config);
+ 	int timeout = 10;
+ 	// TODO test this
+-	while (Cache.Open(&Prog, !getUpdates) == false) {
++	while (Cache.Open(Prog, !getUpdates) == false) {
+ 		// failed to open cache, try checkDeps then..
+ 		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
+ 		if (getUpdates == true || (timeout <= 0)) {
+@@ -613,13 +613,12 @@
+ 	AcqPackageKitStatus Stat(m_apt, backend, _cancel);
+ 
+ 	// get a fetcher
+-	pkgAcquire fetcher;
+-	fetcher.Setup(&Stat);
++	pkgAcquire *fetcher = new pkgAcquire(&Stat);
+ 	string filelist;
+ 	gchar *pi;
+ 
+ 	// TODO this might be useful when the item is in the cache
+-// 	for (pkgAcquire::ItemIterator I = fetcher.ItemsBegin(); I < fetcher.ItemsEnd();)
++// 	for (pkgAcquire::ItemIterator I = fetcher->ItemsBegin(); I < fetcher->ItemsEnd();)
+ // 	{
+ // 		if ((*I)->Local == true)
+ // 		{
+@@ -635,7 +634,7 @@
+ //
+ // 		// Clear it out of the fetch list
+ // 		delete *I;
+-// 		I = fetcher.ItemsBegin();
++// 		I = fetcher->ItemsBegin();
+ // 	}
+ 
+ 	for (uint i = 0; i < g_strv_length(package_ids); i++) {
+@@ -644,6 +643,7 @@
+ 			pk_backend_error_code (backend,
+ 					       PK_ERROR_ENUM_PACKAGE_ID_INVALID,
+ 					       pi);
++			delete fetcher;
+ 			delete m_apt;
+ 			pk_backend_finished (backend);
+ 			return false;
+@@ -669,7 +669,7 @@
+ 			}
+ 
+ 			string storeFileName;
+-			if (get_archive(&fetcher,
++			if (get_archive(fetcher,
+ 					m_apt->packageSourceList,
+ 					m_apt->packageRecords,
+ 					pkg_ver.second,
+@@ -687,11 +687,12 @@
+ 		}
+ 	}
+ 
+-	if (fetcher.Run() != pkgAcquire::Continue
++	if (fetcher->Run() != pkgAcquire::Continue
+ 	    && _cancel == false)
+ 	// We failed and we did not cancel
+ 	{
+ 		show_errors(backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
++		delete fetcher;
+ 		delete m_apt;
+ 		pk_backend_finished (backend);
+ 		return _cancel;
+@@ -700,6 +701,7 @@
+ 	// send the filelist
+ 	pk_backend_files(backend, NULL, filelist.c_str());
+ 
++	delete fetcher;
+ 	delete m_apt;
+ 	pk_backend_finished (backend);
+ 	return true;
+@@ -754,7 +756,7 @@
+ 	// Rebuild the cache.
+ 	pkgCacheFile Cache;
+ 	OpTextProgress Prog(*_config);
+-	if (Cache.BuildCaches(&Prog, true) == false) {
++	if (Cache.BuildCaches(Prog, true) == false) {
+ 		if (_error->PendingError() == true) {
+ 			show_errors(backend, PK_ERROR_ENUM_CANNOT_GET_LOCK);
+ 		}
+--- packagekit/backends/aptcc/apt.cpp.orig	2010-12-02 14:26:19.938059326 +0100
++++ packagekit/backends/aptcc/apt.cpp		2010-12-02 15:04:22.629251193 +0100
+@@ -681,12 +681,12 @@
+     AcqPackageKitStatus Stat(this, m_backend, _cancel);
+ 
+     // get a fetcher
+-    pkgAcquire fetcher;
+-    fetcher.Setup(&Stat);
++    pkgAcquire *fetcher = new pkgAcquire(&Stat);
+ 
+     // fetch the changelog
+     pk_backend_set_status(m_backend, PK_STATUS_ENUM_DOWNLOAD_CHANGELOG);
+-    string filename = getChangelogFile(pkg.Name(), origin, verstr, srcpkg, uri, &fetcher);
++    string filename = getChangelogFile(pkg.Name(), origin, verstr, srcpkg, uri, fetcher);
++    delete fetcher;
+ 
+     string changelog;
+     string update_text;
+@@ -1128,10 +1128,10 @@
+ 	}
+ }
+ 
+-static bool checkTrusted(pkgAcquire &fetcher, PkBackend *backend)
++static bool checkTrusted(pkgAcquire *fetcher, PkBackend *backend)
+ {
+ 	string UntrustedList;
+-	for (pkgAcquire::ItemIterator I = fetcher.ItemsBegin(); I < fetcher.ItemsEnd(); ++I)
++	for (pkgAcquire::ItemIterator I = fetcher->ItemsBegin(); I < fetcher->ItemsEnd(); ++I)
+ 	{
+ 		if (!(*I)->IsTrusted())
+ 		{
+@@ -1664,7 +1664,7 @@
+ 	OpTextProgress Prog(*_config);
+ 	int timeout = 10;
+ 	// TODO test this
+-	while (Cache.Open(&Prog, WithLock) == false) {
++	while (Cache.Open(Prog, WithLock) == false) {
+ 		// failed to open cache, try checkDeps then..
+ 		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
+ 		if (WithLock == false || (timeout <= 0)) {
+@@ -1815,12 +1815,11 @@
+ 	AcqPackageKitStatus Stat(this, m_backend, _cancel);
+ 
+ 	// get a fetcher
+-	pkgAcquire fetcher;
+-	fetcher.Setup(&Stat);
++	pkgAcquire *fetcher = new pkgAcquire(&Stat);
+ 
+ 	// Create the package manager and prepare to download
+ 	SPtr<pkgPackageManager> PM= _system->CreatePM(Cache);
+-	if (PM->GetArchives(&fetcher, packageSourceList, &Recs) == false ||
++	if (PM->GetArchives(fetcher, packageSourceList, &Recs) == false ||
+ 	    _error->PendingError() == true) {
+ 		return false;
+ 	}
+@@ -1849,9 +1848,9 @@
+ 	}
+ 
+ 	// Display statistics
+-	double FetchBytes = fetcher.FetchNeeded();
+-	double FetchPBytes = fetcher.PartialPresent();
+-	double DebBytes = fetcher.TotalNeeded();
++	double FetchBytes = fetcher->FetchNeeded();
++	double FetchPBytes = fetcher->PartialPresent();
++	double DebBytes = fetcher->TotalNeeded();
+ 	if (DebBytes != Cache->DebSize())
+ 	{
+  	    cout << DebBytes << ',' << Cache->DebSize() << endl;
+@@ -1877,6 +1876,7 @@
+ 
+ 	if (_error->PendingError() == true) {
+ 	    cout << "PendingError " << endl;
++		delete fetcher;
+ 		return false;
+ 	}
+ 
+@@ -1884,6 +1884,7 @@
+ 	struct statvfs Buf;
+ 	string OutputDir = _config->FindDir("Dir::Cache::Archives");
+ 	if (statvfs(OutputDir.c_str(),&Buf) != 0) {
++		delete fetcher;
+ 		return _error->Errno("statvfs",
+ 				     "Couldn't determine free space in %s",
+ 				     OutputDir.c_str());
+@@ -1897,24 +1898,29 @@
+ 			pk_backend_error_code(m_backend,
+ 					      PK_ERROR_ENUM_NO_SPACE_ON_DEVICE,
+ 					      string("You don't have enough free space in ").append(OutputDir).c_str());
++			delete fetcher;
+ 			return _error->Error("You don't have enough free space in %s.",
+ 					    OutputDir.c_str());
+ 		}
+ 	}
+ 
+ 	if (!checkTrusted(fetcher, m_backend)) {
++		delete fetcher;
+ 		return false;
+ 	}
+ 
+ 	pk_backend_set_status (m_backend, PK_STATUS_ENUM_DOWNLOAD);
+ 	pk_backend_set_simultaneous_mode(m_backend, true);
+ 	// Download and check if we can continue
+-	if (fetcher.Run() != pkgAcquire::Continue
++	if (fetcher->Run() != pkgAcquire::Continue
+ 	    && _cancel == false)
+ 	{
+ 		// We failed and we did not cancel
+ 		show_errors(m_backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
++		delete fetcher;
+ 		return false;
++	} else {
++		delete fetcher;
+ 	}
+ 	pk_backend_set_simultaneous_mode(m_backend, false);
+ 

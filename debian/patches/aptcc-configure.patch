@@ -1,0 +1,71 @@
+--- packagekit/backends/aptcc/apt.cpp.orig	2010-12-02 15:48:04.641419428 +0100
++++ packagekit/backends/aptcc/apt.cpp		2010-12-02 15:50:20.949229773 +0100
+@@ -74,6 +74,12 @@
+ 	// Set PackageKit status
+ 	pk_backend_set_status(m_backend, PK_STATUS_ENUM_LOADING_CACHE);
+ 
++	// Run dpkg --configure -a if needed
++	if (CheckUpdates() == true) {
++		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
++		system("DEBIAN_FRONTEND=noninteractive dpkg --configure -a");
++	}
++
+ 	// set locale
+ 	if (locale = pk_backend_get_locale(m_backend)) {
+ 		setlocale(LC_ALL, locale);
+@@ -1750,6 +1756,41 @@
+ 
+ 									/*}}}*/
+ 
++// CheckUpdates - Check if the updates dir is dirty		/*{{{*/
++// ---------------------------------------------------------------------
++/* This does a check of the updates directory (dpkg journal) to see if it has 
++   any entries in it. */
++bool aptcc::CheckUpdates()
++{
++   // Check for updates.. (dirty)
++   string File = flNotFile(_config->Find("Dir::State::status")) + "updates/";
++   DIR *DirP = opendir(File.c_str());
++   if (DirP == 0)
++      return false;
++   
++   /* We ignore any files that are not all digits, this skips .,.. and 
++      some tmp files dpkg will leave behind.. */
++   bool Damaged = false;
++   for (struct dirent *Ent = readdir(DirP); Ent != 0; Ent = readdir(DirP))
++   {
++      Damaged = true;
++      for (unsigned int I = 0; Ent->d_name[I] != 0; I++)
++      {
++	 // Check if its not a digit..
++	 if (isdigit(Ent->d_name[I]) == 0)
++	 {
++	    Damaged = false;
++	    break;
++	 }
++      }
++      if (Damaged == true)
++	 break;
++   }
++   closedir(DirP);
++
++   return Damaged;
++}
++
+ // InstallPackages - Actually download and install the packages		/*{{{*/
+ // ---------------------------------------------------------------------
+ /* This displays the informative messages describing what is going to
+--- packagekit/backends/aptcc/apt.h.orig	2010-12-02 15:53:30.361229814 +0100
++++ packagekit/backends/aptcc/apt.h		2010-12-02 15:55:15.945229771 +0100
+@@ -118,6 +118,11 @@
+ 	void emit_update_detail(const pkgCache::PkgIterator &pkg);
+ 
+ 	/**
++	 *  seems to CheckUpdates
++	 */
++	bool CheckUpdates();
++
++	/**
+ 	 *  seems to install packages
+ 	 */
+ 	bool installPackages(pkgCacheFile &Cache);

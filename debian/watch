@@ -1,0 +1,4 @@
+version=3
+
+http://www.packagekit.org/releases/PackageKit-(.*)\.tar\.gz
+

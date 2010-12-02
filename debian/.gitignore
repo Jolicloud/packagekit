@@ -1,0 +1,11 @@
+tmp
+packagekit
+python-packagekit
+packagekit-gtk-module
+packagekit-backend-*
+mozilla-packagekit
+libpackagekit-qt-*
+libpackagekit-glib*-*
+gstreamer0.10-packagekit
+*.install
+*.debhelper.log

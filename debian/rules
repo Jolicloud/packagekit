@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/patchsys-quilt.mk
+
+DEB_CONFIGURE_SCRIPT := ./autogen.sh
+
+DEB_CONFIGURE_EXTRA_FLAGS := --enable-docbook-docs --enable-gtk-doc \
+			     --enable-apt --enable-aptcc --enable-smart \
+	                     --with-default-backend=aptcc \
+			     --disable-service-packs \
+			     --enable-strict=no
+
+binary-install/python-packagekit::
+	dh_pycentral -p$(cdbs_curpkg)
+
+binary-install/packagekit-backend-apt::
+	dh_pycentral -p$(cdbs_curpkg) 
+
+binary-install/packagekit-backend-smart::
+	dh_pycentral -p$(cdbs_curpkg)

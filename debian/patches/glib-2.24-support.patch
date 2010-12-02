@@ -1,0 +1,133 @@
+--- packagekit/lib/packagekit-glib2/pk-client-helper.c.orig	2010-12-02 13:01:03.222983849 +0100
++++ packagekit/lib/packagekit-glib2/pk-client-helper.c		2010-12-02 13:02:45.296112687 +0100
+@@ -471,7 +471,11 @@
+ 		goto out;
+ 
+ 	/* bind to the socket */
++#if GLIB_CHECK_VERSION(2,26,0)
+ 	address = g_unix_socket_address_new_with_type (socket_filename, -1, G_UNIX_SOCKET_ADDRESS_PATH);
++#else
++	address = g_unix_socket_address_new (socket_filename);
++#endif
+ 	ret = g_socket_bind (priv->socket, address, TRUE, error);
+ 	if (!ret)
+ 		goto out;
+--- packagekit/lib/packagekit-glib2/pk-socket-example.c.orig	2010-12-02 13:03:59.824112685 +0100
++++ packagekit/lib/packagekit-glib2/pk-socket-example.c		2010-12-02 13:05:09.468112813 +0100
+@@ -83,7 +83,11 @@
+ 	g_socket_set_keepalive (socket, TRUE);
+ 
+ 	/* connect to it */
++#if GLIB_CHECK_VERSION(2,26,0)
+ 	address = g_unix_socket_address_new_with_type (socket_filename, -1, G_UNIX_SOCKET_ADDRESS_PATH);
++#else
++	address = g_unix_socket_address_new (socket_filename);
++#endif
+ 	ret = g_socket_connect (socket, address, NULL, &error);
+ 	if (!ret) {
+ 		g_warning ("failed to connect to socket: %s", error->message);
+--- packagekit/backends/aptcc/apt-utils.h.orig	2010-12-02 13:28:25.948504863 +0100
++++ packagekit/backends/aptcc/apt-utils.h	2010-12-02 13:39:28.294263252 +0100
+@@ -139,13 +139,12 @@
+   */
+ bool starts_with(const string &str, const char *end);
+ 
+-GDateTime* dateFromString(const gchar *tz,
+-                          const gchar *year,
+-                          const gchar *month,
+-                          const gchar *day,
+-                          const gchar *hour,
+-                          const gchar *minute,
+-                          const gchar *seconds);
++char *dateFromString(const gchar *year,
++                     const gchar *month,
++                     const gchar *day,
++                     const gchar *hour,
++                     const gchar *minute,
++                     const gchar *seconds);
+ /**
+   * Return an utf8 string
+   */
+--- packagekit/backends/aptcc/apt-utils.cpp.orig	2010-12-02 13:28:07.932505279 +0100
++++ packagekit/backends/aptcc/apt-utils.cpp		2010-12-02 13:42:20.800640877 +0100
+@@ -406,15 +406,14 @@
+ 	return str.size() >= startSize && (strncmp(str.data(), start, startSize) == 0);
+ }
+ 
+-GDateTime* dateFromString(const gchar *tz,
+-                          const gchar *year,
+-                          const gchar *month,
+-                          const gchar *day,
+-                          const gchar *hour,
+-                          const gchar *minute,
+-                          const gchar *seconds)
++char* dateFromString(const gchar *year,
++                     const gchar *month,
++                     const gchar *day,
++                     const gchar *hour,
++                     const gchar *minute,
++                     const gchar *seconds)
+ {
+-    GDateTime *ret;
++    char *ret;
+     int monthI;
+     if (strcmp(month, "Jan") == 0) {
+         monthI = 1;
+@@ -441,14 +440,7 @@
+     } else if (strcmp(month, "Dez") == 0) {
+         monthI = 12;
+     }
+-
+-    ret = g_date_time_new(g_time_zone_new(tz),
+-                          atoi(year),
+-                          monthI,
+-                          atoi(day),
+-                          atoi(hour),
+-                          atoi(minute),
+-                          atoi(seconds));
++    asprintf(&ret, "%s-%i-%sT%s:%s:%s", year, monthI, day, hour, minute, seconds);
+     return ret;
+ }
+ 
+--- packagekit/backends/aptcc/apt.cpp.orig	2010-12-02 13:26:18.164504627 +0100
++++ packagekit/backends/aptcc/apt.cpp		2010-12-02 13:40:38.582262892 +0100
+@@ -766,9 +766,8 @@
+                 hour = g_match_info_fetch_named(match_info, "H");
+                 minute = g_match_info_fetch_named(match_info, "M");
+                 seconds = g_match_info_fetch_named(match_info, "s");
+-                GDateTime *dateTime;
+-                dateTime = dateFromString(tz,
+-                                          year,
++                char *dateTime;
++                dateTime = dateFromString(year,
+                                           month,
+                                           day,
+                                           hour,
+@@ -782,10 +781,11 @@
+                 g_free(minute);
+                 g_free(seconds);
+ 
+-                issued = g_date_time_format(dateTime, "%FT%R:%S");
++                issued = strdup(dateTime);
+                 if (updated.empty()) {
+-                    updated = g_date_time_format(dateTime, "%FT%R:%S");
++                    updated = strdup(dateTime);
+                 }
++                free(dateTime);
+             }
+             g_match_info_free(match_info);
+         }
+--- packagekit/backends/dummy/pk-backend-dummy.c.orig	2010-12-02 14:49:32.592107071 +0100
++++ packagekit/backends/dummy/pk-backend-dummy.c	2010-12-02 14:51:13.256106997 +0100
+@@ -1141,7 +1141,11 @@
+ 	g_socket_set_keepalive (_socket, TRUE);
+ 
+ 	/* connect to it */
++#if GLIB_CHECK_VERSION(2,26,0)
+ 	address = g_unix_socket_address_new_with_type (frontend_socket, -1, G_UNIX_SOCKET_ADDRESS_PATH);
++#else
++	address = g_unix_socket_address_new (frontend_socket);
++#endif
+ 	ret = g_socket_connect (_socket, address, NULL, &error);
+ 	if (!ret) {
+ 		pk_backend_error_code (backend, PK_ERROR_ENUM_INTERNAL_ERROR,

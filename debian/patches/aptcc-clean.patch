@@ -1,0 +1,24 @@
+From: Jérémy Bethmont <jerem@jolicloud.com>
+Date: Fri, 3 Sep 2010 14:05:52 +0000 (+0200)
+Subject: aptcc: added archives cleaning after a system update.
+X-Git-Tag: jolicloud/0.6.6-git.20100912-0jolicloud1~5
+X-Git-Url: https://git.jolicloud.org/gitweb/?p=system%2Fpackagekit.git;a=commitdiff_plain;h=90b45333145b84df770b15bd961eccebab5426e4
+
+aptcc: added archives cleaning after a system update.
+---
+
+diff --git a/backends/aptcc/pk-backend-aptcc.cpp b/backends/aptcc/pk-backend-aptcc.cpp
+index 7fa8264..5b70f42 100644
+--- a/backends/aptcc/pk-backend-aptcc.cpp
++++ b/backends/aptcc/pk-backend-aptcc.cpp
+@@ -451,6 +451,10 @@ backend_get_or_update_system_thread (PkBackend *backend)
+ 		m_apt->emit_packages(kept, filters, PK_INFO_ENUM_BLOCKED);
+ 	} else {
+ 		res = m_apt->installPackages(Cache);
++		// We clean the archives directory
++		pkgAcquire Fetcher;
++		Fetcher.Clean(_config->FindDir("Dir::Cache::archives"));
++		Fetcher.Clean(_config->FindDir("Dir::Cache::archives") + "partial/");
+ 	}
+ 
+ 	delete m_apt;
