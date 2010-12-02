@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>PkMessage</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
 <link rel="home" href="index.html" title="PackageKit Reference Manual">
 <link rel="up" href="libpackagekit-gobject.html" title="libpackagekit GObjects">
 <link rel="prev" href="PkMediaChangeRequired.html" title="PkMediaChangeRequired">
@@ -45,14 +45,14 @@
                     <a class="link" href="PkMessage.html#PkMessage-struct" title="PkMessage">PkMessage</a>;
                     <a class="link" href="PkMessage.html#PkMessageClass" title="PkMessageClass">PkMessageClass</a>;
 <a class="link" href="PkMessage.html" title="PkMessage"><span class="returnvalue">PkMessage</span></a> *         <a class="link" href="PkMessage.html#pk-message-new" title="pk_message_new ()">pk_message_new</a>                      (<em class="parameter"><code><span class="type">void</span></code></em>);
-const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkMessage.html#pk-message-get-details" title="pk_message_get_details ()">pk_message_get_details</a>              (<em class="parameter"><code><a class="link" href="PkMessage.html" title="PkMessage"><span class="type">PkMessage</span></a> *message</code></em>);
+const <span class="returnvalue">gchar</span> *       <a class="link" href="PkMessage.html#pk-message-get-details" title="pk_message_get_details ()">pk_message_get_details</a>              (<em class="parameter"><code><a class="link" href="PkMessage.html" title="PkMessage"><span class="type">PkMessage</span></a> *message</code></em>);
 <a class="link" href="PackageKit-pk-enum.html#PkMessageEnum" title="enum PkMessageEnum"><span class="returnvalue">PkMessageEnum</span></a>       <a class="link" href="PkMessage.html#pk-message-get-kind" title="pk_message_get_kind ()">pk_message_get_kind</a>                 (<em class="parameter"><code><a class="link" href="PkMessage.html" title="PkMessage"><span class="type">PkMessage</span></a> *message</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Object Hierarchy">
 <a name="PkMessage.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+  GObject
    +----PkSource
          +----PkMessage
 </pre>
@@ -60,8 +60,8 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <div class="refsect1" title="Properties">
 <a name="PkMessage.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
-  "<a class="link" href="PkMessage.html#PkMessage--details" title='The "details" property'>details</a>"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
-  "<a class="link" href="PkMessage.html#PkMessage--type" title='The "type" property'>type</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
+  "<a class="link" href="PkMessage.html#PkMessage--details" title='The "details" property'>details</a>"                  <span class="type">gchar</span>*                : Read / Write
+  "<a class="link" href="PkMessage.html#PkMessage--type" title='The "type" property'>type</a>"                     <span class="type">guint</span>                 : Read / Write
 </pre>
 </div>
 <div class="refsect1" title="Description">
@@ -122,7 +122,7 @@ Private <a class="link" href="PkMessage.html" title="PkMessage"><span class="typ
 <hr>
 <div class="refsect2" title="pk_message_get_details ()">
 <a name="pk-message-get-details"></a><h3>pk_message_get_details ()</h3>
-<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_message_get_details              (<em class="parameter"><code><a class="link" href="PkMessage.html" title="PkMessage"><span class="type">PkMessage</span></a> *message</code></em>);</pre>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *       pk_message_get_details              (<em class="parameter"><code><a class="link" href="PkMessage.html" title="PkMessage"><span class="type">PkMessage</span></a> *message</code></em>);</pre>
 <p>
 Gets the message details.
 </p>
@@ -136,7 +136,7 @@ Gets the message details.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> the details, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if unset
+<td> the details, or <code class="literal">NULL</code> if unset
 
 </td>
 </tr>
@@ -174,7 +174,7 @@ Gets the message kind
 <a name="PkMessage.property-details"></a><h2>Property Details</h2>
 <div class="refsect2" title='The "details" property'>
 <a name="PkMessage--details"></a><h3>The <code class="literal">"details"</code> property</h3>
-<pre class="programlisting">  "details"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<pre class="programlisting">  "details"                  <span class="type">gchar</span>*                : Read / Write</pre>
 <p></p>
 <p>Default value: NULL</p>
 <p class="since">Since 0.5.4</p>
@@ -182,7 +182,7 @@ Gets the message kind
 <hr>
 <div class="refsect2" title='The "type" property'>
 <a name="PkMessage--type"></a><h3>The <code class="literal">"type"</code> property</h3>
-<pre class="programlisting">  "type"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write</pre>
+<pre class="programlisting">  "type"                     <span class="type">guint</span>                 : Read / Write</pre>
 <p></p>
 <p>Default value: 0</p>
 <p class="since">Since 0.5.4</p>

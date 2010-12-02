@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>PkTask</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
 <link rel="home" href="index.html" title="PackageKit Reference Manual">
 <link rel="up" href="libpackagekit-gobject.html" title="libpackagekit GObjects">
 <link rel="prev" href="PkServicePack.html" title="PkServicePack">
@@ -47,201 +47,201 @@ transactions, GPG keys and EULA requests.</p>
                     <a class="link" href="PkTask.html#PkTask-struct" title="PkTask">PkTask</a>;
                     <a class="link" href="PkTask.html#PkTaskClass" title="PkTaskClass">PkTaskClass</a>;
 <a class="link" href="PkTask.html" title="PkTask"><span class="returnvalue">PkTask</span></a> *            <a class="link" href="PkTask.html#pk-task-new" title="pk_task_new ()">pk_task_new</a>                         (<em class="parameter"><code><span class="type">void</span></code></em>);
-<span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-test" title="pk_task_test ()">pk_task_test</a>                        (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-test" title="pk_task_test ()">pk_task_test</a>                        (<em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <a class="link" href="PkResults.html" title="PkResults"><span class="returnvalue">PkResults</span></a> *         <a class="link" href="PkTask.html#pk-task-generic-finish" title="pk_task_generic_finish ()">pk_task_generic_finish</a>              (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html"><span class="type">GAsyncResult</span></a> *res</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);
+                                                         <em class="parameter"><code><span class="type">GAsyncResult</span> *res</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-install-packages-async" title="pk_task_install_packages_async ()">pk_task_install_packages_async</a>      (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-update-packages-async" title="pk_task_update_packages_async ()">pk_task_update_packages_async</a>       (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-remove-packages-async" title="pk_task_remove_packages_async ()">pk_task_remove_packages_async</a>       (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> allow_deps</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> autoremove</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> allow_deps</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> autoremove</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-install-files-async" title="pk_task_install_files_async ()">pk_task_install_files_async</a>         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **files</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **files</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-update-system-async" title="pk_task_update_system_async ()">pk_task_update_system_async</a>         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-resolve-async" title="pk_task_resolve_async ()">pk_task_resolve_async</a>               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **packages</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **packages</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-search-names-async" title="pk_task_search_names_async ()">pk_task_search_names_async</a>          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-search-details-async" title="pk_task_search_details_async ()">pk_task_search_details_async</a>        (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-search-groups-async" title="pk_task_search_groups_async ()">pk_task_search_groups_async</a>         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-search-files-async" title="pk_task_search_files_async ()">pk_task_search_files_async</a>          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-details-async" title="pk_task_get_details_async ()">pk_task_get_details_async</a>           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-update-detail-async" title="pk_task_get_update_detail_async ()">pk_task_get_update_detail_async</a>     (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-download-packages-async" title="pk_task_download_packages_async ()">pk_task_download_packages_async</a>     (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *directory</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *directory</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-updates-async" title="pk_task_get_updates_async ()">pk_task_get_updates_async</a>           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-depends-async" title="pk_task_get_depends_async ()">pk_task_get_depends_async</a>           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> recursive</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> recursive</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-packages-async" title="pk_task_get_packages_async ()">pk_task_get_packages_async</a>          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-requires-async" title="pk_task_get_requires_async ()">pk_task_get_requires_async</a>          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> recursive</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> recursive</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-what-provides-async" title="pk_task_what_provides_async ()">pk_task_what_provides_async</a>         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-enum.html#PkProvidesEnum" title="enum PkProvidesEnum"><span class="type">PkProvidesEnum</span></a> provides</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-files-async" title="pk_task_get_files_async ()">pk_task_get_files_async</a>             (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-categories-async" title="pk_task_get_categories_async ()">pk_task_get_categories_async</a>        (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-refresh-cache-async" title="pk_task_refresh_cache_async ()">pk_task_refresh_cache_async</a>         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> force</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> force</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-rollback-async" title="pk_task_rollback_async ()">pk_task_rollback_async</a>              (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *transaction_id</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *transaction_id</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-get-repo-list-async" title="pk_task_get_repo_list_async ()">pk_task_get_repo_list_async</a>         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkTask.html#pk-task-repo-enable-async" title="pk_task_repo_enable_async ()">pk_task_repo_enable_async</a>           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *repo_id</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> enabled</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *repo_id</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> enabled</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkTask.html#pk-task-user-accepted" title="pk_task_user_accepted ()">pk_task_user_accepted</a>               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> request</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkTask.html#pk-task-user-declined" title="pk_task_user_declined ()">pk_task_user_declined</a>               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> request</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkTask.html#pk-task-user-accepted" title="pk_task_user_accepted ()">pk_task_user_accepted</a>               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint</span> request</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkTask.html#pk-task-user-declined" title="pk_task_user_declined ()">pk_task_user_declined</a>               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint</span> request</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Object Hierarchy">
 <a name="PkTask.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+  GObject
    +----<a class="link" href="PkClient.html" title="PkClient">PkClient</a>
          +----PkTask
                +----PkTaskText
@@ -251,8 +251,8 @@ transactions, GPG keys and EULA requests.</p>
 <div class="refsect1" title="Properties">
 <a name="PkTask.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
-  "<a class="link" href="PkTask.html#PkTask--interactive" title='The "interactive" property'>interactive</a>"              <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write
-  "<a class="link" href="PkTask.html#PkTask--simulate" title='The "simulate" property'>simulate</a>"                 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write
+  "<a class="link" href="PkTask.html#PkTask--interactive" title='The "interactive" property'>interactive</a>"              <span class="type">gboolean</span>              : Read / Write
+  "<a class="link" href="PkTask.html#PkTask--simulate" title='The "simulate" property'>simulate</a>"                 <span class="type">gboolean</span>              : Read / Write
 </pre>
 </div>
 <div class="refsect1" title="Description">
@@ -331,7 +331,7 @@ Private <a class="link" href="PkTask.html" title="PkTask"><span class="type">PkT
 <hr>
 <div class="refsect2" title="pk_task_test ()">
 <a name="pk-task-test"></a><h3>pk_task_test ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                pk_task_test                        (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_task_test                        (<em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -347,8 +347,8 @@ Private <a class="link" href="PkTask.html" title="PkTask"><span class="type">PkT
 <div class="refsect2" title="pk_task_generic_finish ()">
 <a name="pk-task-generic-finish"></a><h3>pk_task_generic_finish ()</h3>
 <pre class="programlisting"><a class="link" href="PkResults.html" title="PkResults"><span class="returnvalue">PkResults</span></a> *         pk_task_generic_finish              (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html"><span class="type">GAsyncResult</span></a> *res</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">GAsyncResult</span> *res</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
 <p>
 Gets the result from the asynchronous function.
 </p>
@@ -362,12 +362,12 @@ Gets the result from the asynchronous function.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>res</code></em> :</span></p></td>
-<td>the <a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html"><span class="type">GAsyncResult</span></a>
+<td>the <span class="type">GAsyncResult</span>
 </td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>error</code></em> :</span></p></td>
-<td>A <a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>A <span class="type">GError</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -383,12 +383,12 @@ Gets the result from the asynchronous function.
 <div class="refsect2" title="pk_task_install_packages_async ()">
 <a name="pk-task-install-packages-async"></a><h3>pk_task_install_packages_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_install_packages_async      (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Merges in details about packages using resolve.
 </p>
@@ -407,7 +407,7 @@ Merges in details about packages using resolve.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -438,12 +438,12 @@ Merges in details about packages using resolve.
 <div class="refsect2" title="pk_task_update_packages_async ()">
 <a name="pk-task-update-packages-async"></a><h3>pk_task_update_packages_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_update_packages_async       (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Update specific packages to the newest available versions.
 </p>
@@ -462,7 +462,7 @@ Update specific packages to the newest available versions.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -493,17 +493,17 @@ Update specific packages to the newest available versions.
 <div class="refsect2" title="pk_task_remove_packages_async ()">
 <a name="pk-task-remove-packages-async"></a><h3>pk_task_remove_packages_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_remove_packages_async       (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> allow_deps</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> autoremove</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> allow_deps</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> autoremove</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Remove a package (optionally with dependancies) from the system.
-If <code class="literal">allow_deps</code> is set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, and other packages would have to be removed,
+If <code class="literal">allow_deps</code> is set to <code class="literal">FALSE</code>, and other packages would have to be removed,
 then the transaction would fail.
 </p>
 <div class="variablelist"><table border="0">
@@ -531,7 +531,7 @@ then the transaction would fail.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -562,12 +562,12 @@ then the transaction would fail.
 <div class="refsect2" title="pk_task_install_files_async ()">
 <a name="pk-task-install-files-async"></a><h3>pk_task_install_files_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_install_files_async         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **files</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **files</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Install a file locally, and get the deps from the repositories.
 This is useful for double clicking on a .rpm or .deb file.
@@ -587,7 +587,7 @@ This is useful for double clicking on a .rpm or .deb file.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -618,11 +618,11 @@ This is useful for double clicking on a .rpm or .deb file.
 <div class="refsect2" title="pk_task_update_system_async ()">
 <a name="pk-task-update-system-async"></a><h3>pk_task_update_system_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_update_system_async         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Update all the packages on the system with the highest versions found in all
 repositories.
@@ -641,7 +641,7 @@ NOTE: you can't choose what repositories to update from, but you can do:
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -673,12 +673,12 @@ NOTE: you can't choose what repositories to update from, but you can do:
 <a name="pk-task-resolve-async"></a><h3>pk_task_resolve_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_resolve_async               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **packages</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **packages</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Resolves a package name to a package-id.
 </p>
@@ -702,7 +702,7 @@ Resolves a package name to a package-id.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -734,12 +734,12 @@ Resolves a package name to a package-id.
 <a name="pk-task-search-names-async"></a><h3>pk_task_search_names_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_search_names_async          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Searches for a package name.
 </p>
@@ -763,7 +763,7 @@ Searches for a package name.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -795,12 +795,12 @@ Searches for a package name.
 <a name="pk-task-search-details-async"></a><h3>pk_task_search_details_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_search_details_async        (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Searches for some package details.
 </p>
@@ -824,7 +824,7 @@ Searches for some package details.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -856,12 +856,12 @@ Searches for some package details.
 <a name="pk-task-search-groups-async"></a><h3>pk_task_search_groups_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_search_groups_async         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Searches the group lists.
 </p>
@@ -885,7 +885,7 @@ Searches the group lists.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -917,12 +917,12 @@ Searches the group lists.
 <a name="pk-task-search-files-async"></a><h3>pk_task_search_files_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_search_files_async          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Searches for specific files.
 </p>
@@ -946,7 +946,7 @@ Searches for specific files.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -977,12 +977,12 @@ Searches for specific files.
 <div class="refsect2" title="pk_task_get_details_async ()">
 <a name="pk-task-get-details-async"></a><h3>pk_task_get_details_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_details_async           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Gets details about packages.
 </p>
@@ -1001,7 +1001,7 @@ Gets details about packages.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1032,12 +1032,12 @@ Gets details about packages.
 <div class="refsect2" title="pk_task_get_update_detail_async ()">
 <a name="pk-task-get-update-detail-async"></a><h3>pk_task_get_update_detail_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_update_detail_async     (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Gets details about updates.
 </p>
@@ -1056,7 +1056,7 @@ Gets details about updates.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1087,13 +1087,13 @@ Gets details about updates.
 <div class="refsect2" title="pk_task_download_packages_async ()">
 <a name="pk-task-download-packages-async"></a><h3>pk_task_download_packages_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_download_packages_async     (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *directory</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *directory</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Downloads packages
 </p>
@@ -1117,7 +1117,7 @@ Downloads packages
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1149,11 +1149,11 @@ Downloads packages
 <a name="pk-task-get-updates-async"></a><h3>pk_task_get_updates_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_updates_async           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Gets the update lists.
 </p>
@@ -1172,7 +1172,7 @@ Gets the update lists.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1204,13 +1204,13 @@ Gets the update lists.
 <a name="pk-task-get-depends-async"></a><h3>pk_task_get_depends_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_depends_async           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> recursive</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> recursive</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Get the list of dependant packages.
 </p>
@@ -1239,7 +1239,7 @@ Get the list of dependant packages.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1271,11 +1271,11 @@ Get the list of dependant packages.
 <a name="pk-task-get-packages-async"></a><h3>pk_task_get_packages_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_packages_async          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Gets the list of packages.
 </p>
@@ -1294,7 +1294,7 @@ Gets the list of packages.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1326,13 +1326,13 @@ Gets the list of packages.
 <a name="pk-task-get-requires-async"></a><h3>pk_task_get_requires_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_requires_async          (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> recursive</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> recursive</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Get the packages this package requires.
 </p>
@@ -1361,7 +1361,7 @@ Get the packages this package requires.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1394,12 +1394,12 @@ Get the packages this package requires.
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_what_provides_async         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-enum.html#PkProvidesEnum" title="enum PkProvidesEnum"><span class="type">PkProvidesEnum</span></a> provides</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **values</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **values</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Find the package that provides some resource.
 </p>
@@ -1428,7 +1428,7 @@ Find the package that provides some resource.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1459,12 +1459,12 @@ Find the package that provides some resource.
 <div class="refsect2" title="pk_task_get_files_async ()">
 <a name="pk-task-get-files-async"></a><h3>pk_task_get_files_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_files_async             (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **package_ids</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gchar</span> **package_ids</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Get the files in a package.
 </p>
@@ -1483,7 +1483,7 @@ Get the files in a package.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1514,11 +1514,11 @@ Get the files in a package.
 <div class="refsect2" title="pk_task_get_categories_async ()">
 <a name="pk-task-get-categories-async"></a><h3>pk_task_get_categories_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_categories_async        (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Get the categories available.
 </p>
@@ -1532,7 +1532,7 @@ Get the categories available.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1563,12 +1563,12 @@ Get the categories available.
 <div class="refsect2" title="pk_task_refresh_cache_async ()">
 <a name="pk-task-refresh-cache-async"></a><h3>pk_task_refresh_cache_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_refresh_cache_async         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> force</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> force</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Refresh the package cache.
 </p>
@@ -1587,7 +1587,7 @@ Refresh the package cache.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1618,12 +1618,12 @@ Refresh the package cache.
 <div class="refsect2" title="pk_task_rollback_async ()">
 <a name="pk-task-rollback-async"></a><h3>pk_task_rollback_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_rollback_async              (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *transaction_id</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *transaction_id</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Rollback to a previous package state.
 </p>
@@ -1642,7 +1642,7 @@ Rollback to a previous package state.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1674,11 +1674,11 @@ Rollback to a previous package state.
 <a name="pk-task-get-repo-list-async"></a><h3>pk_task_get_repo_list_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_get_repo_list_async         (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-bitfield.html#PkBitfield" title="PkBitfield"><span class="type">PkBitfield</span></a> filters</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Get the list of available repositories.
 </p>
@@ -1697,7 +1697,7 @@ Get the list of available repositories.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1728,13 +1728,13 @@ Get the list of available repositories.
 <div class="refsect2" title="pk_task_repo_enable_async ()">
 <a name="pk-task-repo-enable-async"></a><h3>pk_task_repo_enable_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_task_repo_enable_async           (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *repo_id</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> enabled</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *repo_id</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> enabled</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback_ready</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback_ready</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Enable or disable a specific repo.
 </p>
@@ -1754,12 +1754,12 @@ Enable or disable a specific repo.
 <tr>
 <td><p><span class="term"><em class="parameter"><code>enabled</code></em> :</span></p></td>
 <td>
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
+<code class="literal">TRUE</code> or <code class="literal">FALSE</code>
 </td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -1789,8 +1789,8 @@ Enable or disable a specific repo.
 <hr>
 <div class="refsect2" title="pk_task_user_accepted ()">
 <a name="pk-task-user-accepted"></a><h3>pk_task_user_accepted ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_task_user_accepted               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> request</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_task_user_accepted               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint</span> request</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -1816,8 +1816,8 @@ Enable or disable a specific repo.
 <hr>
 <div class="refsect2" title="pk_task_user_declined ()">
 <a name="pk-task-user-declined"></a><h3>pk_task_user_declined ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_task_user_declined               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> request</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_task_user_declined               (<em class="parameter"><code><a class="link" href="PkTask.html" title="PkTask"><span class="type">PkTask</span></a> *task</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint</span> request</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -1845,7 +1845,7 @@ Enable or disable a specific repo.
 <a name="PkTask.property-details"></a><h2>Property Details</h2>
 <div class="refsect2" title='The "interactive" property'>
 <a name="PkTask--interactive"></a><h3>The <code class="literal">"interactive"</code> property</h3>
-<pre class="programlisting">  "interactive"              <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write</pre>
+<pre class="programlisting">  "interactive"              <span class="type">gboolean</span>              : Read / Write</pre>
 <p></p>
 <p>Default value: TRUE</p>
 <p class="since">Since 0.6.7</p>
@@ -1853,7 +1853,7 @@ Enable or disable a specific repo.
 <hr>
 <div class="refsect2" title='The "simulate" property'>
 <a name="PkTask--simulate"></a><h3>The <code class="literal">"simulate"</code> property</h3>
-<pre class="programlisting">  "simulate"                 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write</pre>
+<pre class="programlisting">  "simulate"                 <span class="type">gboolean</span>              : Read / Write</pre>
 <p></p>
 <p>Default value: TRUE</p>
 <p class="since">Since 0.5.2</p>

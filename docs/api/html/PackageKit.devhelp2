@@ -2,30 +2,7 @@
 <!DOCTYPE book PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "">
 <book xmlns="http://www.devhelp.net/book" title="PackageKit Reference Manual" link="index.html" author="Richard Hughes" name="PackageKit" version="2" language="c">
   <chapters>
-    <sub name="PackageKit Specification" link="specification.html">
-      <sub name="PackageKit Introduction" link="introduction.html">
-        <sub name="Overall Description" link="introduction.html#introduction-description"/>
-        <sub name="Backends" link="introduction-backends.html"/>
-        <sub name="Daemon Config Options" link="config-main.html"/>
-      </sub>
-      <sub name="Important Concepts" link="concepts.html">
-        <sub name="Package ID" link="concepts.html#introduction-ideas-packageid"/>
-        <sub name="Filters" link="introduction-ideas-filters.html"/>
-        <sub name="Error Enums" link="introduction-errors.html"/>
-        <sub name="Group type" link="introduction-group-type.html"/>
-        <sub name="Cancellation" link="introduction-cancellation.html"/>
-        <sub name="Transactions" link="introduction-ideas-transactions.html"/>
-        <sub name="Transaction IDs" link="introduction-ideas-transactionid.html"/>
-        <sub name="Status Values" link="introduction-ideas-status.html"/>
-        <sub name="Simultaneous Mode" link="introduction-ideas-simultaneous.html"/>
-      </sub>
-      <sub name="Compiled Backends" link="backend-compiled.html"/>
-      <sub name="Spawned Backends" link="backend-spawn.html">
-        <sub name="Introduction" link="backend-spawn.html#backends-spawn-intro"/>
-        <sub name="Methods" link="backends-spawn-methods.html"/>
-        <sub name="Common function outputs" link="backends-spawn-common.html"/>
-      </sub>
-    </sub>
+    <sub name="PackageKit Specification" link="specification.html"/>
     <sub name="D-Bus API Reference" link="api-reference.html">
       <sub name="org.freedesktop.PackageKit" link="PackageKit.html"/>
       <sub name="org.freedesktop.PackageKit.Transaction" link="Transaction.html"/>
@@ -64,11 +41,7 @@
       <sub name="pk-package-ids" link="PackageKit-pk-package-ids.html"/>
       <sub name="pk-package-id" link="PackageKit-pk-package-id.html"/>
     </sub>
-    <sub name="Frequently asked questions" link="faq.html">
-      <sub name="Developer FAQ" link="developer-faq.html">
-        <sub name="Notify warnings..." link="developer-faq.html#developer-faq-libnotify"/>
-      </sub>
-    </sub>
+    <sub name="Frequently asked questions" link="faq.html"/>
   </chapters>
   <functions>
     <keyword type="" name="CanAuthorize ()" link="PackageKit.html#PackageKit.CanAuthorize"/>

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>PkPackageSack</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
 <link rel="home" href="index.html" title="PackageKit Reference Manual">
 <link rel="up" href="libpackagekit-gobject.html" title="libpackagekit GObjects">
 <link rel="prev" href="PkMessage.html" title="PkMessage">
@@ -46,65 +46,65 @@
                     <a class="link" href="PkPackageSack.html#PkPackageSackResults" title="PkPackageSackResults">PkPackageSackResults</a>;
 enum                <a class="link" href="PkPackageSack.html#PkPackageSackSortType" title="enum PkPackageSackSortType">PkPackageSackSortType</a>;
 <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="returnvalue">PkPackageSack</span></a> *     <a class="link" href="PkPackageSack.html#pk-package-sack-new" title="pk_package_sack_new ()">pk_package_sack_new</a>                 (<em class="parameter"><code><span class="type">void</span></code></em>);
-<span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-test" title="pk_package_sack_test ()">pk_package_sack_test</a>                (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            (<a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()">*PkPackageSackFilterFunc</a>)          (<em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-test" title="pk_package_sack_test ()">pk_package_sack_test</a>                (<em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
+<span class="returnvalue">gboolean</span>            (<a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()">*PkPackageSackFilterFunc</a>)          (<em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-clear" title="pk_package_sack_clear ()">pk_package_sack_clear</a>               (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **            <a class="link" href="PkPackageSack.html#pk-package-sack-get-ids" title="pk_package_sack_get_ids ()">pk_package_sack_get_ids</a>             (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="PkPackageSack.html#pk-package-sack-get-size" title="pk_package_sack_get_size ()">pk_package_sack_get_size</a>            (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         <a class="link" href="PkPackageSack.html#pk-package-sack-get-array" title="pk_package_sack_get_array ()">pk_package_sack_get_array</a>           (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
+<span class="returnvalue">gchar</span> **            <a class="link" href="PkPackageSack.html#pk-package-sack-get-ids" title="pk_package_sack_get_ids ()">pk_package_sack_get_ids</a>             (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
+<span class="returnvalue">guint</span>               <a class="link" href="PkPackageSack.html#pk-package-sack-get-size" title="pk_package_sack_get_size ()">pk_package_sack_get_size</a>            (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
+<span class="returnvalue">GPtrArray</span> *         <a class="link" href="PkPackageSack.html#pk-package-sack-get-array" title="pk_package_sack_get_array ()">pk_package_sack_get_array</a>           (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-sort" title="pk_package_sack_sort ()">pk_package_sack_sort</a>                (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackageSack.html#PkPackageSackSortType" title="enum PkPackageSackSortType"><span class="type">PkPackageSackSortType</span></a> type</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkPackageSack.html#pk-package-sack-add-package" title="pk_package_sack_add_package ()">pk_package_sack_add_package</a>         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkPackageSack.html#pk-package-sack-add-package" title="pk_package_sack_add_package ()">pk_package_sack_add_package</a>         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkPackageSack.html#pk-package-sack-add-package-by-id" title="pk_package_sack_add_package_by_id ()">pk_package_sack_add_package_by_id</a>   (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkPackageSack.html#pk-package-sack-remove-package" title="pk_package_sack_remove_package ()">pk_package_sack_remove_package</a>      (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkPackageSack.html#pk-package-sack-add-package-by-id" title="pk_package_sack_add_package_by_id ()">pk_package_sack_add_package_by_id</a>   (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkPackageSack.html#pk-package-sack-remove-package" title="pk_package_sack_remove_package ()">pk_package_sack_remove_package</a>      (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkPackageSack.html#pk-package-sack-remove-package-by-id" title="pk_package_sack_remove_package_by_id ()">pk_package_sack_remove_package_by_id</a>
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkPackageSack.html#pk-package-sack-remove-package-by-id" title="pk_package_sack_remove_package_by_id ()">pk_package_sack_remove_package_by_id</a>
                                                         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkPackageSack.html#pk-package-sack-remove-by-filter" title="pk_package_sack_remove_by_filter ()">pk_package_sack_remove_by_filter</a>    (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkPackageSack.html#pk-package-sack-remove-by-filter" title="pk_package_sack_remove_by_filter ()">pk_package_sack_remove_by_filter</a>    (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a> filter_cb</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <a class="link" href="PkPackage.html" title="PkPackage"><span class="returnvalue">PkPackage</span></a> *         <a class="link" href="PkPackageSack.html#pk-package-sack-find-by-id" title="pk_package_sack_find_by_id ()">pk_package_sack_find_by_id</a>          (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);
 <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="returnvalue">PkPackageSack</span></a> *     <a class="link" href="PkPackageSack.html#pk-package-sack-filter-by-info" title="pk_package_sack_filter_by_info ()">pk_package_sack_filter_by_info</a>      (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PackageKit-pk-enum.html#PkInfoEnum" title="enum PkInfoEnum"><span class="type">PkInfoEnum</span></a> info</code></em>);
 <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="returnvalue">PkPackageSack</span></a> *     <a class="link" href="PkPackageSack.html#pk-package-sack-filter" title="pk_package_sack_filter ()">pk_package_sack_filter</a>              (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a> filter_cb</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             <a class="link" href="PkPackageSack.html#pk-package-sack-get-total-bytes" title="pk_package_sack_get_total_bytes ()">pk_package_sack_get_total_bytes</a>     (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PkPackageSack.html#pk-package-sack-merge-generic-finish" title="pk_package_sack_merge_generic_finish ()">pk_package_sack_merge_generic_finish</a>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
+<span class="returnvalue">guint64</span>             <a class="link" href="PkPackageSack.html#pk-package-sack-get-total-bytes" title="pk_package_sack_get_total_bytes ()">pk_package_sack_get_total_bytes</a>     (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PkPackageSack.html#pk-package-sack-merge-generic-finish" title="pk_package_sack_merge_generic_finish ()">pk_package_sack_merge_generic_finish</a>
                                                         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html"><span class="type">GAsyncResult</span></a> *res</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);
+                                                         <em class="parameter"><code><span class="type">GAsyncResult</span> *res</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-resolve-async" title="pk_package_sack_resolve_async ()">pk_package_sack_resolve_async</a>       (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-get-details-async" title="pk_package_sack_get_details_async ()">pk_package_sack_get_details_async</a>   (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="PkPackageSack.html#pk-package-sack-get-update-detail-async" title="pk_package_sack_get_update_detail_async ()">pk_package_sack_get_update_detail_async</a>
                                                         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Object Hierarchy">
 <a name="PkPackageSack.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+  GObject
    +----PkPackageSack
 </pre>
 </div>
@@ -198,7 +198,7 @@ Private <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span cl
 <hr>
 <div class="refsect2" title="pk_package_sack_test ()">
 <a name="pk-package-sack-test"></a><h3>pk_package_sack_test ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                pk_package_sack_test                (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_package_sack_test                (<em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -213,8 +213,8 @@ Private <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span cl
 <hr>
 <div class="refsect2" title="PkPackageSackFilterFunc ()">
 <a name="PkPackageSackFilterFunc"></a><h3>PkPackageSackFilterFunc ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            (*PkPackageSackFilterFunc)          (<em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            (*PkPackageSackFilterFunc)          (<em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -258,7 +258,7 @@ Empty all the packages from the sack
 <hr>
 <div class="refsect2" title="pk_package_sack_get_ids ()">
 <a name="pk-package-sack-get-ids"></a><h3>pk_package_sack_get_ids ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **            pk_package_sack_get_ids             (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gchar</span> **            pk_package_sack_get_ids             (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
 <p>
 Returns all the Package IDs in the sack
 </p>
@@ -272,7 +272,7 @@ Returns all the Package IDs in the sack
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> the number of packages in the sack, free with <a href="http://library.gnome.org/devel/glib/unstable/glib-String-Utility-Functions.html#g-strfreev"><code class="function">g_strfreev()</code></a>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
+<td> the number of packages in the sack, free with <code class="function">g_strfreev()</code>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
 </td>
 </tr>
 </tbody>
@@ -282,7 +282,7 @@ Returns all the Package IDs in the sack
 <hr>
 <div class="refsect2" title="pk_package_sack_get_size ()">
 <a name="pk-package-sack-get-size"></a><h3>pk_package_sack_get_size ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               pk_package_sack_get_size            (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint</span>               pk_package_sack_get_size            (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
 <p>
 Gets the number of packages in the sack
 </p>
@@ -307,7 +307,7 @@ Gets the number of packages in the sack
 <hr>
 <div class="refsect2" title="pk_package_sack_get_array ()">
 <a name="pk-package-sack-get-array"></a><h3>pk_package_sack_get_array ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         pk_package_sack_get_array           (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">GPtrArray</span> *         pk_package_sack_get_array           (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
 <p>
 Gets the package array from the sack
 </p>
@@ -321,7 +321,7 @@ Gets the package array from the sack
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> a <a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a>, free with <a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#g-ptr-array-unref"><code class="function">g_ptr_array_unref()</code></a>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
+<td> a <span class="type">GPtrArray</span>, free with <code class="function">g_ptr_array_unref()</code>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
 </td>
 </tr>
 </tbody>
@@ -354,7 +354,7 @@ Gets the package array from the sack
 <hr>
 <div class="refsect2" title="pk_package_sack_add_package ()">
 <a name="pk-package-sack-add-package"></a><h3>pk_package_sack_add_package ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_sack_add_package         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_sack_add_package         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>);</pre>
 <p>
 Adds a package to the sack.
@@ -374,7 +374,7 @@ Adds a package to the sack.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the package was added to the sack
+<td> <code class="literal">TRUE</code> if the package was added to the sack
 
 </td>
 </tr>
@@ -385,9 +385,9 @@ Adds a package to the sack.
 <hr>
 <div class="refsect2" title="pk_package_sack_add_package_by_id ()">
 <a name="pk-package-sack-add-package-by-id"></a><h3>pk_package_sack_add_package_by_id ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_sack_add_package_by_id   (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_sack_add_package_by_id   (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
 <p>
 Adds a package reference to the sack.
 </p>
@@ -406,12 +406,12 @@ Adds a package reference to the sack.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>error</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><code class="literal">GError</code></a> to put the error code and message in, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <code class="literal">GError</code> to put the error code and message in, or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the package was added to the sack
+<td> <code class="literal">TRUE</code> if the package was added to the sack
 
 </td>
 </tr>
@@ -422,7 +422,7 @@ Adds a package reference to the sack.
 <hr>
 <div class="refsect2" title="pk_package_sack_remove_package ()">
 <a name="pk-package-sack-remove-package"></a><h3>pk_package_sack_remove_package ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_sack_remove_package      (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_sack_remove_package      (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> *package</code></em>);</pre>
 <p>
 Removes a package reference from the sack. The pointers have to match exactly.
@@ -442,7 +442,7 @@ Removes a package reference from the sack. The pointers have to match exactly.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the package was removed from the sack
+<td> <code class="literal">TRUE</code> if the package was removed from the sack
 
 </td>
 </tr>
@@ -453,9 +453,9 @@ Removes a package reference from the sack. The pointers have to match exactly.
 <hr>
 <div class="refsect2" title="pk_package_sack_remove_package_by_id ()">
 <a name="pk-package-sack-remove-package-by-id"></a><h3>pk_package_sack_remove_package_by_id ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_sack_remove_package_by_id
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_sack_remove_package_by_id
                                                         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);</pre>
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);</pre>
 <p>
 Removes a package reference from the sack. As soon as one package is removed
 the search is stopped.
@@ -475,7 +475,7 @@ the search is stopped.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the package was removed from the sack
+<td> <code class="literal">TRUE</code> if the package was removed from the sack
 
 </td>
 </tr>
@@ -486,11 +486,11 @@ the search is stopped.
 <hr>
 <div class="refsect2" title="pk_package_sack_remove_by_filter ()">
 <a name="pk-package-sack-remove-by-filter"></a><h3>pk_package_sack_remove_by_filter ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_sack_remove_by_filter    (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_sack_remove_by_filter    (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a> filter_cb</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
-Removes from the package sack any packages that return <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> from the filter
+Removes from the package sack any packages that return <code class="literal">FALSE</code> from the filter
 function.
 </p>
 <div class="variablelist"><table border="0">
@@ -503,7 +503,7 @@ function.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>filter_cb</code></em> :</span></p></td>
-<td> a <a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a>, which returns <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> for the <a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a>'s to retain. <span class="annotation">[<a href="http://foldoc.org/scope%20call"><span class="acronym">scope call</span></a>]</span>
+<td> a <a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a>, which returns <code class="literal">TRUE</code> for the <a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a>'s to retain. <span class="annotation">[<a href="http://foldoc.org/scope%20call"><span class="acronym">scope call</span></a>]</span>
 </td>
 </tr>
 <tr>
@@ -513,7 +513,7 @@ function.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if a package was removed from the sack
+<td> <code class="literal">TRUE</code> if a package was removed from the sack
 
 </td>
 </tr>
@@ -525,7 +525,7 @@ function.
 <div class="refsect2" title="pk_package_sack_find_by_id ()">
 <a name="pk-package-sack-find-by-id"></a><h3>pk_package_sack_find_by_id ()</h3>
 <pre class="programlisting"><a class="link" href="PkPackage.html" title="PkPackage"><span class="returnvalue">PkPackage</span></a> *         pk_package_sack_find_by_id          (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);</pre>
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);</pre>
 <p>
 Finds a package in a sack from reference. As soon as one package is found
 the search is stopped.
@@ -545,7 +545,7 @@ the search is stopped.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> the <a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> object, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if unfound. Free with <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
+<td> the <a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a> object, or <code class="literal">NULL</code> if unfound. Free with <code class="function">g_object_unref()</code>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
 </td>
 </tr>
 </tbody>
@@ -576,7 +576,7 @@ specified info enum value.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> a new <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a>, free with <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
+<td> a new <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a>, free with <code class="function">g_object_unref()</code>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
 </td>
 </tr>
 </tbody>
@@ -588,9 +588,9 @@ specified info enum value.
 <a name="pk-package-sack-filter"></a><h3>pk_package_sack_filter ()</h3>
 <pre class="programlisting"><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="returnvalue">PkPackageSack</span></a> *     pk_package_sack_filter              (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a> filter_cb</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
-Returns a new package sack which only matches packages that return <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>
+Returns a new package sack which only matches packages that return <code class="literal">TRUE</code>
 from the filter function.
 </p>
 <div class="variablelist"><table border="0">
@@ -603,7 +603,7 @@ from the filter function.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>filter_cb</code></em> :</span></p></td>
-<td> a <a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a>, which returns <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> for the <a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a>'s to add. <span class="annotation">[<a href="http://foldoc.org/scope%20call"><span class="acronym">scope call</span></a>]</span>
+<td> a <a class="link" href="PkPackageSack.html#PkPackageSackFilterFunc" title="PkPackageSackFilterFunc ()"><span class="type">PkPackageSackFilterFunc</span></a>, which returns <code class="literal">TRUE</code> for the <a class="link" href="PkPackage.html" title="PkPackage"><span class="type">PkPackage</span></a>'s to add. <span class="annotation">[<a href="http://foldoc.org/scope%20call"><span class="acronym">scope call</span></a>]</span>
 </td>
 </tr>
 <tr>
@@ -613,7 +613,7 @@ from the filter function.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> a new <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a>, free with <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
+<td> a new <a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a>, free with <code class="function">g_object_unref()</code>. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
 </td>
 </tr>
 </tbody>
@@ -623,7 +623,7 @@ from the filter function.
 <hr>
 <div class="refsect2" title="pk_package_sack_get_total_bytes ()">
 <a name="pk-package-sack-get-total-bytes"></a><h3>pk_package_sack_get_total_bytes ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             pk_package_sack_get_total_bytes     (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint64</span>             pk_package_sack_get_total_bytes     (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>);</pre>
 <p>
 Gets the total size of the package sack in bytes.
 </p>
@@ -648,10 +648,10 @@ Gets the total size of the package sack in bytes.
 <hr>
 <div class="refsect2" title="pk_package_sack_merge_generic_finish ()">
 <a name="pk-package-sack-merge-generic-finish"></a><h3>pk_package_sack_merge_generic_finish ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_sack_merge_generic_finish
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_sack_merge_generic_finish
                                                         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html"><span class="type">GAsyncResult</span></a> *res</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">GAsyncResult</span> *res</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
 <p>
 Gets the result from the asynchronous function.
 </p>
@@ -665,17 +665,17 @@ Gets the result from the asynchronous function.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>res</code></em> :</span></p></td>
-<td>the <a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html"><span class="type">GAsyncResult</span></a>
+<td>the <span class="type">GAsyncResult</span>
 </td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>error</code></em> :</span></p></td>
-<td>A <a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>A <span class="type">GError</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> for success
+<td> <code class="literal">TRUE</code> for success
 
 </td>
 </tr>
@@ -687,11 +687,11 @@ Gets the result from the asynchronous function.
 <div class="refsect2" title="pk_package_sack_resolve_async ()">
 <a name="pk-package-sack-resolve-async"></a><h3>pk_package_sack_resolve_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_package_sack_resolve_async       (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Merges in details about packages using resolve.
 </p>
@@ -705,7 +705,7 @@ Merges in details about packages using resolve.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -736,11 +736,11 @@ Merges in details about packages using resolve.
 <div class="refsect2" title="pk_package_sack_get_details_async ()">
 <a name="pk-package-sack-get-details-async"></a><h3>pk_package_sack_get_details_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_package_sack_get_details_async   (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Merges in details about packages.
 </p>
@@ -754,7 +754,7 @@ Merges in details about packages.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>
@@ -785,11 +785,11 @@ Merges in details about packages.
 <a name="pk-package-sack-get-update-detail-async"></a><h3>pk_package_sack_get_update_detail_async ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                pk_package_sack_get_update_detail_async
                                                         (<em class="parameter"><code><a class="link" href="PkPackageSack.html" title="PkPackageSack"><span class="type">PkPackageSack</span></a> *sack</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> *cancellable</code></em>,
+                                                         <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
                                                          <em class="parameter"><code><a class="link" href="PkProgress.html#PkProgressCallback" title="PkProgressCallback ()"><span class="type">PkProgressCallback</span></a> progress_callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> progress_user_data</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/gio/unstable/GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> callback</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gpointer</span> progress_user_data</code></em>,
+                                                         <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                                         <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 Merges in update details about packages.
 </p>
@@ -803,7 +803,7 @@ Merges in update details about packages.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cancellable</code></em> :</span></p></td>
-<td>a <a href="http://library.gnome.org/devel/gio/unstable/GCancellable.html"><span class="type">GCancellable</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+<td>a <span class="type">GCancellable</span> or <code class="literal">NULL</code>
 </td>
 </tr>
 <tr>

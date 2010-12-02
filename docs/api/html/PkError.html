@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>PkError</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
 <link rel="home" href="index.html" title="PackageKit Reference Manual">
 <link rel="up" href="libpackagekit-gobject.html" title="libpackagekit GObjects">
 <link rel="prev" href="PkDistroUpgrade.html" title="PkDistroUpgrade">
@@ -46,13 +46,13 @@
                     <a class="link" href="PkError.html#PkErrorClass" title="PkErrorClass">PkErrorClass</a>;
 <a class="link" href="PkError.html" title="PkError"><span class="returnvalue">PkError</span></a> *           <a class="link" href="PkError.html#pk-error-new" title="pk_error_new ()">pk_error_new</a>                        (<em class="parameter"><code><span class="type">void</span></code></em>);
 <a class="link" href="PackageKit-pk-enum.html#PkErrorEnum" title="enum PkErrorEnum"><span class="returnvalue">PkErrorEnum</span></a>         <a class="link" href="PkError.html#pk-error-get-code" title="pk_error_get_code ()">pk_error_get_code</a>                   (<em class="parameter"><code><a class="link" href="PkError.html" title="PkError"><span class="type">PkError</span></a> *error_code</code></em>);
-const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkError.html#pk-error-get-details" title="pk_error_get_details ()">pk_error_get_details</a>                (<em class="parameter"><code><a class="link" href="PkError.html" title="PkError"><span class="type">PkError</span></a> *error_code</code></em>);
+const <span class="returnvalue">gchar</span> *       <a class="link" href="PkError.html#pk-error-get-details" title="pk_error_get_details ()">pk_error_get_details</a>                (<em class="parameter"><code><a class="link" href="PkError.html" title="PkError"><span class="type">PkError</span></a> *error_code</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Object Hierarchy">
 <a name="PkError.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+  GObject
    +----PkSource
          +----PkError
 </pre>
@@ -60,8 +60,8 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <div class="refsect1" title="Properties">
 <a name="PkError.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
-  "<a class="link" href="PkError.html#PkError--code" title='The "code" property'>code</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
-  "<a class="link" href="PkError.html#PkError--details" title='The "details" property'>details</a>"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
+  "<a class="link" href="PkError.html#PkError--code" title='The "code" property'>code</a>"                     <span class="type">guint</span>                 : Read / Write
+  "<a class="link" href="PkError.html#PkError--details" title='The "details" property'>details</a>"                  <span class="type">gchar</span>*                : Read / Write
 </pre>
 </div>
 <div class="refsect1" title="Description">
@@ -143,7 +143,7 @@ Private <a class="link" href="PkError.html" title="PkError"><span class="type">P
 <hr>
 <div class="refsect2" title="pk_error_get_details ()">
 <a name="pk-error-get-details"></a><h3>pk_error_get_details ()</h3>
-<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_error_get_details                (<em class="parameter"><code><a class="link" href="PkError.html" title="PkError"><span class="type">PkError</span></a> *error_code</code></em>);</pre>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *       pk_error_get_details                (<em class="parameter"><code><a class="link" href="PkError.html" title="PkError"><span class="type">PkError</span></a> *error_code</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -166,7 +166,7 @@ Private <a class="link" href="PkError.html" title="PkError"><span class="type">P
 <a name="PkError.property-details"></a><h2>Property Details</h2>
 <div class="refsect2" title='The "code" property'>
 <a name="PkError--code"></a><h3>The <code class="literal">"code"</code> property</h3>
-<pre class="programlisting">  "code"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write</pre>
+<pre class="programlisting">  "code"                     <span class="type">guint</span>                 : Read / Write</pre>
 <p></p>
 <p>Default value: 0</p>
 <p class="since">Since 0.5.5</p>
@@ -174,7 +174,7 @@ Private <a class="link" href="PkError.html" title="PkError"><span class="type">P
 <hr>
 <div class="refsect2" title='The "details" property'>
 <a name="PkError--details"></a><h3>The <code class="literal">"details"</code> property</h3>
-<pre class="programlisting">  "details"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<pre class="programlisting">  "details"                  <span class="type">gchar</span>*                : Read / Write</pre>
 <p></p>
 <p>Default value: NULL</p>
 <p class="since">Since 0.5.5</p>

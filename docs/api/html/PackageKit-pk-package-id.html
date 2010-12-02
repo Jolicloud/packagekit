@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>pk-package-id</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
 <link rel="home" href="index.html" title="PackageKit Reference Manual">
 <link rel="up" href="libpackagekit-helpers.html" title="libpackagekit glib helpers">
 <link rel="prev" href="PackageKit-pk-package-ids.html" title="pk-package-ids">
@@ -41,16 +41,16 @@
 #define             <a class="link" href="PackageKit-pk-package-id.html#PK-PACKAGE-ID-VERSION:CAPS" title="PK_PACKAGE_ID_VERSION">PK_PACKAGE_ID_VERSION</a>
 #define             <a class="link" href="PackageKit-pk-package-id.html#PK-PACKAGE-ID-ARCH:CAPS" title="PK_PACKAGE_ID_ARCH">PK_PACKAGE_ID_ARCH</a>
 #define             <a class="link" href="PackageKit-pk-package-id.html#PK-PACKAGE-ID-DATA:CAPS" title="PK_PACKAGE_ID_DATA">PK_PACKAGE_ID_DATA</a>
-<span class="returnvalue">void</span>                <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-test" title="pk_package_id_test ()">pk_package_id_test</a>                  (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-build" title="pk_package_id_build ()">pk_package_id_build</a>                 (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *version</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *arch</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *data</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-check" title="pk_package_id_check ()">pk_package_id_check</a>                 (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **            <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-split" title="pk_package_id_split ()">pk_package_id_split</a>                 (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-to-printable" title="pk_package_id_to_printable ()">pk_package_id_to_printable</a>          (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-equal-fuzzy-arch" title="pk_package_id_equal_fuzzy_arch ()">pk_package_id_equal_fuzzy_arch</a>      (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id1</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id2</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-test" title="pk_package_id_test ()">pk_package_id_test</a>                  (<em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);
+<span class="returnvalue">gchar</span> *             <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-build" title="pk_package_id_build ()">pk_package_id_build</a>                 (<em class="parameter"><code>const <span class="type">gchar</span> *name</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *version</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *arch</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *data</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-check" title="pk_package_id_check ()">pk_package_id_check</a>                 (<em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);
+<span class="returnvalue">gchar</span> **            <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-split" title="pk_package_id_split ()">pk_package_id_split</a>                 (<em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);
+<span class="returnvalue">gchar</span> *             <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-to-printable" title="pk_package_id_to_printable ()">pk_package_id_to_printable</a>          (<em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="PackageKit-pk-package-id.html#pk-package-id-equal-fuzzy-arch" title="pk_package_id_equal_fuzzy_arch ()">pk_package_id_equal_fuzzy_arch</a>      (<em class="parameter"><code>const <span class="type">gchar</span> *package_id1</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id2</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Description">
@@ -96,7 +96,7 @@ Alias to get a data field from the result of pk_package_id_split
 <hr>
 <div class="refsect2" title="pk_package_id_test ()">
 <a name="pk-package-id-test"></a><h3>pk_package_id_test ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                pk_package_id_test                  (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_package_id_test                  (<em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -111,10 +111,10 @@ Alias to get a data field from the result of pk_package_id_split
 <hr>
 <div class="refsect2" title="pk_package_id_build ()">
 <a name="pk-package-id-build"></a><h3>pk_package_id_build ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             pk_package_id_build                 (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *version</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *arch</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *data</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *             pk_package_id_build                 (<em class="parameter"><code>const <span class="type">gchar</span> *name</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *version</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *arch</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *data</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -151,7 +151,7 @@ Alias to get a data field from the result of pk_package_id_split
 <hr>
 <div class="refsect2" title="pk_package_id_check ()">
 <a name="pk-package-id-check"></a><h3>pk_package_id_check ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_id_check                 (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_id_check                 (<em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -162,7 +162,7 @@ Alias to get a data field from the result of pk_package_id_split
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the PackageID was well formed.
+<td> <code class="literal">TRUE</code> if the PackageID was well formed.
 
 </td>
 </tr>
@@ -173,7 +173,7 @@ Alias to get a data field from the result of pk_package_id_split
 <hr>
 <div class="refsect2" title="pk_package_id_split ()">
 <a name="pk-package-id-split"></a><h3>pk_package_id_split ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **            pk_package_id_split                 (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gchar</span> **            pk_package_id_split                 (<em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);</pre>
 <p>
 Splits a PackageID into the correct number of parts, checking the correct
 number of delimiters are present.
@@ -188,7 +188,7 @@ number of delimiters are present.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> a GStrv or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if invalid, use <a href="http://library.gnome.org/devel/glib/unstable/glib-String-Utility-Functions.html#g-strfreev"><code class="function">g_strfreev()</code></a> to free. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
+<td> a GStrv or <code class="literal">NULL</code> if invalid, use <code class="function">g_strfreev()</code> to free. <span class="annotation">[<a href="http://foldoc.org/transfer%20full"><span class="acronym">transfer full</span></a>]</span>
 </td>
 </tr>
 </tbody>
@@ -198,7 +198,7 @@ number of delimiters are present.
 <hr>
 <div class="refsect2" title="pk_package_id_to_printable ()">
 <a name="pk-package-id-to-printable"></a><h3>pk_package_id_to_printable ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             pk_package_id_to_printable          (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *             pk_package_id_to_printable          (<em class="parameter"><code>const <span class="type">gchar</span> *package_id</code></em>);</pre>
 <p>
 Formats the PackageID to be printable to the user.
 </p>
@@ -212,7 +212,7 @@ Formats the PackageID to be printable to the user.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> the name-version.arch formatted string, use <a href="http://library.gnome.org/devel/glib/unstable/glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a> to free.
+<td> the name-version.arch formatted string, use <code class="function">g_free()</code> to free.
 
 </td>
 </tr>
@@ -223,8 +223,8 @@ Formats the PackageID to be printable to the user.
 <hr>
 <div class="refsect2" title="pk_package_id_equal_fuzzy_arch ()">
 <a name="pk-package-id-equal-fuzzy-arch"></a><h3>pk_package_id_equal_fuzzy_arch ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            pk_package_id_equal_fuzzy_arch      (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id1</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *package_id2</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            pk_package_id_equal_fuzzy_arch      (<em class="parameter"><code>const <span class="type">gchar</span> *package_id1</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *package_id2</code></em>);</pre>
 <p>
 Only compare the name, version, and arch, where the architecture will fuzzy
 match with i*86.
@@ -244,7 +244,7 @@ match with i*86.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the PackageIDs can be considered equal.
+<td> <code class="literal">TRUE</code> if the PackageIDs can be considered equal.
 
 </td>
 </tr>
