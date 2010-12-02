@@ -2,10 +2,13 @@ tmp
 packagekit
 python-packagekit
 packagekit-gtk-module
-packagekit-backend-*
+packagekit-backend-smart
+packagekit-backend-apt
+packagekit-backend-aptcc
 mozilla-packagekit
-libpackagekit-qt-*
-libpackagekit-glib*-*
+libpackagekit-qt-12
+libpackagekit-qt-dev
+libpackagekit-glib-12
+libpackagekit-glib2-14
 gstreamer0.10-packagekit
-*.install
 *.debhelper.log
