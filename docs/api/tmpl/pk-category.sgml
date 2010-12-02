@@ -1,0 +1,170 @@
+<!-- ##### SECTION Title ##### -->
+PkCategory
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkCategoryPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkCategory ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkCategory:cat-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkCategory:icon ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkCategory:name ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkCategory:parent-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkCategory:summary ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkCategoryClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_category_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_category_get_parent_id ##### -->
+<para>
+
+</para>
+
+@category: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_category_set_parent_id ##### -->
+<para>
+
+</para>
+
+@category: 
+@parent_id: 
+
+
+<!-- ##### FUNCTION pk_category_get_id ##### -->
+<para>
+
+</para>
+
+@category: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_category_set_id ##### -->
+<para>
+
+</para>
+
+@category: 
+@cat_id: 
+
+
+<!-- ##### FUNCTION pk_category_get_name ##### -->
+<para>
+
+</para>
+
+@category: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_category_set_name ##### -->
+<para>
+
+</para>
+
+@category: 
+@name: 
+
+
+<!-- ##### FUNCTION pk_category_get_summary ##### -->
+<para>
+
+</para>
+
+@category: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_category_set_summary ##### -->
+<para>
+
+</para>
+
+@category: 
+@summary: 
+
+
+<!-- ##### FUNCTION pk_category_get_icon ##### -->
+<para>
+
+</para>
+
+@category: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_category_set_icon ##### -->
+<para>
+
+</para>
+
+@category: 
+@icon: 
+
+

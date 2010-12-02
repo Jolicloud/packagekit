@@ -1,0 +1,80 @@
+<!-- ##### SECTION Title ##### -->
+pk-control-sync
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### FUNCTION pk_control_get_properties ##### -->
+<para>
+
+</para>
+
+@control: 
+@cancellable: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_control_get_transaction_list ##### -->
+<para>
+
+</para>
+
+@control: 
+@cancellable: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_control_suggest_daemon_quit ##### -->
+<para>
+
+</para>
+
+@control: 
+@cancellable: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_control_set_root ##### -->
+<para>
+
+</para>
+
+@control: 
+@root: 
+@cancellable: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_control_set_proxy ##### -->
+<para>
+
+</para>
+
+@control: 
+@proxy_http: 
+@proxy_ftp: 
+@cancellable: 
+@error: 
+@Returns: 
+
+

@@ -1,0 +1,95 @@
+<!-- ##### SECTION Title ##### -->
+PkRepoSignatureRequired
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkRepoSignatureRequiredPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkRepoSignatureRequired ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkRepoSignatureRequired:key-fingerprint ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:key-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:key-timestamp ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:key-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:key-userid ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:package-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:repository-name ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoSignatureRequired:type ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkRepoSignatureRequiredClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_repo_signature_required_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

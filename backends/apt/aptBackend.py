@@ -755,7 +755,7 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         self.percentage(None)
         self._check_init(progress=False)
         # Start with a safe upgrade
-        self._cache.upgrade(distUpgrade = True)
+        self._cache.upgrade()
         upgrades_safe = self._cache.getChanges()
         resolver = apt.cache.ProblemResolver(self._cache)
         for upgrade in upgrades_safe:
@@ -2128,15 +2128,13 @@ class PackageKitAptBackend(PackageKitBaseBackend):
         except:
             self.error(ERROR_PACKAGE_NOT_FOUND,
                        "There isn't any package named %s" % name)
+        #FIXME:This requires a not yet released fix in python-apt
         try:
             version = pkg.versions[version_string]
         except:
-            try:
-                version = pkg.installed
-            except:
-                self.error(ERROR_PACKAGE_NOT_FOUND,
-                           "There isn't any verion %s of %s" % (version_string,
-                                                                name))
+            self.error(ERROR_PACKAGE_NOT_FOUND,
+                       "There isn't any verion %s of %s" % (version_string,
+                                                            name))
         if version.architecture != arch:
             self.error(ERROR_PACKAGE_NOT_FOUND,
                        "Version %s of %s isn't available for architecture "

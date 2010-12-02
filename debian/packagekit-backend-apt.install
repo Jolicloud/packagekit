@@ -1,6 +1,0 @@
-backends/apt/README.apt usr/share/doc/packagekit-backend-apt/
-backends/apt/TODO.apt usr/share/doc/packagekit-backend-apt/
-debian/tmp/etc/apt/apt.conf.d/20packagekit
-debian/tmp/usr/lib/packagekit-backend/libpk_backend_apt.so
-debian/tmp/usr/sbin/update-packagekit-app-data
-debian/tmp/usr/share/PackageKit/helpers/apt/aptBackend.py

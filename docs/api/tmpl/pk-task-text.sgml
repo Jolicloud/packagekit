@@ -1,0 +1,67 @@
+<!-- ##### SECTION Title ##### -->
+PkTaskText
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkTaskTextPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkTaskText ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkTaskTextClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+
+<!-- ##### FUNCTION pk_task_text_error_quark ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_task_text_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_task_text_test ##### -->
+<para>
+
+</para>
+
+@user_data: 
+
+

@@ -1,0 +1,452 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'transactionproxy.h'
+**
+** Created: Mon Nov 1 10:35:42 2010
+**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'transactionproxy.h' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 62
+#error "This file was generated using the moc from 4.7.0. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+QT_BEGIN_MOC_NAMESPACE
+static const uint qt_meta_data_TransactionProxy[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+      52,   14, // methods
+      11,  274, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+      17,       // signalCount
+
+ // signals: signature, parameters, type, tag, flags
+      53,   18,   17,   17, 0x05,
+     103,   17,   17,   17, 0x05,
+     113,   17,   17,   17, 0x05,
+     164,  123,   17,   17, 0x05,
+     242,  224,   17,   17, 0x05,
+     294,  281,   17,   17, 0x05,
+     370,  321,   17,   17, 0x05,
+     437,  416,   17,   17, 0x05,
+     473,  460,   17,   17, 0x05,
+     527,  496,   17,   17, 0x05,
+     585,  572,   17,   17, 0x05,
+     634,  610,   17,   17, 0x05,
+     695,  667,   17,   17, 0x05,
+     816,  728,   17,   17, 0x05,
+     919,  903,   17,   17, 0x05,
+    1009,  951,   17,   17, 0x05,
+    1189, 1077,   17,   17, 0x05,
+
+ // slots: signature, parameters, type, tag, flags
+    1327, 1319, 1299,   17, 0x0a,
+    1347,   17, 1299,   17, 0x0a,
+    1368, 1356, 1299,   17, 0x0a,
+    1398,   17, 1299,   17, 0x0a,
+    1443, 1414, 1299,   17, 0x0a,
+    1480, 1356, 1299,   17, 0x0a,
+    1504,   17, 1299,   17, 0x0a,
+    1524, 1356, 1299,   17, 0x0a,
+    1553, 1546, 1299,   17, 0x0a,
+    1585, 1578, 1299,   17, 0x0a,
+    1606, 1578, 1299,   17, 0x0a,
+    1627, 1414, 1299,   17, 0x0a,
+    1665, 1356, 1299,   17, 0x0a,
+    1694, 1578, 1299,   17, 0x0a,
+    1738, 1714, 1299,   17, 0x0a,
+    1794, 1769, 1299,   17, 0x0a,
+    1855, 1828, 1299,   17, 0x0a,
+    1903, 1897, 1299,   17, 0x0a,
+    1956, 1922, 1299,   17, 0x0a,
+    2010, 1994, 1299,   17, 0x0a,
+    2059, 2035, 1299,   17, 0x0a,
+    2112, 2096, 1299,   17, 0x0a,
+    2156, 2141, 1299,   17, 0x0a,
+    2188, 2174, 1299,   17, 0x0a,
+    2223, 2174, 1299,   17, 0x0a,
+    2256, 2174, 1299,   17, 0x0a,
+    2290, 2174, 1299,   17, 0x0a,
+    2329, 2323, 1299,   17, 0x0a,
+    2362, 2351, 1299,   17, 0x0a,
+    2396, 1356, 1299,   17, 0x0a,
+    2456, 2433, 1299,   17, 0x0a,
+    2497, 1356, 1299,   17, 0x0a,
+    2533, 1769, 1299,   17, 0x0a,
+    2579, 2566, 1299,   17, 0x0a,
+    2617, 2598, 1299,   17, 0x0a,
+
+ // properties: name, type, flags
+    2664, 2659, 0x01095001,
+    2676, 2659, 0x01095001,
+    2694, 2689, 0x03095001,
+    2714, 2706, 0x0a095001,
+    2726, 2689, 0x03095001,
+    2737, 2689, 0x03095001,
+    2751, 2706, 0x0a095001,
+    2756, 2689, 0x03095001,
+    2762, 2706, 0x0a095001,
+    2769, 2689, 0x03095001,
+    2783, 2689, 0x03095001,
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_TransactionProxy[] = {
+    "TransactionProxy\0\0parent_id,cat_id,name,summary,icon\0"
+    "Category(QString,QString,QString,QString,QString)\0"
+    "Changed()\0Destroy()\0"
+    "package_id,license,group,detail,url,size\0"
+    "Details(QString,QString,QString,QString,QString,qulonglong)\0"
+    "type,name,summary\0"
+    "DistroUpgrade(QString,QString,QString)\0"
+    "code,details\0ErrorCode(QString,QString)\0"
+    "eula_id,package_id,vendor_name,license_agreement\0"
+    "EulaRequired(QString,QString,QString,QString)\0"
+    "package_id,file_list\0Files(QString,QString)\0"
+    "exit,runtime\0Finished(QString,uint)\0"
+    "media_type,media_id,media_text\0"
+    "MediaChangeRequired(QString,QString,QString)\0"
+    "type,details\0Message(QString,QString)\0"
+    "info,package_id,summary\0"
+    "Package(QString,QString,QString)\0"
+    "repo_id,description,enabled\0"
+    "RepoDetail(QString,QString,bool)\0"
+    "package_id,repository_name,key_url,key_userid,key_id,key_fingerprint,k"
+    "ey_timestamp,type\0"
+    "RepoSignatureRequired(QString,QString,QString,QString,QString,QString,"
+    "QString,QString)\0"
+    "type,package_id\0RequireRestart(QString,QString)\0"
+    "old_tid,timespec,succeeded,role,duration,data,uid,cmdline\0"
+    "Transaction(QString,QString,bool,QString,uint,QString,uint,QString)\0"
+    "package_id,updates,obsoletes,vendor_url,bugzilla_url,cve_url,restart,u"
+    "pdate_text,changelog,state,issued,updated\0"
+    "UpdateDetail(QString,QString,QString,QString,QString,QString,QString,Q"
+    "String,QString,QString,QString,QString)\0"
+    "QDBusPendingReply<>\0eula_id\0"
+    "AcceptEula(QString)\0Cancel()\0package_ids\0"
+    "DownloadPackages(QStringList)\0"
+    "GetCategories()\0filter,package_ids,recursive\0"
+    "GetDepends(QString,QStringList,bool)\0"
+    "GetDetails(QStringList)\0GetDistroUpgrades()\0"
+    "GetFiles(QStringList)\0number\0"
+    "GetOldTransactions(uint)\0filter\0"
+    "GetPackages(QString)\0GetRepoList(QString)\0"
+    "GetRequires(QString,QStringList,bool)\0"
+    "GetUpdateDetail(QStringList)\0"
+    "GetUpdates(QString)\0only_trusted,full_paths\0"
+    "InstallFiles(bool,QStringList)\0"
+    "only_trusted,package_ids\0"
+    "InstallPackages(bool,QStringList)\0"
+    "sig_type,key_id,package_id\0"
+    "InstallSignature(QString,QString,QString)\0"
+    "force\0RefreshCache(bool)\0"
+    "package_ids,allow_deps,autoremove\0"
+    "RemovePackages(QStringList,bool,bool)\0"
+    "repo_id,enabled\0RepoEnable(QString,bool)\0"
+    "repo_id,parameter,value\0"
+    "RepoSetData(QString,QString,QString)\0"
+    "filter,packages\0Resolve(QString,QStringList)\0"
+    "transaction_id\0Rollback(QString)\0"
+    "filter,values\0SearchDetails(QString,QStringList)\0"
+    "SearchFiles(QString,QStringList)\0"
+    "SearchGroups(QString,QStringList)\0"
+    "SearchNames(QString,QStringList)\0hints\0"
+    "SetHints(QStringList)\0full_paths\0"
+    "SimulateInstallFiles(QStringList)\0"
+    "SimulateInstallPackages(QStringList)\0"
+    "package_ids,autoremove\0"
+    "SimulateRemovePackages(QStringList,bool)\0"
+    "SimulateUpdatePackages(QStringList)\0"
+    "UpdatePackages(bool,QStringList)\0"
+    "only_trusted\0UpdateSystem(bool)\0"
+    "filter,type,values\0"
+    "WhatProvides(QString,QString,QStringList)\0"
+    "bool\0AllowCancel\0CallerActive\0uint\0"
+    "ElapsedTime\0QString\0LastPackage\0"
+    "Percentage\0RemainingTime\0Role\0Speed\0"
+    "Status\0Subpercentage\0Uid\0"
+};
+
+const QMetaObject TransactionProxy::staticMetaObject = {
+    { &QDBusAbstractInterface::staticMetaObject, qt_meta_stringdata_TransactionProxy,
+      qt_meta_data_TransactionProxy, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &TransactionProxy::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *TransactionProxy::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *TransactionProxy::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_TransactionProxy))
+        return static_cast<void*>(const_cast< TransactionProxy*>(this));
+    return QDBusAbstractInterface::qt_metacast(_clname);
+}
+
+int TransactionProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QDBusAbstractInterface::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: Category((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5]))); break;
+        case 1: Changed(); break;
+        case 2: Destroy(); break;
+        case 3: Details((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5])),(*reinterpret_cast< qulonglong(*)>(_a[6]))); break;
+        case 4: DistroUpgrade((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3]))); break;
+        case 5: ErrorCode((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 6: EulaRequired((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4]))); break;
+        case 7: Files((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 8: Finished((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< uint(*)>(_a[2]))); break;
+        case 9: MediaChangeRequired((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3]))); break;
+        case 10: Message((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 11: Package((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3]))); break;
+        case 12: RepoDetail((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3]))); break;
+        case 13: RepoSignatureRequired((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5])),(*reinterpret_cast< const QString(*)>(_a[6])),(*reinterpret_cast< const QString(*)>(_a[7])),(*reinterpret_cast< const QString(*)>(_a[8]))); break;
+        case 14: RequireRestart((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 15: Transaction((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< uint(*)>(_a[5])),(*reinterpret_cast< const QString(*)>(_a[6])),(*reinterpret_cast< uint(*)>(_a[7])),(*reinterpret_cast< const QString(*)>(_a[8]))); break;
+        case 16: UpdateDetail((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5])),(*reinterpret_cast< const QString(*)>(_a[6])),(*reinterpret_cast< const QString(*)>(_a[7])),(*reinterpret_cast< const QString(*)>(_a[8])),(*reinterpret_cast< const QString(*)>(_a[9])),(*reinterpret_cast< const QString(*)>(_a[10])),(*reinterpret_cast< const QString(*)>(_a[11])),(*reinterpret_cast< const QString(*)>(_a[12]))); break;
+        case 17: { QDBusPendingReply<> _r = AcceptEula((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 18: { QDBusPendingReply<> _r = Cancel();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 19: { QDBusPendingReply<> _r = DownloadPackages((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 20: { QDBusPendingReply<> _r = GetCategories();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 21: { QDBusPendingReply<> _r = GetDepends((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 22: { QDBusPendingReply<> _r = GetDetails((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 23: { QDBusPendingReply<> _r = GetDistroUpgrades();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 24: { QDBusPendingReply<> _r = GetFiles((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 25: { QDBusPendingReply<> _r = GetOldTransactions((*reinterpret_cast< uint(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 26: { QDBusPendingReply<> _r = GetPackages((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 27: { QDBusPendingReply<> _r = GetRepoList((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 28: { QDBusPendingReply<> _r = GetRequires((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 29: { QDBusPendingReply<> _r = GetUpdateDetail((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 30: { QDBusPendingReply<> _r = GetUpdates((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 31: { QDBusPendingReply<> _r = InstallFiles((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 32: { QDBusPendingReply<> _r = InstallPackages((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 33: { QDBusPendingReply<> _r = InstallSignature((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 34: { QDBusPendingReply<> _r = RefreshCache((*reinterpret_cast< bool(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 35: { QDBusPendingReply<> _r = RemovePackages((*reinterpret_cast< const QStringList(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 36: { QDBusPendingReply<> _r = RepoEnable((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 37: { QDBusPendingReply<> _r = RepoSetData((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 38: { QDBusPendingReply<> _r = Resolve((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 39: { QDBusPendingReply<> _r = Rollback((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 40: { QDBusPendingReply<> _r = SearchDetails((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 41: { QDBusPendingReply<> _r = SearchFiles((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 42: { QDBusPendingReply<> _r = SearchGroups((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 43: { QDBusPendingReply<> _r = SearchNames((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 44: { QDBusPendingReply<> _r = SetHints((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 45: { QDBusPendingReply<> _r = SimulateInstallFiles((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 46: { QDBusPendingReply<> _r = SimulateInstallPackages((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 47: { QDBusPendingReply<> _r = SimulateRemovePackages((*reinterpret_cast< const QStringList(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 48: { QDBusPendingReply<> _r = SimulateUpdatePackages((*reinterpret_cast< const QStringList(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 49: { QDBusPendingReply<> _r = UpdatePackages((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< const QStringList(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 50: { QDBusPendingReply<> _r = UpdateSystem((*reinterpret_cast< bool(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 51: { QDBusPendingReply<> _r = WhatProvides((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QStringList(*)>(_a[3])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        default: ;
+        }
+        _id -= 52;
+    }
+#ifndef QT_NO_PROPERTIES
+      else if (_c == QMetaObject::ReadProperty) {
+        void *_v = _a[0];
+        switch (_id) {
+        case 0: *reinterpret_cast< bool*>(_v) = allowCancel(); break;
+        case 1: *reinterpret_cast< bool*>(_v) = callerActive(); break;
+        case 2: *reinterpret_cast< uint*>(_v) = elapsedTime(); break;
+        case 3: *reinterpret_cast< QString*>(_v) = lastPackage(); break;
+        case 4: *reinterpret_cast< uint*>(_v) = percentage(); break;
+        case 5: *reinterpret_cast< uint*>(_v) = remainingTime(); break;
+        case 6: *reinterpret_cast< QString*>(_v) = role(); break;
+        case 7: *reinterpret_cast< uint*>(_v) = speed(); break;
+        case 8: *reinterpret_cast< QString*>(_v) = status(); break;
+        case 9: *reinterpret_cast< uint*>(_v) = subpercentage(); break;
+        case 10: *reinterpret_cast< uint*>(_v) = uid(); break;
+        }
+        _id -= 11;
+    } else if (_c == QMetaObject::WriteProperty) {
+        _id -= 11;
+    } else if (_c == QMetaObject::ResetProperty) {
+        _id -= 11;
+    } else if (_c == QMetaObject::QueryPropertyDesignable) {
+        _id -= 11;
+    } else if (_c == QMetaObject::QueryPropertyScriptable) {
+        _id -= 11;
+    } else if (_c == QMetaObject::QueryPropertyStored) {
+        _id -= 11;
+    } else if (_c == QMetaObject::QueryPropertyEditable) {
+        _id -= 11;
+    } else if (_c == QMetaObject::QueryPropertyUser) {
+        _id -= 11;
+    }
+#endif // QT_NO_PROPERTIES
+    return _id;
+}
+
+// SIGNAL 0
+void TransactionProxy::Category(const QString & _t1, const QString & _t2, const QString & _t3, const QString & _t4, const QString & _t5)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)), const_cast<void*>(reinterpret_cast<const void*>(&_t5)) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
+}
+
+// SIGNAL 1
+void TransactionProxy::Changed()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, 0);
+}
+
+// SIGNAL 2
+void TransactionProxy::Destroy()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, 0);
+}
+
+// SIGNAL 3
+void TransactionProxy::Details(const QString & _t1, const QString & _t2, const QString & _t3, const QString & _t4, const QString & _t5, qulonglong _t6)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)), const_cast<void*>(reinterpret_cast<const void*>(&_t5)), const_cast<void*>(reinterpret_cast<const void*>(&_t6)) };
+    QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
+
+// SIGNAL 4
+void TransactionProxy::DistroUpgrade(const QString & _t1, const QString & _t2, const QString & _t3)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
+    QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void TransactionProxy::ErrorCode(const QString & _t1, const QString & _t2)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 5, _a);
+}
+
+// SIGNAL 6
+void TransactionProxy::EulaRequired(const QString & _t1, const QString & _t2, const QString & _t3, const QString & _t4)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)) };
+    QMetaObject::activate(this, &staticMetaObject, 6, _a);
+}
+
+// SIGNAL 7
+void TransactionProxy::Files(const QString & _t1, const QString & _t2)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 7, _a);
+}
+
+// SIGNAL 8
+void TransactionProxy::Finished(const QString & _t1, uint _t2)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 8, _a);
+}
+
+// SIGNAL 9
+void TransactionProxy::MediaChangeRequired(const QString & _t1, const QString & _t2, const QString & _t3)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
+    QMetaObject::activate(this, &staticMetaObject, 9, _a);
+}
+
+// SIGNAL 10
+void TransactionProxy::Message(const QString & _t1, const QString & _t2)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 10, _a);
+}
+
+// SIGNAL 11
+void TransactionProxy::Package(const QString & _t1, const QString & _t2, const QString & _t3)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
+    QMetaObject::activate(this, &staticMetaObject, 11, _a);
+}
+
+// SIGNAL 12
+void TransactionProxy::RepoDetail(const QString & _t1, const QString & _t2, bool _t3)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
+    QMetaObject::activate(this, &staticMetaObject, 12, _a);
+}
+
+// SIGNAL 13
+void TransactionProxy::RepoSignatureRequired(const QString & _t1, const QString & _t2, const QString & _t3, const QString & _t4, const QString & _t5, const QString & _t6, const QString & _t7, const QString & _t8)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)), const_cast<void*>(reinterpret_cast<const void*>(&_t5)), const_cast<void*>(reinterpret_cast<const void*>(&_t6)), const_cast<void*>(reinterpret_cast<const void*>(&_t7)), const_cast<void*>(reinterpret_cast<const void*>(&_t8)) };
+    QMetaObject::activate(this, &staticMetaObject, 13, _a);
+}
+
+// SIGNAL 14
+void TransactionProxy::RequireRestart(const QString & _t1, const QString & _t2)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 14, _a);
+}
+
+// SIGNAL 15
+void TransactionProxy::Transaction(const QString & _t1, const QString & _t2, bool _t3, const QString & _t4, uint _t5, const QString & _t6, uint _t7, const QString & _t8)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)), const_cast<void*>(reinterpret_cast<const void*>(&_t5)), const_cast<void*>(reinterpret_cast<const void*>(&_t6)), const_cast<void*>(reinterpret_cast<const void*>(&_t7)), const_cast<void*>(reinterpret_cast<const void*>(&_t8)) };
+    QMetaObject::activate(this, &staticMetaObject, 15, _a);
+}
+
+// SIGNAL 16
+void TransactionProxy::UpdateDetail(const QString & _t1, const QString & _t2, const QString & _t3, const QString & _t4, const QString & _t5, const QString & _t6, const QString & _t7, const QString & _t8, const QString & _t9, const QString & _t10, const QString & _t11, const QString & _t12)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)), const_cast<void*>(reinterpret_cast<const void*>(&_t5)), const_cast<void*>(reinterpret_cast<const void*>(&_t6)), const_cast<void*>(reinterpret_cast<const void*>(&_t7)), const_cast<void*>(reinterpret_cast<const void*>(&_t8)), const_cast<void*>(reinterpret_cast<const void*>(&_t9)), const_cast<void*>(reinterpret_cast<const void*>(&_t10)), const_cast<void*>(reinterpret_cast<const void*>(&_t11)), const_cast<void*>(reinterpret_cast<const void*>(&_t12)) };
+    QMetaObject::activate(this, &staticMetaObject, 16, _a);
+}
+QT_END_MOC_NAMESPACE

@@ -1,3 +1,0 @@
-debian/tmp/usr/lib/mozilla/plugins/packagekit-plugin.so
-contrib/browser-plugin/README /usr/share/doc/mozilla-packagekit/
-contrib/browser-plugin/tests/test.html /usr/share/doc/mozilla-packagekit/examples/

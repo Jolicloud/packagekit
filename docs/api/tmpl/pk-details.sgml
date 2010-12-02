@@ -1,0 +1,85 @@
+<!-- ##### SECTION Title ##### -->
+PkDetails
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkDetailsPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkDetails ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkDetails:description ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDetails:group ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDetails:license ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDetails:package-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDetails:size ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDetails:url ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkDetailsClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_details_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

@@ -1,0 +1,83 @@
+<!-- ##### SECTION Title ##### -->
+PkError
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkErrorPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkError ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkError:code ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkError:details ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkErrorClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_error_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_error_get_code ##### -->
+<para>
+
+</para>
+
+@error_code: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_error_get_details ##### -->
+<para>
+
+</para>
+
+@error_code: 
+@Returns: 
+
+

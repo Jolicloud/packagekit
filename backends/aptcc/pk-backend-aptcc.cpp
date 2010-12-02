@@ -47,12 +47,12 @@ static PkBackendSpawn *spawn;
 static void
 backend_initialize (PkBackend *backend)
 {
-	egg_debug ("APTcc Initializing");
+	g_debug ("APTcc Initializing");
 
 	if (pkgInitConfig(*_config) == false ||
 	    pkgInitSystem(*_config, _system) == false)
 	{
-		egg_debug ("ERROR initializing backend");
+		g_debug ("ERROR initializing backend");
 	}
 
 	spawn = pk_backend_spawn_new ();
@@ -65,7 +65,7 @@ backend_initialize (PkBackend *backend)
 static void
 backend_destroy (PkBackend *backend)
 {
-	egg_debug ("APTcc being destroyed");
+	g_debug ("APTcc being destroyed");
 }
 
 /**
@@ -83,6 +83,7 @@ backend_get_groups (PkBackend *backend)
 		PK_GROUP_ENUM_DESKTOP_KDE,
 		PK_GROUP_ENUM_DESKTOP_OTHER,
 		PK_GROUP_ENUM_ELECTRONICS,
+		PK_GROUP_ENUM_FONTS,
 		PK_GROUP_ENUM_GAMES,
 		PK_GROUP_ENUM_GRAPHICS,
 		PK_GROUP_ENUM_INTERNET,
@@ -150,7 +151,7 @@ backend_get_depends_or_requires_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -250,7 +251,7 @@ backend_get_files_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -314,11 +315,17 @@ backend_get_details_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
 	}
+
+    if (updateDetail) {
+        // this is needed to compare the changelog verstion to
+        // current package using DoCmpVersion()
+        pkgInitSystem(*_config, _system);
+    }
 
 	pk_backend_set_status (backend, PK_STATUS_ENUM_QUERY);
 	for (uint i = 0; i < g_strv_length(package_ids); i++) {
@@ -380,23 +387,16 @@ backend_get_details (PkBackend *backend, gchar **package_ids)
 static gboolean
 backend_get_or_update_system_thread (PkBackend *backend)
 {
-	bool getUpdates = pk_backend_get_bool(backend, "getUpdates");
-
-	/* check network state */
-	if (!pk_backend_is_online (backend) && !getUpdates) {
-		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot update when offline");
-		pk_backend_finished (backend);
-		return false;
-	}
-
 	PkBitfield filters;
+	bool getUpdates;
 	filters = (PkBitfield) pk_backend_get_uint (backend, "filters");
+	getUpdates = pk_backend_get_bool(backend, "getUpdates");
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -408,7 +408,7 @@ backend_get_or_update_system_thread (PkBackend *backend)
 	OpTextProgress Prog(*_config);
 	int timeout = 10;
 	// TODO test this
-	while (Cache.Open(Prog, !getUpdates) == false) {
+	while (Cache.Open(&Prog, !getUpdates) == false) {
 		// failed to open cache, try checkDeps then..
 		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
 		if (getUpdates == true || (timeout <= 0)) {
@@ -427,7 +427,7 @@ backend_get_or_update_system_thread (PkBackend *backend)
 	if (pkgDistUpgrade(*Cache) == false)
 	{
 		show_broken(backend, Cache, false);
-		egg_debug ("Internal error, DistUpgrade broke stuff");
+		g_debug ("Internal error, DistUpgrade broke stuff");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -435,20 +435,17 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 	bool res = true;
 	if (getUpdates) {
-		vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > update, kept, install;
+		vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > update,
+									    kept;
 
 		for(pkgCache::PkgIterator pkg=m_apt->packageCache->PkgBegin();
 		    !pkg.end();
 		    ++pkg)
 		{
-			if ((*Cache)[pkg].Upgrade() == true) {
-				if ((*Cache)[pkg].NewInstall() == true) {
-					install.push_back(
-						pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
-				} else {
-					update.push_back(
-						pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
-				}
+			if((*Cache)[pkg].Upgrade()    == true &&
+			(*Cache)[pkg].NewInstall() == false) {
+				update.push_back(
+					pair<pkgCache::PkgIterator, pkgCache::VerIterator>(pkg, m_apt->find_candidate_ver(pkg)));
 			} else if ((*Cache)[pkg].Upgradable() == true &&
 				pkg->CurrentVer != 0 &&
 				(*Cache)[pkg].Delete() == false) {
@@ -459,13 +456,8 @@ backend_get_or_update_system_thread (PkBackend *backend)
 
 		m_apt->emitUpdates(update, filters);
 		m_apt->emit_packages(kept, filters, PK_INFO_ENUM_BLOCKED);
-		m_apt->emit_packages(install, filters, PK_INFO_ENUM_INSTALLING);
 	} else {
 		res = m_apt->installPackages(Cache);
-		// We clean the archives directory
-		pkgAcquire Fetcher;
-		Fetcher.Clean(_config->FindDir("Dir::Cache::archives"));
-		Fetcher.Clean(_config->FindDir("Dir::Cache::archives") + "partial/");
 	}
 
 	delete m_apt;
@@ -516,7 +508,7 @@ backend_what_provides_thread (PkBackend *backend)
 		aptcc *m_apt = new aptcc(backend, _cancel);
 		pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 		if (m_apt->init()) {
-			egg_debug ("Failed to create apt cache");
+			g_debug ("Failed to create apt cache");
 			g_strfreev (values);
 			delete m_apt;
 			pk_backend_finished (backend);
@@ -610,7 +602,7 @@ backend_download_packages_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -621,7 +613,8 @@ backend_download_packages_thread (PkBackend *backend)
 	AcqPackageKitStatus Stat(m_apt, backend, _cancel);
 
 	// get a fetcher
-	pkgAcquire fetcher(&Stat);
+	pkgAcquire fetcher;
+	fetcher.Setup(&Stat);
 	string filelist;
 	gchar *pi;
 
@@ -727,19 +720,12 @@ backend_download_packages (PkBackend *backend, gchar **package_ids, const gchar 
 static gboolean
 backend_refresh_cache_thread (PkBackend *backend)
 {
-	/* check network state */
-	if (!pk_backend_is_online (backend)) {
-		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot refresh when offline");
-		pk_backend_finished (backend);
-		return false;
-	}
-
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -768,7 +754,7 @@ backend_refresh_cache_thread (PkBackend *backend)
 	// Rebuild the cache.
 	pkgCacheFile Cache;
 	OpTextProgress Prog(*_config);
-	if (Cache.BuildCaches(Prog, true) == false) {
+	if (Cache.BuildCaches(&Prog, true) == false) {
 		if (_error->PendingError() == true) {
 			show_errors(backend, PK_ERROR_ENUM_CANNOT_GET_LOCK);
 		}
@@ -811,7 +797,7 @@ backend_resolve_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -892,7 +878,7 @@ backend_search_files_thread (PkBackend *backend)
 		aptcc *m_apt = new aptcc(backend, _cancel);
 		pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 		if (m_apt->init()) {
-			egg_debug ("Failed to create apt cache");
+			g_debug ("Failed to create apt cache");
 			delete m_apt;
 			pk_backend_finished (backend);
 			return false;
@@ -961,7 +947,7 @@ backend_search_groups_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -1035,7 +1021,7 @@ backend_search_package_thread (PkBackend *backend)
 	matcher *m_matcher = new matcher(search);
 	g_free(search);
 	if (m_matcher->hasError()) {
-		egg_debug("Regex compilation error");
+		g_debug("Regex compilation error");
 		delete m_matcher;
 		pk_backend_finished (backend);
 		return false;
@@ -1044,7 +1030,7 @@ backend_search_package_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_matcher;
 		delete m_apt;
 		pk_backend_finished (backend);
@@ -1192,25 +1178,21 @@ backend_search_details (PkBackend *backend, PkBitfield filters, gchar **values)
 static gboolean
 backend_manage_packages_thread (PkBackend *backend)
 {
-	bool simulate = pk_backend_get_bool (backend, "simulate");
-	bool remove = pk_backend_get_bool (backend, "remove");
+	gchar **package_ids;
+	gchar *pi;
+	bool simulate;
+	bool remove;
 
-	/* check network state */
-	if (!pk_backend_is_online (backend) && !simulate && !remove) {
-		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot install when offline");
-		pk_backend_finished (backend);
-		return false;
-	}
-
-        gchar *pi;
-	gchar **package_ids = pk_backend_get_strv (backend, "package_ids");
+	package_ids = pk_backend_get_strv (backend, "package_ids");
+	simulate = pk_backend_get_bool (backend, "simulate");
+	remove = pk_backend_get_bool (backend, "remove");
 
 	pk_backend_set_allow_cancel (backend, true);
 
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -1441,7 +1423,7 @@ backend_get_packages_thread (PkBackend *backend)
 	aptcc *m_apt = new aptcc(backend, _cancel);
 	pk_backend_set_pointer(backend, "aptcc_obj", m_apt);
 	if (m_apt->init()) {
-		egg_debug ("Failed to create apt cache");
+		g_debug ("Failed to create apt cache");
 		delete m_apt;
 		pk_backend_finished (backend);
 		return false;
@@ -1525,5 +1507,7 @@ extern "C" PK_BACKEND_OPTIONS (
 	NULL,						/* simulate_install_files */
 	backend_simulate_install_update_packages,	/* simulate_install_packages */
 	backend_simulate_remove_packages,		/* simulate_remove_packages */
-	backend_simulate_install_update_packages	/* simulate_update_packages */
+	backend_simulate_install_update_packages,	/* simulate_update_packages */
+	NULL,						/* transaction_start */
+	NULL						/* transaction_stop */
 );

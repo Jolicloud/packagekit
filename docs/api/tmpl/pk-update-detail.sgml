@@ -1,0 +1,115 @@
+<!-- ##### SECTION Title ##### -->
+PkUpdateDetail
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkUpdateDetailPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkUpdateDetail ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkUpdateDetail:bugzilla-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:changelog ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:cve-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:issued ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:obsoletes ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:package-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:restart ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:state ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:update-text ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:updated ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:updates ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkUpdateDetail:vendor-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkUpdateDetailClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_update_detail_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

@@ -1,0 +1,70 @@
+<!-- ##### SECTION Title ##### -->
+PkDistroUpgrade
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkDistroUpgradePrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkDistroUpgrade ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkDistroUpgrade:name ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDistroUpgrade:state ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkDistroUpgrade:summary ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkDistroUpgradeClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_distro_upgrade_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

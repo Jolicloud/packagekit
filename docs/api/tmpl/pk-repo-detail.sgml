@@ -1,0 +1,70 @@
+<!-- ##### SECTION Title ##### -->
+PkRepoDetail
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkRepoDetailPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkRepoDetail ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkRepoDetail:description ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoDetail:enabled ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkRepoDetail:repo-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkRepoDetailClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_repo_detail_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

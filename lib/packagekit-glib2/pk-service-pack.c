@@ -37,6 +37,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 #endif /* HAVE_ARCHIVE_H */
+#include <string.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -49,10 +50,6 @@
 #include <packagekit-glib2/pk-client.h>
 #include <packagekit-glib2/pk-package-id.h>
 #include <packagekit-glib2/pk-package-ids.h>
-#include <packagekit-glib2/pk-control-sync.h>
-
-#include "egg-debug.h"
-#include "egg-string.h"
 
 #define PK_SERVICE_PACK_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), PK_TYPE_SERVICE_PACK, PkServicePackPrivate))
 
@@ -147,7 +144,6 @@ pk_service_pack_check_metadata_file (const gchar *full_path, GError **error)
 	gchar *type = NULL;
 	gchar *distro_id = NULL;
 	gchar *distro_id_us = NULL;
-	PkControl *control = NULL;
 
 	/* load the file */
 	file = g_key_file_new ();
@@ -183,28 +179,13 @@ pk_service_pack_check_metadata_file (const gchar *full_path, GError **error)
 		goto out;
 	}
 
-	/* get this system id */
-	control = pk_control_new ();
-	ret = pk_control_get_properties (control, NULL, &error_local);
-	if (!ret) {
-		egg_error ("Failed to contact PackageKit: %s", error_local->message);
-		g_error_free (error_local);
-		goto out;
-	}
-
-	/* get data */
-	g_object_get (control,
-		      "distro-id", &distro_id_us,
-		      NULL);
-
 	/* do we match? */
+	distro_id_us = pk_get_distro_id ();
 	ret = (g_strcmp0 (distro_id_us, distro_id) == 0);
 	if (!ret)
 		g_set_error (error, 1, 0, "distro id did not match %s == %s", distro_id_us, distro_id);
 
 out:
-	if (control != NULL)
-		g_object_unref (control);
 	g_key_file_free (file);
 	g_free (type);
 	g_free (distro_id);
@@ -291,7 +272,7 @@ out:
 	/* switch back to PWD */
 	retval = chdir (buf);
 	if (retval != 0)
-		egg_warning ("cannot chdir back!");
+		g_warning ("cannot chdir back!");
 
 	return ret;
 }
@@ -317,7 +298,7 @@ pk_service_pack_get_random (const gchar *prefix, guint length)
 	guint prefix_len;
 
 	/* make a string to hold both parts */
-	prefix_len = egg_strlen (prefix, 28);
+	prefix_len = strlen (prefix);
 	str = g_strnfill (length + prefix_len, 'X');
 
 	/* copy over prefix */
@@ -467,8 +448,6 @@ pk_service_pack_create_metadata_file (PkServicePackState *state, const gchar *fi
 	GError *error = NULL;
 	GKeyFile *file = NULL;
 	gchar *data = NULL;
-	PkControl *control;
-	GError *error_local = NULL;
 
 	g_return_val_if_fail (state->filename != NULL, FALSE);
 	g_return_val_if_fail (state->type != PK_SERVICE_PACK_TYPE_UNKNOWN, FALSE);
@@ -476,18 +455,7 @@ pk_service_pack_create_metadata_file (PkServicePackState *state, const gchar *fi
 	file = g_key_file_new ();
 
 	/* get this system id */
-	control = pk_control_new ();
-	ret = pk_control_get_properties (control, NULL, &error_local);
-	if (!ret) {
-		egg_error ("Failed to contact PackageKit: %s", error_local->message);
-		g_error_free (error_local);
-		goto out;
-	}
-
-	/* get needed data */
-	g_object_get (control,
-		      "distro-id", &distro_id,
-		      NULL);
+	distro_id = pk_get_distro_id ();
 	if (distro_id == NULL)
 		goto out;
 	iso_time = pk_iso8601_present ();
@@ -505,7 +473,7 @@ pk_service_pack_create_metadata_file (PkServicePackState *state, const gchar *fi
 	/* convert to text */
 	data = g_key_file_to_data (file, NULL, &error);
 	if (data == NULL) {
-		egg_warning ("failed to convert to text: %s", error->message);
+		g_warning ("failed to convert to text: %s", error->message);
 		g_error_free (error);
 		goto out;
 	}
@@ -513,12 +481,11 @@ pk_service_pack_create_metadata_file (PkServicePackState *state, const gchar *fi
 	/* save contents */
 	ret = g_file_set_contents (filename, data, -1, &error);
 	if (!ret) {
-		egg_warning ("failed to save file: %s", error->message);
+		g_warning ("failed to save file: %s", error->message);
 		g_error_free (error);
 		goto out;
 	}
 out:
-	g_object_unref (control);
 	g_key_file_free (file);
 	g_free (data);
 	g_free (distro_id);
@@ -549,7 +516,7 @@ pk_service_pack_archive_add_file (struct archive *arch, const gchar *filename, G
 				      "file not found %s", filename);
 		goto out;
 	}
-	egg_debug ("stat(%s), size=%lu bytes\n", filename, (glong) st.st_size);
+	g_debug ("stat(%s), size=%lu bytes\n", filename, (glong) st.st_size);
 
 	/* create new entry */
 	entry = archive_entry_new ();
@@ -583,7 +550,7 @@ pk_service_pack_archive_add_file (struct archive *arch, const gchar *filename, G
 	while (len > 0) {
 		wrote = archive_write_data (arch, buff, len);
 		if (wrote != len)
-			egg_warning("wrote %i instead of %i\n", wrote, len);
+			g_warning("wrote %i instead of %i\n", wrote, len);
 		/* ITS4: ignore, buffer statically preallocated  */
 		len = read (fd, buff, sizeof (buff));
 	}
@@ -705,7 +672,7 @@ pk_service_pack_get_files_from_array (const GPtrArray *array)
 
 	/* internal error */
 	if (array == NULL) {
-		egg_warning ("internal error");
+		g_warning ("internal error");
 		goto out;
 	}
 
@@ -869,7 +836,7 @@ out:
  * @package_ids_exclude: An array of packages to exclude, or %NULL
  * @cancellable: a #GCancellable or %NULL
  * @callback: the function to run on completion
- * @progress_callback: the function to run when the progress changes
+ * @progress_callback: (scope call): the function to run when the progress changes
  * @progress_user_data: data to pass to @progress_callback
  * @user_data: the data to pass to @callback
  *
@@ -905,7 +872,9 @@ pk_service_pack_create_for_package_ids_async (PkServicePack *pack, const gchar *
 	state->type = PK_SERVICE_PACK_TYPE_INSTALL;
 
 	/* get deps */
-	pk_client_get_depends_async (pack->priv->client, pk_bitfield_from_enums (PK_FILTER_ENUM_ARCH, PK_FILTER_ENUM_NEWEST, -1), state->package_ids, TRUE,
+	pk_client_get_depends_async (pack->priv->client,
+				     pk_bitfield_from_enums (PK_FILTER_ENUM_ARCH, PK_FILTER_ENUM_NEWEST, -1),
+				     state->package_ids, TRUE,
 				     state->cancellable, state->progress_callback, state->progress_user_data,
 				     (GAsyncReadyCallback) pk_service_pack_get_depends_ready_cb, state);
 
@@ -952,7 +921,9 @@ pk_service_pack_get_updates_ready_cb (GObject *source_object, GAsyncResult *res,
 	}
 
 	/* get deps, TODO: use NEWEST? */
-	pk_client_get_depends_async (state->pack->priv->client, PK_FILTER_ENUM_NONE, state->package_ids, TRUE,
+	pk_client_get_depends_async (state->pack->priv->client,
+				     pk_bitfield_value (PK_FILTER_ENUM_NONE),
+				     state->package_ids, TRUE,
 				     state->cancellable, state->progress_callback, state->progress_user_data,
 				     (GAsyncReadyCallback) pk_service_pack_get_depends_ready_cb, state);
 out:
@@ -972,7 +943,7 @@ out:
  * @package_ids_exclude: An array of packages to exclude, or %NULL
  * @cancellable: a #GCancellable or %NULL
  * @callback: the function to run on completion
- * @progress_callback: the function to run when the progress changes
+ * @progress_callback: (scope call): the function to run when the progress changes
  * @progress_user_data: data to pass to @progress_callback
  * @user_data: the data to pass to @callback
  *
@@ -1007,7 +978,7 @@ pk_service_pack_create_for_updates_async (PkServicePack *pack, const gchar *file
 	state->package_ids_exclude = g_strdupv (package_ids_exclude);
 
 	/* get deps, TODO: use NEWEST? */
-	pk_client_get_updates_async (pack->priv->client, PK_FILTER_ENUM_NONE,
+	pk_client_get_updates_async (pack->priv->client, pk_bitfield_value (PK_FILTER_ENUM_NONE),
 				     state->cancellable, state->progress_callback, state->progress_user_data,
 				     (GAsyncReadyCallback) pk_service_pack_get_updates_ready_cb, state);
 

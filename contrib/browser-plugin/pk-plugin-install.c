@@ -38,6 +38,8 @@
 #include "pk-main.h"
 #include "pk-plugin-install.h"
 
+//#define PK_PLUGIN_INSTALL_USE_DESKTOP_FOR_INSTALLED
+
 #define PK_PLUGIN_INSTALL_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), PK_TYPE_PLUGIN_INSTALL, PkPluginInstallPrivate))
 
 typedef enum {
@@ -189,11 +191,12 @@ pk_plugin_install_set_installed_version (PkPluginInstall *self, const gchar *ver
 static gchar *
 pk_plugin_install_get_best_desktop_file (PkPluginInstall *self)
 {
+	gchar *data = NULL;
+#ifdef PK_PLUGIN_INSTALL_USE_DESKTOP_FOR_INSTALLED
 	GPtrArray *array = NULL;
 	PkDesktop *desktop;
 	GError *error = NULL;
 	gboolean ret;
-	gchar *data = NULL;
 	const gchar *package;
 
 	/* open desktop database */
@@ -230,6 +233,7 @@ out:
 		g_ptr_array_free (array, TRUE);
 	}
 	g_object_unref (desktop);
+#endif
 	return data;
 }
 
@@ -244,7 +248,7 @@ pk_plugin_install_finished_cb (GObject *object, GAsyncResult *res, PkPluginInsta
 	PkResults *results = NULL;
 	GPtrArray *packages = NULL;
 	PkPackage *item;
-	gchar *filename;
+	gchar *filename = NULL;
 	gchar **split = NULL;
 	PkError *error_code = NULL;
 	PkInfoEnum info;
@@ -327,15 +331,13 @@ pk_plugin_install_finished_cb (GObject *object, GAsyncResult *res, PkPluginInsta
 			self->priv->display_name = g_strdup (g_app_info_get_name (self->priv->app_info));
 #endif
 		}
-		g_free (filename);
 
-		if (self->priv->app_info != 0)
-			pk_plugin_install_set_status (self, INSTALLED);
-
+		pk_plugin_install_set_status (self, INSTALLED);
 		pk_plugin_install_clear_layout (self);
 		pk_plugin_install_refresh (self);
 	}
 out:
+	g_free (filename);
 	g_free (package_id);
 	g_free (summary);
 
@@ -560,7 +562,7 @@ static gchar *
 pk_plugin_install_get_package_icon (PkPluginInstall *self)
 {
 	gboolean ret;
-	GKeyFile *file;
+	GKeyFile *file = NULL;
 	gchar *data = NULL;
 	const gchar *filename;
 
@@ -583,8 +585,9 @@ pk_plugin_install_get_package_icon (PkPluginInstall *self)
 		goto out;
 	}
 	data = g_key_file_get_string (file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_ICON, NULL);
-	g_key_file_free (file);
 out:
+	if (file != NULL)
+		g_key_file_free (file);
 	return data;
 }
 
@@ -689,9 +692,9 @@ pk_plugin_install_draw (PkPlugin *plugin, cairo_t *cr)
 	guint width;
 	guint height;
 	guint radius;
-	const gchar *filename;
+	gchar *filename = NULL;
 	GtkIconTheme *theme;
-	GdkPixbuf *pixbuf;
+	GdkPixbuf *pixbuf = NULL;
 	PangoRectangle rect;
 	PkPluginInstall *self = PK_PLUGIN_INSTALL (plugin);
 	guint sep;
@@ -750,7 +753,7 @@ pk_plugin_install_draw (PkPlugin *plugin, cairo_t *cr)
 	/* get themed icon */
 	filename = pk_plugin_install_get_package_icon (self);
 	if (filename == NULL)
-		filename = "package-x-generic";
+		filename = g_strdup ("package-x-generic");
 	theme = gtk_icon_theme_get_default ();
 	pixbuf = gtk_icon_theme_load_icon (theme, filename, 48, GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
 	if (pixbuf == NULL)
@@ -759,7 +762,6 @@ pk_plugin_install_draw (PkPlugin *plugin, cairo_t *cr)
 	gdk_cairo_set_source_pixbuf (cr, pixbuf, x + sep, y + (height - 48) / 2);
 	cairo_rectangle (cr, x + sep, y + (height - 48) / 2, 48, 48);
 	cairo_fill (cr);
-	g_object_unref (pixbuf);
 
 skip:
 	/* write text */
@@ -787,7 +789,9 @@ update_spinner:
 						x + sep + 48 + sep + rect.width + 2 * sep,
 						y + (height - SPINNER_SIZE) / 2);
 	}
-
+	if (pixbuf != NULL)
+		g_object_unref (pixbuf);
+	g_free (filename);
 	return TRUE;
 }
 

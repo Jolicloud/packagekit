@@ -1,0 +1,128 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'transactionprivate.h'
+**
+** Created: Mon Oct 25 12:41:11 2010
+**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'transactionprivate.h' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 62
+#error "This file was generated using the moc from 4.7.0. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+QT_BEGIN_MOC_NAMESPACE
+static const uint qt_meta_data_PackageKit__TransactionPrivate[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+      14,   14, // methods
+       0,    0, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       0,       // signalCount
+
+ // slots: signature, parameters, type, tag, flags
+      66,   32,   31,   31, 0x0a,
+     148,  126,   31,   31, 0x0a,
+     201,  187,   31,   31, 0x0a,
+     263,  228,   31,   31, 0x0a,
+     337,  309,   31,   31, 0x0a,
+     396,  382,   31,   31, 0x0a,
+     436,  419,   31,   31, 0x0a,
+     472,  459,   31,   31, 0x0a,
+     514,  497,   31,   31, 0x0a,
+     616,  547,   31,   31, 0x0a,
+     712,  703,   31,   31, 0x0a,
+     801,  744,   31,   31, 0x0a,
+     970,  869,   31,   31, 0x0a,
+    1080,   31,   31,   31, 0x0a,
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_PackageKit__TransactionPrivate[] = {
+    "PackageKit::TransactionPrivate\0\0"
+    "pid,license,group,detail,url,size\0"
+    "details(QString,QString,QString,QString,QString,qulonglong)\0"
+    "type,name,description\0"
+    "distroUpgrade(QString,QString,QString)\0"
+    "error,details\0errorCode(QString,QString)\0"
+    "eulaId,pid,vendor,licenseAgreement\0"
+    "eulaRequired(QString,QString,QString,QString)\0"
+    "mediaType,mediaId,mediaText\0"
+    "mediaChangeRequired(QString,QString,QString)\0"
+    "pid,filenames\0files(QString,QString)\0"
+    "exitCode,runtime\0finished(QString,uint)\0"
+    "type,message\0message(QString,QString)\0"
+    "info,pid,summary\0package(QString,QString,QString)\0"
+    "pid,repoName,keyUrl,keyUserid,keyId,keyFingerprint,keyTimestamp,type\0"
+    "repoSignatureRequired(QString,QString,QString,QString,QString,QString,"
+    "QString,QString)\0"
+    "type,pid\0requireRestart(QString,QString)\0"
+    "oldTid,timespec,succeeded,role,duration,data,uid,cmdline\0"
+    "transaction(QString,QString,bool,QString,uint,QString,uint,QString)\0"
+    "pid,updates,obsoletes,vendorUrl,bugzillaUrl,cveUrl,restart,updateText,"
+    "changelog,state,issued,updated\0"
+    "updateDetail(QString,QString,QString,QString,QString,QString,QString,Q"
+    "String,QString,QString,QString,QString)\0"
+    "destroy()\0"
+};
+
+const QMetaObject PackageKit::TransactionPrivate::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_PackageKit__TransactionPrivate,
+      qt_meta_data_PackageKit__TransactionPrivate, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &PackageKit::TransactionPrivate::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *PackageKit::TransactionPrivate::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *PackageKit::TransactionPrivate::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_PackageKit__TransactionPrivate))
+        return static_cast<void*>(const_cast< TransactionPrivate*>(this));
+    return QObject::qt_metacast(_clname);
+}
+
+int PackageKit::TransactionPrivate::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: details((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5])),(*reinterpret_cast< qulonglong(*)>(_a[6]))); break;
+        case 1: distroUpgrade((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3]))); break;
+        case 2: errorCode((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 3: eulaRequired((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4]))); break;
+        case 4: mediaChangeRequired((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3]))); break;
+        case 5: files((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 6: finished((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< uint(*)>(_a[2]))); break;
+        case 7: message((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 8: package((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3]))); break;
+        case 9: repoSignatureRequired((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5])),(*reinterpret_cast< const QString(*)>(_a[6])),(*reinterpret_cast< const QString(*)>(_a[7])),(*reinterpret_cast< const QString(*)>(_a[8]))); break;
+        case 10: requireRestart((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 11: transaction((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< uint(*)>(_a[5])),(*reinterpret_cast< const QString(*)>(_a[6])),(*reinterpret_cast< uint(*)>(_a[7])),(*reinterpret_cast< const QString(*)>(_a[8]))); break;
+        case 12: updateDetail((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< const QString(*)>(_a[3])),(*reinterpret_cast< const QString(*)>(_a[4])),(*reinterpret_cast< const QString(*)>(_a[5])),(*reinterpret_cast< const QString(*)>(_a[6])),(*reinterpret_cast< const QString(*)>(_a[7])),(*reinterpret_cast< const QString(*)>(_a[8])),(*reinterpret_cast< const QString(*)>(_a[9])),(*reinterpret_cast< const QString(*)>(_a[10])),(*reinterpret_cast< const QString(*)>(_a[11])),(*reinterpret_cast< const QString(*)>(_a[12]))); break;
+        case 13: destroy(); break;
+        default: ;
+        }
+        _id -= 14;
+    }
+    return _id;
+}
+QT_END_MOC_NAMESPACE

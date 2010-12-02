@@ -27,6 +27,7 @@ to search for packages, install packages or codecs.
 #    Tim Lauridsen <timlau@fedoraproject.org>
 #    Sebastian Heinlein <devel@glatzor.de>
 
+import locale
 import os
 
 import dbus
@@ -38,9 +39,6 @@ from enums import *
 from misc import *
 
 __api_version__ = '0.1.2'
-
-PACKAGEKIT_INTERFACE = 'org.freedesktop.PackageKit'
-TRANSACTION_INTERFACE = 'org.freedesktop.PackageKit.Transaction'
 
 class PackageKitError(Exception):
     '''PackageKit error.
@@ -73,7 +71,6 @@ class PackageKitTransaction:
         self.result = []
         # Connect the signal handlers to the DBus iface
         self._iface = iface
-        self._props = dbus.Interface(self._iface, dbus_interface=dbus.PROPERTIES_IFACE)
         for sig, cb in [('Finished', self._on_finished),
                         ('ErrorCode', self._on_error),
                         ('StatusChanged', self._on_status),
@@ -169,24 +166,21 @@ class PackageKitTransaction:
                 raise PackageKitError(self._error_code, self._error_details)
             return self.result
 
+    def set_locale(self, code):
+        '''Set the language to the given locale code'''
+        return self._iface.SetLocale(code)
+
     def cancel(self):
         '''Cancel the transaction'''
         return self._iface.Cancel()
 
-    @property
-    def status(self):
+    def get_status(self):
         '''Get the status of the transaction'''
-        return str(self._props.Get(TRANSACTION_INTERFACE, "Status"))
+        return self._status
 
-    @property
-    def percentage(self):
+    def get_progress(self):
         '''Get the progress of the transaction'''
-        return int(self._props.Get(TRANSACTION_INTERFACE, "Percentage"))
-
-    @property
-    def subpercentage(self):
-        '''Get the progress of the transaction'''
-        return int(self._props.Get(TRANSACTION_INTERFACE, "Subpercentage"))
+        return self._iface.GetProgress()
 
     def get_finished_state(self):
         '''Return the finished status'''
@@ -222,6 +216,7 @@ class PackageKitClient:
         '''
         self.pk_control = None
         self.bus = dbus.SystemBus()
+        self._locale = locale.getdefaultlocale()[0]
 
     def suggest_daemon_quit(self):
         '''Ask the PackageKit daemon to shutdown.'''
@@ -243,9 +238,9 @@ class PackageKitClient:
         return self._run_transaction("GetDetails", [package_ids],
                                      exit_handler)
 
-    def search_names(self, search, filters=FILTER_NONE, exit_handler=None):
+    def search_name(self, search, filters=FILTER_NONE, exit_handler=None):
         '''Search for packages by name'''
-        return self._run_transaction("SearchNames", [filters, search],
+        return self._run_transaction("SearchName", [filters, search],
                                      exit_handler)
 
     def search_group(self, search, filters=FILTER_NONE, exit_handler=None):
@@ -258,7 +253,7 @@ class PackageKitClient:
         return self._run_transaction("SearchDetails", [filters, search],
                                      exit_handler)
 
-    def search_files(self, search, filters=FILTER_NONE, exit_handler=None):
+    def search_file(self, search, filters=FILTER_NONE, exit_handler=None):
         '''Search for packages by their files'''
         return self._run_transaction("SearchFiles", [filters, search],
                                      exit_handler)
@@ -269,10 +264,10 @@ class PackageKitClient:
         return self._run_transaction("InstallPackages",
                                      [only_trusted, package_ids], exit_handler)
 
-    def update_packages(self, packages, only_trusted=True, exit_handler=None):
+    def update_packages(self, packages, exit_handler=None):
         '''Update the packages of the given package ids'''
         package_ids = self._to_package_id_list(packages)
-        return self._run_transaction("UpdatePackages", [only_trusted, package_ids], 
+        return self._run_transaction("UpdatePackages", [package_ids], 
                                      exit_handler)
 
     def remove_packages(self, packages, allow_deps=False, auto_remove=True,
@@ -291,13 +286,6 @@ class PackageKitClient:
         system are idle.
         '''
         return self._run_transaction("RefreshCache", (force,), exit_handler)
-
-    def simulate_remove_packages(self, packages, auto_remove=True, exit_handler=None):
-        '''Simulate removal of packages with the given package ids'''
-        package_ids = self._to_package_id_list(packages)
-        return self._run_transaction("SimulateRemovePackages",
-                                     [package_ids, auto_remove], 
-                                     exit_handler)
 
     def get_repo_list(self, filters=FILTER_NONE, exit_handler=None):
         '''Get the repositories'''
@@ -329,9 +317,9 @@ class PackageKitClient:
         '''Return all packages'''
         return self._run_transaction("GetPackages", [filters], exit_handler)
 
-    def update_system(self, trusted_only=False, exit_handler=None):
+    def update_system(self, exit_handler=None):
         '''Update the system'''
-        return self._run_transaction("UpdateSystem", [trusted_only], exit_handler)
+        return self._run_transaction("UpdateSystem", [], exit_handler)
 
     def download_packages(self, packages, exit_handler=None):
         '''Download package files'''
@@ -398,6 +386,10 @@ class PackageKitClient:
         return self._run_transaction("WhatProvides", [filters, enum, search], 
                                      exit_handler)
 
+    def set_locale(self, code):
+        '''Set the language of the client'''
+        self._locale = code
+
     def accept_eula(self, eula_id, exit_handler=None):
         '''Accept the given end user licence aggreement'''
         return self._run_transaction("AcceptEula", [eula_id], exit_handler)
@@ -417,7 +409,7 @@ class PackageKitClient:
         if not isinstance(obj, list):
             obj = [obj]
         for o in obj:
-            if isinstance(o, PackageKitPackage) or issubclass(o.__class__, PackageKitPackage):
+            if isinstance(o, PackageKitPackage):
                 ids.append(o.id)
             elif isinstance(o, str) and len(o.split(";")) == 4:
                 ids.append(o)
@@ -435,16 +427,18 @@ class PackageKitClient:
                 e._dbus_error_name == 'org.freedesktop.DBus.Error.ServiceUnknown'):
                 # first initialization (lazy) or timeout
                 self.pk_control = dbus.Interface(self.bus.get_object(
-                        PACKAGEKIT_INTERFACE,
+                        'org.freedesktop.PackageKit',
                         '/org/freedesktop/PackageKit',
-                    False), PACKAGEKIT_INTERFACE)
+                    False), 'org.freedesktop.PackageKit')
                 tid = self.pk_control.GetTid()
             else:
                 raise
-        iface = dbus.Interface(self.bus.get_object(PACKAGEKIT_INTERFACE,
+        iface = dbus.Interface(self.bus.get_object('org.freedesktop.PackageKit',
                                                    tid, False),
-                               TRANSACTION_INTERFACE)
+                               'org.freedesktop.PackageKit.Transaction')
         trans = PackageKitTransaction(tid, iface)
+        if self._locale:
+            trans.set_locale(self._locale)
         trans.set_method(method_name, *args)
         if exit_handler:
             trans._exit_handler = exit_handler

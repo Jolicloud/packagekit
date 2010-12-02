@@ -1,5 +1,0 @@
-debian/tmp/usr/include/PackageKit/packagekit-qt
-debian/tmp/usr/lib/libpackagekit-qt.la
-debian/tmp/usr/lib/libpackagekit-qt.so
-debian/tmp/usr/lib/pkgconfig/packagekit-qt.pc
-debian/tmp/usr/share/cmake/Modules/FindQPackageKit.cmake /usr/share/cmake-2.6/Modules

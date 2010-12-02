@@ -34,7 +34,7 @@ static PkBackendSpawn *spawn;
 static void
 backend_initialize (PkBackend *backend)
 {
-	egg_debug ("backend: initialize");
+	g_debug ("backend: initialize");
 	spawn = pk_backend_spawn_new ();
 	pk_backend_spawn_set_name (spawn, "conary");
 }
@@ -46,7 +46,7 @@ backend_initialize (PkBackend *backend)
 static void
 backend_destroy (PkBackend *backend)
 {
-	egg_debug ("backend: destroy");
+	g_debug ("backend: destroy");
 	g_object_unref (spawn);
 }
 
@@ -275,7 +275,7 @@ backend_update_packages (PkBackend *backend, gboolean only_trusted, gchar **pack
 	}
 	/* send the complete list as stdin */
 	package_ids_temp = pk_package_ids_to_string (package_ids);
-	egg_debug("Updates Packages");
+	g_debug("Updates Packages");
 	pk_backend_spawn_helper (spawn, "conaryBackend.py", "update-packages", pk_backend_bool_to_string (only_trusted), package_ids_temp, NULL);
 	g_free (package_ids_temp);
 }
@@ -416,7 +416,7 @@ backend_simulate_update_packages (PkBackend *backend, gchar **package_ids)
 	}
 	/* send the complete list as stdin */
 	package_ids_temp = pk_package_ids_to_string (package_ids);
-	egg_debug("Updates Packages");
+	g_debug("Updates Packages");
 	pk_backend_spawn_helper (spawn, "conaryBackend.py", "simulate-update-packages", package_ids_temp, NULL);
 	g_free (package_ids_temp);
 }
@@ -461,6 +461,8 @@ PK_BACKEND_OPTIONS (
 	NULL,					/* simulate_install_files */
 	backend_simulate_install_packages,	/* simulate_install_packages */
 	backend_simulate_remove_packages,	/* simulate_remove_packages */
-	backend_simulate_update_packages	/* simulate_update_packages */
+	backend_simulate_update_packages,	/* simulate_update_packages */
+	NULL,					/* transaction_start */
+	NULL					/* transaction_stop */
 );
 

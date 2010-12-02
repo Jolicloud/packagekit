@@ -1,0 +1,70 @@
+<!-- ##### SECTION Title ##### -->
+PkMediaChangeRequired
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkMediaChangeRequiredPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkMediaChangeRequired ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkMediaChangeRequired:media-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkMediaChangeRequired:media-text ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkMediaChangeRequired:media-type ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkMediaChangeRequiredClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_media_change_required_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

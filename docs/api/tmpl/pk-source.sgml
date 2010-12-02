@@ -1,0 +1,65 @@
+<!-- ##### SECTION Title ##### -->
+PkSource
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkSourcePrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkSource ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkSource:role ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkSource:transaction-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkSourceClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_source_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

@@ -1,0 +1,213 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'daemonproxy.h'
+**
+** Created: Mon Nov 1 10:35:42 2010
+**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'daemonproxy.h' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 62
+#error "This file was generated using the moc from 4.7.0. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+QT_BEGIN_MOC_NAMESPACE
+static const uint qt_meta_data_DaemonProxy[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+      14,   14, // methods
+      13,   84, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       5,       // signalCount
+
+ // signals: signature, parameters, type, tag, flags
+      13,   12,   12,   12, 0x05,
+      23,   12,   12,   12, 0x05,
+      41,   12,   12,   12, 0x05,
+      72,   59,   12,   12, 0x05,
+     108,   12,   12,   12, 0x05,
+
+ // slots: signature, parameters, type, tag, flags
+     162,  152,  125,   12, 0x0a,
+     184,   12,  125,   12, 0x0a,
+     201,   12,  125,   12, 0x0a,
+     239,  234,  210,   12, 0x0a,
+     298,   12,  267,   12, 0x0a,
+     360,  339,  319,   12, 0x0a,
+     391,  386,  319,   12, 0x0a,
+     415,  408,  319,   12, 0x0a,
+     440,   12,  319,   12, 0x0a,
+
+ // properties: name, type, flags
+     468,  460, 0x0a095001,
+     482,  460, 0x0a095001,
+     501,  460, 0x0a095001,
+     513,  460, 0x0a095001,
+     522,  460, 0x0a095001,
+     530,  460, 0x0a095001,
+     542,  537, 0x01095001,
+     549,  460, 0x0a095001,
+     559,  460, 0x0a095001,
+     572,  460, 0x0a095001,
+     583,  578, 0x03095001,
+     596,  578, 0x03095001,
+     609,  578, 0x03095001,
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_DaemonProxy[] = {
+    "DaemonProxy\0\0Changed()\0RepoListChanged()\0"
+    "RestartSchedule()\0transactions\0"
+    "TransactionListChanged(QStringList)\0"
+    "UpdatesChanged()\0QDBusPendingReply<QString>\0"
+    "action_id\0CanAuthorize(QString)\0"
+    "GetDaemonState()\0GetTid()\0"
+    "QDBusPendingReply<uint>\0role\0"
+    "GetTimeSinceAction(QString)\0"
+    "QDBusPendingReply<QStringList>\0"
+    "GetTransactionList()\0QDBusPendingReply<>\0"
+    "proxy_http,proxy_ftp\0SetProxy(QString,QString)\0"
+    "root\0SetRoot(QString)\0reason\0"
+    "StateHasChanged(QString)\0SuggestDaemonQuit()\0"
+    "QString\0BackendAuthor\0BackendDescription\0"
+    "BackendName\0DistroId\0Filters\0Groups\0"
+    "bool\0Locked\0MimeTypes\0NetworkState\0"
+    "Roles\0uint\0VersionMajor\0VersionMicro\0"
+    "VersionMinor\0"
+};
+
+const QMetaObject DaemonProxy::staticMetaObject = {
+    { &QDBusAbstractInterface::staticMetaObject, qt_meta_stringdata_DaemonProxy,
+      qt_meta_data_DaemonProxy, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &DaemonProxy::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *DaemonProxy::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *DaemonProxy::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_DaemonProxy))
+        return static_cast<void*>(const_cast< DaemonProxy*>(this));
+    return QDBusAbstractInterface::qt_metacast(_clname);
+}
+
+int DaemonProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QDBusAbstractInterface::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: Changed(); break;
+        case 1: RepoListChanged(); break;
+        case 2: RestartSchedule(); break;
+        case 3: TransactionListChanged((*reinterpret_cast< const QStringList(*)>(_a[1]))); break;
+        case 4: UpdatesChanged(); break;
+        case 5: { QDBusPendingReply<QString> _r = CanAuthorize((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<QString>*>(_a[0]) = _r; }  break;
+        case 6: { QDBusPendingReply<QString> _r = GetDaemonState();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<QString>*>(_a[0]) = _r; }  break;
+        case 7: { QDBusPendingReply<QString> _r = GetTid();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<QString>*>(_a[0]) = _r; }  break;
+        case 8: { QDBusPendingReply<uint> _r = GetTimeSinceAction((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<uint>*>(_a[0]) = _r; }  break;
+        case 9: { QDBusPendingReply<QStringList> _r = GetTransactionList();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<QStringList>*>(_a[0]) = _r; }  break;
+        case 10: { QDBusPendingReply<> _r = SetProxy((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 11: { QDBusPendingReply<> _r = SetRoot((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 12: { QDBusPendingReply<> _r = StateHasChanged((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        case 13: { QDBusPendingReply<> _r = SuggestDaemonQuit();
+            if (_a[0]) *reinterpret_cast< QDBusPendingReply<>*>(_a[0]) = _r; }  break;
+        default: ;
+        }
+        _id -= 14;
+    }
+#ifndef QT_NO_PROPERTIES
+      else if (_c == QMetaObject::ReadProperty) {
+        void *_v = _a[0];
+        switch (_id) {
+        case 0: *reinterpret_cast< QString*>(_v) = backendAuthor(); break;
+        case 1: *reinterpret_cast< QString*>(_v) = backendDescription(); break;
+        case 2: *reinterpret_cast< QString*>(_v) = backendName(); break;
+        case 3: *reinterpret_cast< QString*>(_v) = distroId(); break;
+        case 4: *reinterpret_cast< QString*>(_v) = filters(); break;
+        case 5: *reinterpret_cast< QString*>(_v) = groups(); break;
+        case 6: *reinterpret_cast< bool*>(_v) = locked(); break;
+        case 7: *reinterpret_cast< QString*>(_v) = mimeTypes(); break;
+        case 8: *reinterpret_cast< QString*>(_v) = networkState(); break;
+        case 9: *reinterpret_cast< QString*>(_v) = roles(); break;
+        case 10: *reinterpret_cast< uint*>(_v) = versionMajor(); break;
+        case 11: *reinterpret_cast< uint*>(_v) = versionMicro(); break;
+        case 12: *reinterpret_cast< uint*>(_v) = versionMinor(); break;
+        }
+        _id -= 13;
+    } else if (_c == QMetaObject::WriteProperty) {
+        _id -= 13;
+    } else if (_c == QMetaObject::ResetProperty) {
+        _id -= 13;
+    } else if (_c == QMetaObject::QueryPropertyDesignable) {
+        _id -= 13;
+    } else if (_c == QMetaObject::QueryPropertyScriptable) {
+        _id -= 13;
+    } else if (_c == QMetaObject::QueryPropertyStored) {
+        _id -= 13;
+    } else if (_c == QMetaObject::QueryPropertyEditable) {
+        _id -= 13;
+    } else if (_c == QMetaObject::QueryPropertyUser) {
+        _id -= 13;
+    }
+#endif // QT_NO_PROPERTIES
+    return _id;
+}
+
+// SIGNAL 0
+void DaemonProxy::Changed()
+{
+    QMetaObject::activate(this, &staticMetaObject, 0, 0);
+}
+
+// SIGNAL 1
+void DaemonProxy::RepoListChanged()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, 0);
+}
+
+// SIGNAL 2
+void DaemonProxy::RestartSchedule()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, 0);
+}
+
+// SIGNAL 3
+void DaemonProxy::TransactionListChanged(const QStringList & _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
+
+// SIGNAL 4
+void DaemonProxy::UpdatesChanged()
+{
+    QMetaObject::activate(this, &staticMetaObject, 4, 0);
+}
+QT_END_MOC_NAMESPACE

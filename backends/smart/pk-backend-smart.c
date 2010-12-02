@@ -34,7 +34,7 @@ static const gchar* BACKEND_FILE = "smartBackend.py";
 static void
 backend_initialize (PkBackend *backend)
 {
-	egg_debug ("backend: initialize");
+	g_debug ("backend: initialize");
 	spawn = pk_backend_spawn_new ();
 	pk_backend_spawn_set_name (spawn, "smart");
 }
@@ -46,7 +46,7 @@ backend_initialize (PkBackend *backend)
 static void
 backend_destroy (PkBackend *backend)
 {
-	egg_debug ("backend: destroy");
+	g_debug ("backend: destroy");
 	g_object_unref (spawn);
 }
 
@@ -481,5 +481,7 @@ PK_BACKEND_OPTIONS (
 	NULL,						/* simulate_install_files */
 	NULL,						/* simulate_install_packages */
 	NULL,						/* simulate_remove_packages */
-	NULL						/* simulate_update_packages */
+	NULL,						/* simulate_update_packages */
+	NULL,						/* transaction_start */
+	NULL						/* transaction_stop */
 );

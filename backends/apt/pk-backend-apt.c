@@ -54,7 +54,7 @@ backend_stderr_cb (PkBackend *backend, const gchar *output)
 static void
 backend_initialize (PkBackend *backend)
 {
-	egg_debug ("backend: initialize");
+	g_debug ("backend: initialize");
 	spawn = pk_backend_spawn_new ();
 	pk_backend_spawn_set_filter_stderr (spawn, backend_stderr_cb);
 	pk_backend_spawn_set_name (spawn, "apt");
@@ -67,7 +67,7 @@ backend_initialize (PkBackend *backend)
 static void
 backend_destroy (PkBackend *backend)
 {
-	egg_debug ("backend: destroy");
+	g_debug ("backend: destroy");
 	g_object_unref (spawn);
 }
 
@@ -589,7 +589,9 @@ PK_BACKEND_OPTIONS (
 	backend_simulate_install_files,		/* simulate_install_files */
 	backend_simulate_install_packages,	/* simulate_install_packages */
 	backend_simulate_remove_packages,	/* simulate_remove_packages */
-	backend_simulate_update_packages	/* simulate_update_packages */
+	backend_simulate_update_packages,	/* simulate_update_packages */
+	NULL,					/* transaction_start */
+	NULL					/* transaction_stop */
 );
 
 

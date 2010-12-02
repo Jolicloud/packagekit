@@ -1,0 +1,65 @@
+<!-- ##### SECTION Title ##### -->
+PkFiles
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkFilesPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkFiles ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkFiles:files ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkFiles:package-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkFilesClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_files_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+

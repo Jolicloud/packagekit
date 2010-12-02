@@ -1,0 +1,720 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'enum.h'
+**
+** Created: Mon Oct 25 12:41:11 2010
+**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'enum.h' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 62
+#error "This file was generated using the moc from 4.7.0. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+QT_BEGIN_MOC_NAMESPACE
+static const uint qt_meta_data_PackageKit__Enum[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+       0,    0, // methods
+       0,    0, // properties
+      17,   14, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       0,       // signalCount
+
+ // enums: name, flags, count, data
+      17, 0x0,   36,   82,
+      22, 0x0,   38,  154,
+      29, 0x0,   10,  230,
+      34, 0x0,    7,  250,
+      42, 0x0,   27,  264,
+      49, 0x0,    8,  318,
+      57, 0x0,   17,  334,
+      65, 0x0,   63,  368,
+      71, 0x0,   36,  494,
+      77, 0x0,    5,  566,
+      89, 0x0,   24,  576,
+      94, 0x0,    4,  624,
+     108, 0x0,    3,  632,
+     116, 0x0,    9,  638,
+     125, 0x0,  127,  656,
+     133, 0x0,    5,  910,
+     143, 0x0,    5,  920,
+
+ // enum data: key, value
+     153, uint(PackageKit::Enum::UnknownRole),
+     165, uint(PackageKit::Enum::RoleCancel),
+     176, uint(PackageKit::Enum::RoleGetDepends),
+     191, uint(PackageKit::Enum::RoleGetDetails),
+     206, uint(PackageKit::Enum::RoleGetFiles),
+     219, uint(PackageKit::Enum::RoleGetPackages),
+     235, uint(PackageKit::Enum::RoleGetRepoList),
+     251, uint(PackageKit::Enum::RoleGetRequires),
+     267, uint(PackageKit::Enum::RoleGetUpdateDetail),
+     287, uint(PackageKit::Enum::RoleGetUpdates),
+     302, uint(PackageKit::Enum::RoleInstallFiles),
+     319, uint(PackageKit::Enum::RoleInstallPackages),
+     339, uint(PackageKit::Enum::RoleInstallSignature),
+     360, uint(PackageKit::Enum::RoleRefreshCache),
+     377, uint(PackageKit::Enum::RoleRemovePackages),
+     396, uint(PackageKit::Enum::RoleRepoEnable),
+     411, uint(PackageKit::Enum::RoleRepoSetData),
+     427, uint(PackageKit::Enum::RoleResolve),
+     439, uint(PackageKit::Enum::RoleRollback),
+     452, uint(PackageKit::Enum::RoleSearchDetails),
+     470, uint(PackageKit::Enum::RoleSearchFile),
+     485, uint(PackageKit::Enum::RoleSearchGroup),
+     501, uint(PackageKit::Enum::RoleSearchName),
+     516, uint(PackageKit::Enum::RoleUpdatePackages),
+     535, uint(PackageKit::Enum::RoleUpdateSystem),
+     552, uint(PackageKit::Enum::RoleWhatProvides),
+     569, uint(PackageKit::Enum::RoleAcceptEula),
+     584, uint(PackageKit::Enum::RoleDownloadPackages),
+     605, uint(PackageKit::Enum::RoleGetDistroUpgrades),
+     627, uint(PackageKit::Enum::RoleGetCategories),
+     645, uint(PackageKit::Enum::RoleGetOldTransactions),
+     668, uint(PackageKit::Enum::RoleSimulateInstallFiles),
+     693, uint(PackageKit::Enum::RoleSimulateInstallPackages),
+     721, uint(PackageKit::Enum::RoleSimulateRemovePackages),
+     748, uint(PackageKit::Enum::RoleSimulateUpdatePackages),
+     775, uint(PackageKit::Enum::LastRole),
+     784, uint(PackageKit::Enum::UnknownStatus),
+     798, uint(PackageKit::Enum::StatusWait),
+     809, uint(PackageKit::Enum::StatusSetup),
+     821, uint(PackageKit::Enum::StatusRunning),
+     835, uint(PackageKit::Enum::StatusQuery),
+     847, uint(PackageKit::Enum::StatusInfo),
+     858, uint(PackageKit::Enum::StatusRemove),
+     871, uint(PackageKit::Enum::StatusRefreshCache),
+     890, uint(PackageKit::Enum::StatusDownload),
+     905, uint(PackageKit::Enum::StatusInstall),
+     919, uint(PackageKit::Enum::StatusUpdate),
+     932, uint(PackageKit::Enum::StatusCleanup),
+     946, uint(PackageKit::Enum::StatusObsolete),
+     961, uint(PackageKit::Enum::StatusDepResolve),
+     978, uint(PackageKit::Enum::StatusSigCheck),
+     993, uint(PackageKit::Enum::StatusRollback),
+    1008, uint(PackageKit::Enum::StatusTestCommit),
+    1025, uint(PackageKit::Enum::StatusCommit),
+    1038, uint(PackageKit::Enum::StatusRequest),
+    1052, uint(PackageKit::Enum::StatusFinished),
+    1067, uint(PackageKit::Enum::StatusCancel),
+    1080, uint(PackageKit::Enum::StatusDownloadRepository),
+    1105, uint(PackageKit::Enum::StatusDownloadPackagelist),
+    1131, uint(PackageKit::Enum::StatusDownloadFilelist),
+    1154, uint(PackageKit::Enum::StatusDownloadChangelog),
+    1178, uint(PackageKit::Enum::StatusDownloadGroup),
+    1198, uint(PackageKit::Enum::StatusDownloadUpdateinfo),
+    1223, uint(PackageKit::Enum::StatusRepackaging),
+    1241, uint(PackageKit::Enum::StatusLoadingCache),
+    1260, uint(PackageKit::Enum::StatusScanApplications),
+    1283, uint(PackageKit::Enum::StatusGeneratePackageList),
+    1309, uint(PackageKit::Enum::StatusWaitingForLock),
+    1330, uint(PackageKit::Enum::StatusWaitingForAuth),
+    1351, uint(PackageKit::Enum::StatusScanProcessList),
+    1373, uint(PackageKit::Enum::StatusCheckExecutableFiles),
+    1400, uint(PackageKit::Enum::StatusCheckLibraries),
+    1421, uint(PackageKit::Enum::StatusCopyFiles),
+    1437, uint(PackageKit::Enum::LastStatus),
+    1448, uint(PackageKit::Enum::UnknownExit),
+    1460, uint(PackageKit::Enum::ExitSuccess),
+    1472, uint(PackageKit::Enum::ExitFailed),
+    1483, uint(PackageKit::Enum::ExitCancelled),
+    1497, uint(PackageKit::Enum::ExitKeyRequired),
+    1513, uint(PackageKit::Enum::ExitEulaRequired),
+    1530, uint(PackageKit::Enum::ExitKilled),
+    1541, uint(PackageKit::Enum::ExitMediaChangeRequired),
+    1565, uint(PackageKit::Enum::ExitNeedUntrusted),
+    1583, uint(PackageKit::Enum::LastExit),
+    1592, uint(PackageKit::Enum::UnknownNetwork),
+    1607, uint(PackageKit::Enum::NetworkOffline),
+    1622, uint(PackageKit::Enum::NetworkOnline),
+    1636, uint(PackageKit::Enum::NetworkWired),
+    1649, uint(PackageKit::Enum::NetworkWifi),
+    1661, uint(PackageKit::Enum::NetworkMobile),
+    1675, uint(PackageKit::Enum::LastNetwork),
+    1687, uint(PackageKit::Enum::UnknownFilter),
+    1701, uint(PackageKit::Enum::NoFilter),
+    1710, uint(PackageKit::Enum::FilterInstalled),
+    1726, uint(PackageKit::Enum::FilterNotInstalled),
+    1745, uint(PackageKit::Enum::FilterDevelopment),
+    1763, uint(PackageKit::Enum::FilterNotDevelopment),
+    1784, uint(PackageKit::Enum::FilterGui),
+    1794, uint(PackageKit::Enum::FilterNotGui),
+    1807, uint(PackageKit::Enum::FilterFree),
+    1818, uint(PackageKit::Enum::FilterNotFree),
+    1832, uint(PackageKit::Enum::FilterVisible),
+    1846, uint(PackageKit::Enum::FilterNotVisible),
+    1863, uint(PackageKit::Enum::FilterSupported),
+    1879, uint(PackageKit::Enum::FilterNotSupported),
+    1898, uint(PackageKit::Enum::FilterBasename),
+    1913, uint(PackageKit::Enum::FilterNotBasename),
+    1931, uint(PackageKit::Enum::FilterNewest),
+    1944, uint(PackageKit::Enum::FilterNotNewest),
+    1960, uint(PackageKit::Enum::FilterArch),
+    1971, uint(PackageKit::Enum::FilterNotArch),
+    1985, uint(PackageKit::Enum::FilterSource),
+    1998, uint(PackageKit::Enum::FilterNotSource),
+    2014, uint(PackageKit::Enum::FilterCollections),
+    2032, uint(PackageKit::Enum::FilterNotCollections),
+    2053, uint(PackageKit::Enum::FilterApplication),
+    2071, uint(PackageKit::Enum::FilterNotApplication),
+    2092, uint(PackageKit::Enum::FilterLast),
+    2103, uint(PackageKit::Enum::UnknownRestart),
+    2118, uint(PackageKit::Enum::RestartNone),
+    2130, uint(PackageKit::Enum::RestartApplication),
+    2149, uint(PackageKit::Enum::RestartSession),
+    2164, uint(PackageKit::Enum::RestartSystem),
+    2178, uint(PackageKit::Enum::RestartSecuritySession),
+    2201, uint(PackageKit::Enum::RestartSecuritySystem),
+    2223, uint(PackageKit::Enum::LastRestart),
+    2235, uint(PackageKit::Enum::UnknownMessage),
+    2250, uint(PackageKit::Enum::MessageBrokenMirror),
+    2270, uint(PackageKit::Enum::MessageConnectionRefused),
+    2295, uint(PackageKit::Enum::MessageParameterInvalid),
+    2319, uint(PackageKit::Enum::MessagePriorityInvalid),
+    2342, uint(PackageKit::Enum::MessageBackendError),
+    2362, uint(PackageKit::Enum::MessageDaemonError),
+    2381, uint(PackageKit::Enum::MessageCacheBeingRebuilt),
+    2406, uint(PackageKit::Enum::MessageUntrustedPackage),
+    2430, uint(PackageKit::Enum::MessageNewerPackageExists),
+    2456, uint(PackageKit::Enum::MessageCouldNotFindPackage),
+    2483, uint(PackageKit::Enum::MessageConfigFilesChanged),
+    2509, uint(PackageKit::Enum::MessagePackageAlreadyInstalled),
+    2540, uint(PackageKit::Enum::MessageAutoremoveIgnored),
+    2565, uint(PackageKit::Enum::MessageRepoMetadataDownloadFailed),
+    2599, uint(PackageKit::Enum::MessageRepoForDevelopersOnly),
+    2628, uint(PackageKit::Enum::LastMessage),
+    2640, uint(PackageKit::Enum::UnknownError),
+    2653, uint(PackageKit::Enum::ErrorOom),
+    2662, uint(PackageKit::Enum::ErrorNoNetwork),
+    2677, uint(PackageKit::Enum::ErrorNotSupported),
+    2695, uint(PackageKit::Enum::ErrorInternalError),
+    2714, uint(PackageKit::Enum::ErrorGpgFailure),
+    2730, uint(PackageKit::Enum::ErrorPackageIdInvalid),
+    2752, uint(PackageKit::Enum::ErrorPackageNotInstalled),
+    2777, uint(PackageKit::Enum::ErrorPackageNotFound),
+    2798, uint(PackageKit::Enum::ErrorPackageAlreadyInstalled),
+    2827, uint(PackageKit::Enum::ErrorPackageDownloadFailed),
+    2854, uint(PackageKit::Enum::ErrorGroupNotFound),
+    2873, uint(PackageKit::Enum::ErrorGroupListInvalid),
+    2895, uint(PackageKit::Enum::ErrorDepResolutionFailed),
+    2920, uint(PackageKit::Enum::ErrorFilterInvalid),
+    2939, uint(PackageKit::Enum::ErrorCreateThreadFailed),
+    2963, uint(PackageKit::Enum::ErrorTransactionError),
+    2985, uint(PackageKit::Enum::ErrorTransactionCancelled),
+    3011, uint(PackageKit::Enum::ErrorNoCache),
+    3024, uint(PackageKit::Enum::ErrorRepoNotFound),
+    3042, uint(PackageKit::Enum::ErrorCannotRemoveSystemPackage),
+    3073, uint(PackageKit::Enum::ErrorProcessKill),
+    3090, uint(PackageKit::Enum::ErrorFailedInitialization),
+    3116, uint(PackageKit::Enum::ErrorFailedFinalise),
+    3136, uint(PackageKit::Enum::ErrorFailedConfigParsing),
+    3161, uint(PackageKit::Enum::ErrorCannotCancel),
+    3179, uint(PackageKit::Enum::ErrorCannotGetLock),
+    3198, uint(PackageKit::Enum::ErrorNoPackagesToUpdate),
+    3222, uint(PackageKit::Enum::ErrorCannotWriteRepoConfig),
+    3249, uint(PackageKit::Enum::ErrorLocalInstallFailed),
+    3273, uint(PackageKit::Enum::ErrorBadGpgSignature),
+    3294, uint(PackageKit::Enum::ErrorMissingGpgSignature),
+    3319, uint(PackageKit::Enum::ErrorCannotInstallSourcePackage),
+    3351, uint(PackageKit::Enum::ErrorRepoConfigurationError),
+    3379, uint(PackageKit::Enum::ErrorNoLicenseAgreement),
+    3403, uint(PackageKit::Enum::ErrorFileConflicts),
+    3422, uint(PackageKit::Enum::ErrorPackageConflicts),
+    3444, uint(PackageKit::Enum::ErrorRepoNotAvailable),
+    3466, uint(PackageKit::Enum::ErrorInvalidPackageFile),
+    3490, uint(PackageKit::Enum::ErrorPackageInstallBlocked),
+    3517, uint(PackageKit::Enum::ErrorPackageCorrupt),
+    3537, uint(PackageKit::Enum::ErrorAllPackagesAlreadyInstalled),
+    3570, uint(PackageKit::Enum::ErrorFileNotFound),
+    3588, uint(PackageKit::Enum::ErrorNoMoreMirrorsToTry),
+    3612, uint(PackageKit::Enum::ErrorNoDistroUpgradeData),
+    3637, uint(PackageKit::Enum::ErrorIncompatibleArchitecture),
+    3667, uint(PackageKit::Enum::ErrorNoSpaceOnDevice),
+    3688, uint(PackageKit::Enum::ErrorMediaChangeRequired),
+    3713, uint(PackageKit::Enum::ErrorNotAuthorized),
+    3732, uint(PackageKit::Enum::ErrorUpdateNotFound),
+    3752, uint(PackageKit::Enum::ErrorCannotInstallRepoUnsigned),
+    3783, uint(PackageKit::Enum::ErrorCannotUpdateRepoUnsigned),
+    3813, uint(PackageKit::Enum::ErrorCannotGetFilelist),
+    3836, uint(PackageKit::Enum::ErrorCannotGetRequires),
+    3859, uint(PackageKit::Enum::ErrorCannotDisableRepository),
+    3888, uint(PackageKit::Enum::ErrorRestrictedDownload),
+    3912, uint(PackageKit::Enum::ErrorPackageFailedToConfigure),
+    3942, uint(PackageKit::Enum::ErrorPackageFailedToBuild),
+    3968, uint(PackageKit::Enum::ErrorPackageFailedToInstall),
+    3996, uint(PackageKit::Enum::ErrorPackageFailedToRemove),
+    4023, uint(PackageKit::Enum::ErrorUpdateFailedDueToRunningProcess),
+    4060, uint(PackageKit::Enum::ErrorPackageDatabaseChanged),
+    4088, uint(PackageKit::Enum::LastError),
+    4098, uint(PackageKit::Enum::UnknownGroup),
+    4111, uint(PackageKit::Enum::GroupAccessibility),
+    4130, uint(PackageKit::Enum::GroupAccessories),
+    4147, uint(PackageKit::Enum::GroupAdminTools),
+    4163, uint(PackageKit::Enum::GroupCommunication),
+    4182, uint(PackageKit::Enum::GroupDesktopGnome),
+    4200, uint(PackageKit::Enum::GroupDesktopKde),
+    4216, uint(PackageKit::Enum::GroupDesktopOther),
+    4234, uint(PackageKit::Enum::GroupDesktopXfce),
+    4251, uint(PackageKit::Enum::GroupEducation),
+    4266, uint(PackageKit::Enum::GroupFonts),
+    4277, uint(PackageKit::Enum::GroupGames),
+    4288, uint(PackageKit::Enum::GroupGraphics),
+    4302, uint(PackageKit::Enum::GroupInternet),
+    4316, uint(PackageKit::Enum::GroupLegacy),
+    4328, uint(PackageKit::Enum::GroupLocalization),
+    4346, uint(PackageKit::Enum::GroupMaps),
+    4356, uint(PackageKit::Enum::GroupMultimedia),
+    4372, uint(PackageKit::Enum::GroupNetwork),
+    4385, uint(PackageKit::Enum::GroupOffice),
+    4397, uint(PackageKit::Enum::GroupOther),
+    4408, uint(PackageKit::Enum::GroupPowerManagement),
+    4429, uint(PackageKit::Enum::GroupProgramming),
+    4446, uint(PackageKit::Enum::GroupPublishing),
+    4462, uint(PackageKit::Enum::GroupRepos),
+    4473, uint(PackageKit::Enum::GroupSecurity),
+    4487, uint(PackageKit::Enum::GroupServers),
+    4500, uint(PackageKit::Enum::GroupSystem),
+    4512, uint(PackageKit::Enum::GroupVirtualization),
+    4532, uint(PackageKit::Enum::GroupScience),
+    4545, uint(PackageKit::Enum::GroupDocumentation),
+    4564, uint(PackageKit::Enum::GroupElectronics),
+    4581, uint(PackageKit::Enum::GroupCollections),
+    4598, uint(PackageKit::Enum::GroupVendor),
+    4610, uint(PackageKit::Enum::GroupNewest),
+    4622, uint(PackageKit::Enum::LastGroup),
+    4632, uint(PackageKit::Enum::UnknownUpdateState),
+    4651, uint(PackageKit::Enum::UpdateStateStable),
+    4669, uint(PackageKit::Enum::UpdateStateUnstable),
+    4689, uint(PackageKit::Enum::UpdateStateTesting),
+    4708, uint(PackageKit::Enum::LastUpdateState),
+    4724, uint(PackageKit::Enum::UnknownInfo),
+    4736, uint(PackageKit::Enum::InfoInstalled),
+    4750, uint(PackageKit::Enum::InfoAvailable),
+    4764, uint(PackageKit::Enum::InfoLow),
+    4772, uint(PackageKit::Enum::InfoEnhancement),
+    4788, uint(PackageKit::Enum::InfoNormal),
+    4799, uint(PackageKit::Enum::InfoBugfix),
+    4810, uint(PackageKit::Enum::InfoImportant),
+    4824, uint(PackageKit::Enum::InfoSecurity),
+    4837, uint(PackageKit::Enum::InfoBlocked),
+    4849, uint(PackageKit::Enum::InfoDownloading),
+    4865, uint(PackageKit::Enum::InfoUpdating),
+    4878, uint(PackageKit::Enum::InfoInstalling),
+    4893, uint(PackageKit::Enum::InfoRemoving),
+    4906, uint(PackageKit::Enum::InfoCleanup),
+    4918, uint(PackageKit::Enum::InfoObsoleting),
+    4933, uint(PackageKit::Enum::InfoCollectionInstalled),
+    4957, uint(PackageKit::Enum::InfoCollectionAvailable),
+    4981, uint(PackageKit::Enum::InfoFinished),
+    4994, uint(PackageKit::Enum::InfoReinstalling),
+    5011, uint(PackageKit::Enum::InfoDowngrading),
+    5027, uint(PackageKit::Enum::InfoPreparing),
+    5041, uint(PackageKit::Enum::InfoDecompressing),
+    5059, uint(PackageKit::Enum::LastInfo),
+    5068, uint(PackageKit::Enum::UnknownDistroUpgrade),
+    5089, uint(PackageKit::Enum::DistroUpgradeStable),
+    5109, uint(PackageKit::Enum::DistroUpgradeUnstable),
+    5131, uint(PackageKit::Enum::LastDistroUpgrade),
+    5149, uint(PackageKit::Enum::UnknownSigType),
+    5164, uint(PackageKit::Enum::SigTypeGpg),
+    5175, uint(PackageKit::Enum::LastSigType),
+    5187, uint(PackageKit::Enum::UnknownProvides),
+    5203, uint(PackageKit::Enum::ProvidesAny),
+    5215, uint(PackageKit::Enum::ProvidesModalias),
+    5232, uint(PackageKit::Enum::ProvidesCodec),
+    5246, uint(PackageKit::Enum::ProvidesMimetype),
+    5263, uint(PackageKit::Enum::ProvidesFont),
+    5276, uint(PackageKit::Enum::ProvidesHardwareDriver),
+    5299, uint(PackageKit::Enum::ProvidesPostscriptDriver),
+    5324, uint(PackageKit::Enum::LastProvides),
+    5337, uint(PackageKit::Enum::UnknownLicense),
+    5352, uint(PackageKit::Enum::LicenseGlide),
+    5365, uint(PackageKit::Enum::LicenseAfl),
+    5376, uint(PackageKit::Enum::LicenseAmpasBsd),
+    5392, uint(PackageKit::Enum::LicenseAmazonDsl),
+    5409, uint(PackageKit::Enum::LicenseAdobe),
+    5422, uint(PackageKit::Enum::LicenseAgplv1),
+    5436, uint(PackageKit::Enum::LicenseAgplv3),
+    5450, uint(PackageKit::Enum::LicenseAsl1Dot0),
+    5466, uint(PackageKit::Enum::LicenseAsl1Dot1),
+    5482, uint(PackageKit::Enum::LicenseAsl2Dot0),
+    5498, uint(PackageKit::Enum::LicenseApsl2Dot0),
+    5515, uint(PackageKit::Enum::LicenseArtisticClarified),
+    5540, uint(PackageKit::Enum::LicenseArtistic2Dot0),
+    5561, uint(PackageKit::Enum::LicenseArl),
+    5572, uint(PackageKit::Enum::LicenseBittorrent),
+    5590, uint(PackageKit::Enum::LicenseBoost),
+    5603, uint(PackageKit::Enum::LicenseBsdWithAdvertising),
+    5629, uint(PackageKit::Enum::LicenseBsd),
+    5640, uint(PackageKit::Enum::LicenseCecill),
+    5654, uint(PackageKit::Enum::LicenseCddl),
+    5666, uint(PackageKit::Enum::LicenseCpl),
+    5677, uint(PackageKit::Enum::LicenseCondor),
+    5691, uint(PackageKit::Enum::LicenseCopyrightOnly),
+    5712, uint(PackageKit::Enum::LicenseCryptix),
+    5727, uint(PackageKit::Enum::LicenseCrystalStacker),
+    5749, uint(PackageKit::Enum::LicenseDoc),
+    5760, uint(PackageKit::Enum::LicenseWtfpl),
+    5773, uint(PackageKit::Enum::LicenseEpl),
+    5784, uint(PackageKit::Enum::LicenseEcos),
+    5796, uint(PackageKit::Enum::LicenseEfl2Dot0),
+    5812, uint(PackageKit::Enum::LicenseEu_datagrid),
+    5831, uint(PackageKit::Enum::LicenseLgplv2WithExceptions),
+    5859, uint(PackageKit::Enum::LicenseFtl),
+    5870, uint(PackageKit::Enum::LicenseGiftware),
+    5886, uint(PackageKit::Enum::LicenseGplv2),
+    5899, uint(PackageKit::Enum::LicenseGplv2WithExceptions),
+    5926, uint(PackageKit::Enum::LicenseGplv2PlusWithExceptions),
+    5957, uint(PackageKit::Enum::LicenseGplv3),
+    5970, uint(PackageKit::Enum::LicenseGplv3WithExceptions),
+    5997, uint(PackageKit::Enum::LicenseGplv3PlusWithExceptions),
+    6028, uint(PackageKit::Enum::LicenseLgplv2),
+    6042, uint(PackageKit::Enum::LicenseLgplv3),
+    6056, uint(PackageKit::Enum::LicenseGnuplot),
+    6071, uint(PackageKit::Enum::LicenseIbm),
+    6082, uint(PackageKit::Enum::LicenseImatix),
+    6096, uint(PackageKit::Enum::LicenseImagemagick),
+    6115, uint(PackageKit::Enum::LicenseImlib2),
+    6129, uint(PackageKit::Enum::LicenseIjg),
+    6140, uint(PackageKit::Enum::LicenseIntel_acpi),
+    6158, uint(PackageKit::Enum::LicenseInterbase),
+    6175, uint(PackageKit::Enum::LicenseIsc),
+    6186, uint(PackageKit::Enum::LicenseJabber),
+    6200, uint(PackageKit::Enum::LicenseJasper),
+    6214, uint(PackageKit::Enum::LicenseLppl),
+    6226, uint(PackageKit::Enum::LicenseLibtiff),
+    6241, uint(PackageKit::Enum::LicenseLpl),
+    6252, uint(PackageKit::Enum::LicenseMecabIpadic),
+    6271, uint(PackageKit::Enum::LicenseMit),
+    6282, uint(PackageKit::Enum::LicenseMitWithAdvertising),
+    6308, uint(PackageKit::Enum::LicenseMplv1Dot0),
+    6325, uint(PackageKit::Enum::LicenseMplv1Dot1),
+    6342, uint(PackageKit::Enum::LicenseNcsa),
+    6354, uint(PackageKit::Enum::LicenseNgpl),
+    6366, uint(PackageKit::Enum::LicenseNosl),
+    6378, uint(PackageKit::Enum::LicenseNetcdf),
+    6392, uint(PackageKit::Enum::LicenseNetscape),
+    6408, uint(PackageKit::Enum::LicenseNokia),
+    6421, uint(PackageKit::Enum::LicenseOpenldap),
+    6437, uint(PackageKit::Enum::LicenseOpenpbs),
+    6452, uint(PackageKit::Enum::LicenseOsl1Dot0),
+    6468, uint(PackageKit::Enum::LicenseOsl1Dot1),
+    6484, uint(PackageKit::Enum::LicenseOsl2Dot0),
+    6500, uint(PackageKit::Enum::LicenseOsl3Dot0),
+    6516, uint(PackageKit::Enum::LicenseOpenssl),
+    6531, uint(PackageKit::Enum::LicenseOreilly),
+    6546, uint(PackageKit::Enum::LicensePhorum),
+    6560, uint(PackageKit::Enum::LicensePhp),
+    6571, uint(PackageKit::Enum::LicensePublicDomain),
+    6591, uint(PackageKit::Enum::LicensePython),
+    6605, uint(PackageKit::Enum::LicenseQpl),
+    6616, uint(PackageKit::Enum::LicenseRpsl),
+    6628, uint(PackageKit::Enum::LicenseRuby),
+    6640, uint(PackageKit::Enum::LicenseSendmail),
+    6656, uint(PackageKit::Enum::LicenseSleepycat),
+    6673, uint(PackageKit::Enum::LicenseSlib),
+    6685, uint(PackageKit::Enum::LicenseSissl),
+    6698, uint(PackageKit::Enum::LicenseSpl),
+    6709, uint(PackageKit::Enum::LicenseTcl),
+    6720, uint(PackageKit::Enum::LicenseUcd),
+    6731, uint(PackageKit::Enum::LicenseVim),
+    6742, uint(PackageKit::Enum::LicenseVnlsl),
+    6755, uint(PackageKit::Enum::LicenseVsl),
+    6766, uint(PackageKit::Enum::LicenseW3c),
+    6777, uint(PackageKit::Enum::LicenseWxwidgets),
+    6794, uint(PackageKit::Enum::LicenseXinetd),
+    6808, uint(PackageKit::Enum::LicenseZend),
+    6820, uint(PackageKit::Enum::LicenseZplv1Dot0),
+    6837, uint(PackageKit::Enum::LicenseZplv2Dot0),
+    6854, uint(PackageKit::Enum::LicenseZplv2Dot1),
+    6871, uint(PackageKit::Enum::LicenseZlib),
+    6883, uint(PackageKit::Enum::LicenseZlibWithAck),
+    6902, uint(PackageKit::Enum::LicenseCdl),
+    6913, uint(PackageKit::Enum::LicenseFbsddl),
+    6927, uint(PackageKit::Enum::LicenseGfdl),
+    6939, uint(PackageKit::Enum::LicenseIeee),
+    6951, uint(PackageKit::Enum::LicenseOfsfdl),
+    6965, uint(PackageKit::Enum::LicenseOpenPublication),
+    6988, uint(PackageKit::Enum::LicenseCcBy),
+    7000, uint(PackageKit::Enum::LicenseCcBySa),
+    7014, uint(PackageKit::Enum::LicenseCcByNd),
+    7028, uint(PackageKit::Enum::LicenseDsl),
+    7039, uint(PackageKit::Enum::LicenseFreeArt),
+    7054, uint(PackageKit::Enum::LicenseOfl),
+    7065, uint(PackageKit::Enum::LicenseUtopia),
+    7079, uint(PackageKit::Enum::LicenseArphic),
+    7093, uint(PackageKit::Enum::LicenseBaekmuk),
+    7108, uint(PackageKit::Enum::LicenseBitstreamVera),
+    7129, uint(PackageKit::Enum::LicenseLucida),
+    7143, uint(PackageKit::Enum::LicenseMplus),
+    7156, uint(PackageKit::Enum::LicenseStix),
+    7168, uint(PackageKit::Enum::LicenseXano),
+    7180, uint(PackageKit::Enum::LicenseVostrom),
+    7195, uint(PackageKit::Enum::LicenseXerox),
+    7208, uint(PackageKit::Enum::LicenseRicebsd),
+    7223, uint(PackageKit::Enum::LicenseQhull),
+    7236, uint(PackageKit::Enum::LastLicense),
+    7248, uint(PackageKit::Enum::UnknownMediaType),
+    7265, uint(PackageKit::Enum::MediaTypeCd),
+    7277, uint(PackageKit::Enum::MediaTypeDvd),
+    7290, uint(PackageKit::Enum::MediaTypeDisc),
+    7304, uint(PackageKit::Enum::LastMediaType),
+    7318, uint(PackageKit::Enum::UnknownAuthorize),
+    7335, uint(PackageKit::Enum::AuthorizeYes),
+    7348, uint(PackageKit::Enum::AuthorizeNo),
+    7360, uint(PackageKit::Enum::AuthorizeInteractive),
+    7381, uint(PackageKit::Enum::LastAuthorize),
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_PackageKit__Enum[] = {
+    "PackageKit::Enum\0Role\0Status\0Exit\0"
+    "Network\0Filter\0Restart\0Message\0Error\0"
+    "Group\0UpdateState\0Info\0DistroUpgrade\0"
+    "SigType\0Provides\0License\0MediaType\0"
+    "Authorize\0UnknownRole\0RoleCancel\0"
+    "RoleGetDepends\0RoleGetDetails\0"
+    "RoleGetFiles\0RoleGetPackages\0"
+    "RoleGetRepoList\0RoleGetRequires\0"
+    "RoleGetUpdateDetail\0RoleGetUpdates\0"
+    "RoleInstallFiles\0RoleInstallPackages\0"
+    "RoleInstallSignature\0RoleRefreshCache\0"
+    "RoleRemovePackages\0RoleRepoEnable\0"
+    "RoleRepoSetData\0RoleResolve\0RoleRollback\0"
+    "RoleSearchDetails\0RoleSearchFile\0"
+    "RoleSearchGroup\0RoleSearchName\0"
+    "RoleUpdatePackages\0RoleUpdateSystem\0"
+    "RoleWhatProvides\0RoleAcceptEula\0"
+    "RoleDownloadPackages\0RoleGetDistroUpgrades\0"
+    "RoleGetCategories\0RoleGetOldTransactions\0"
+    "RoleSimulateInstallFiles\0"
+    "RoleSimulateInstallPackages\0"
+    "RoleSimulateRemovePackages\0"
+    "RoleSimulateUpdatePackages\0LastRole\0"
+    "UnknownStatus\0StatusWait\0StatusSetup\0"
+    "StatusRunning\0StatusQuery\0StatusInfo\0"
+    "StatusRemove\0StatusRefreshCache\0"
+    "StatusDownload\0StatusInstall\0StatusUpdate\0"
+    "StatusCleanup\0StatusObsolete\0"
+    "StatusDepResolve\0StatusSigCheck\0"
+    "StatusRollback\0StatusTestCommit\0"
+    "StatusCommit\0StatusRequest\0StatusFinished\0"
+    "StatusCancel\0StatusDownloadRepository\0"
+    "StatusDownloadPackagelist\0"
+    "StatusDownloadFilelist\0StatusDownloadChangelog\0"
+    "StatusDownloadGroup\0StatusDownloadUpdateinfo\0"
+    "StatusRepackaging\0StatusLoadingCache\0"
+    "StatusScanApplications\0StatusGeneratePackageList\0"
+    "StatusWaitingForLock\0StatusWaitingForAuth\0"
+    "StatusScanProcessList\0StatusCheckExecutableFiles\0"
+    "StatusCheckLibraries\0StatusCopyFiles\0"
+    "LastStatus\0UnknownExit\0ExitSuccess\0"
+    "ExitFailed\0ExitCancelled\0ExitKeyRequired\0"
+    "ExitEulaRequired\0ExitKilled\0"
+    "ExitMediaChangeRequired\0ExitNeedUntrusted\0"
+    "LastExit\0UnknownNetwork\0NetworkOffline\0"
+    "NetworkOnline\0NetworkWired\0NetworkWifi\0"
+    "NetworkMobile\0LastNetwork\0UnknownFilter\0"
+    "NoFilter\0FilterInstalled\0FilterNotInstalled\0"
+    "FilterDevelopment\0FilterNotDevelopment\0"
+    "FilterGui\0FilterNotGui\0FilterFree\0"
+    "FilterNotFree\0FilterVisible\0"
+    "FilterNotVisible\0FilterSupported\0"
+    "FilterNotSupported\0FilterBasename\0"
+    "FilterNotBasename\0FilterNewest\0"
+    "FilterNotNewest\0FilterArch\0FilterNotArch\0"
+    "FilterSource\0FilterNotSource\0"
+    "FilterCollections\0FilterNotCollections\0"
+    "FilterApplication\0FilterNotApplication\0"
+    "FilterLast\0UnknownRestart\0RestartNone\0"
+    "RestartApplication\0RestartSession\0"
+    "RestartSystem\0RestartSecuritySession\0"
+    "RestartSecuritySystem\0LastRestart\0"
+    "UnknownMessage\0MessageBrokenMirror\0"
+    "MessageConnectionRefused\0"
+    "MessageParameterInvalid\0MessagePriorityInvalid\0"
+    "MessageBackendError\0MessageDaemonError\0"
+    "MessageCacheBeingRebuilt\0"
+    "MessageUntrustedPackage\0"
+    "MessageNewerPackageExists\0"
+    "MessageCouldNotFindPackage\0"
+    "MessageConfigFilesChanged\0"
+    "MessagePackageAlreadyInstalled\0"
+    "MessageAutoremoveIgnored\0"
+    "MessageRepoMetadataDownloadFailed\0"
+    "MessageRepoForDevelopersOnly\0LastMessage\0"
+    "UnknownError\0ErrorOom\0ErrorNoNetwork\0"
+    "ErrorNotSupported\0ErrorInternalError\0"
+    "ErrorGpgFailure\0ErrorPackageIdInvalid\0"
+    "ErrorPackageNotInstalled\0ErrorPackageNotFound\0"
+    "ErrorPackageAlreadyInstalled\0"
+    "ErrorPackageDownloadFailed\0"
+    "ErrorGroupNotFound\0ErrorGroupListInvalid\0"
+    "ErrorDepResolutionFailed\0ErrorFilterInvalid\0"
+    "ErrorCreateThreadFailed\0ErrorTransactionError\0"
+    "ErrorTransactionCancelled\0ErrorNoCache\0"
+    "ErrorRepoNotFound\0ErrorCannotRemoveSystemPackage\0"
+    "ErrorProcessKill\0ErrorFailedInitialization\0"
+    "ErrorFailedFinalise\0ErrorFailedConfigParsing\0"
+    "ErrorCannotCancel\0ErrorCannotGetLock\0"
+    "ErrorNoPackagesToUpdate\0"
+    "ErrorCannotWriteRepoConfig\0"
+    "ErrorLocalInstallFailed\0ErrorBadGpgSignature\0"
+    "ErrorMissingGpgSignature\0"
+    "ErrorCannotInstallSourcePackage\0"
+    "ErrorRepoConfigurationError\0"
+    "ErrorNoLicenseAgreement\0ErrorFileConflicts\0"
+    "ErrorPackageConflicts\0ErrorRepoNotAvailable\0"
+    "ErrorInvalidPackageFile\0"
+    "ErrorPackageInstallBlocked\0"
+    "ErrorPackageCorrupt\0"
+    "ErrorAllPackagesAlreadyInstalled\0"
+    "ErrorFileNotFound\0ErrorNoMoreMirrorsToTry\0"
+    "ErrorNoDistroUpgradeData\0"
+    "ErrorIncompatibleArchitecture\0"
+    "ErrorNoSpaceOnDevice\0ErrorMediaChangeRequired\0"
+    "ErrorNotAuthorized\0ErrorUpdateNotFound\0"
+    "ErrorCannotInstallRepoUnsigned\0"
+    "ErrorCannotUpdateRepoUnsigned\0"
+    "ErrorCannotGetFilelist\0ErrorCannotGetRequires\0"
+    "ErrorCannotDisableRepository\0"
+    "ErrorRestrictedDownload\0"
+    "ErrorPackageFailedToConfigure\0"
+    "ErrorPackageFailedToBuild\0"
+    "ErrorPackageFailedToInstall\0"
+    "ErrorPackageFailedToRemove\0"
+    "ErrorUpdateFailedDueToRunningProcess\0"
+    "ErrorPackageDatabaseChanged\0LastError\0"
+    "UnknownGroup\0GroupAccessibility\0"
+    "GroupAccessories\0GroupAdminTools\0"
+    "GroupCommunication\0GroupDesktopGnome\0"
+    "GroupDesktopKde\0GroupDesktopOther\0"
+    "GroupDesktopXfce\0GroupEducation\0"
+    "GroupFonts\0GroupGames\0GroupGraphics\0"
+    "GroupInternet\0GroupLegacy\0GroupLocalization\0"
+    "GroupMaps\0GroupMultimedia\0GroupNetwork\0"
+    "GroupOffice\0GroupOther\0GroupPowerManagement\0"
+    "GroupProgramming\0GroupPublishing\0"
+    "GroupRepos\0GroupSecurity\0GroupServers\0"
+    "GroupSystem\0GroupVirtualization\0"
+    "GroupScience\0GroupDocumentation\0"
+    "GroupElectronics\0GroupCollections\0"
+    "GroupVendor\0GroupNewest\0LastGroup\0"
+    "UnknownUpdateState\0UpdateStateStable\0"
+    "UpdateStateUnstable\0UpdateStateTesting\0"
+    "LastUpdateState\0UnknownInfo\0InfoInstalled\0"
+    "InfoAvailable\0InfoLow\0InfoEnhancement\0"
+    "InfoNormal\0InfoBugfix\0InfoImportant\0"
+    "InfoSecurity\0InfoBlocked\0InfoDownloading\0"
+    "InfoUpdating\0InfoInstalling\0InfoRemoving\0"
+    "InfoCleanup\0InfoObsoleting\0"
+    "InfoCollectionInstalled\0InfoCollectionAvailable\0"
+    "InfoFinished\0InfoReinstalling\0"
+    "InfoDowngrading\0InfoPreparing\0"
+    "InfoDecompressing\0LastInfo\0"
+    "UnknownDistroUpgrade\0DistroUpgradeStable\0"
+    "DistroUpgradeUnstable\0LastDistroUpgrade\0"
+    "UnknownSigType\0SigTypeGpg\0LastSigType\0"
+    "UnknownProvides\0ProvidesAny\0"
+    "ProvidesModalias\0ProvidesCodec\0"
+    "ProvidesMimetype\0ProvidesFont\0"
+    "ProvidesHardwareDriver\0ProvidesPostscriptDriver\0"
+    "LastProvides\0UnknownLicense\0LicenseGlide\0"
+    "LicenseAfl\0LicenseAmpasBsd\0LicenseAmazonDsl\0"
+    "LicenseAdobe\0LicenseAgplv1\0LicenseAgplv3\0"
+    "LicenseAsl1Dot0\0LicenseAsl1Dot1\0"
+    "LicenseAsl2Dot0\0LicenseApsl2Dot0\0"
+    "LicenseArtisticClarified\0LicenseArtistic2Dot0\0"
+    "LicenseArl\0LicenseBittorrent\0LicenseBoost\0"
+    "LicenseBsdWithAdvertising\0LicenseBsd\0"
+    "LicenseCecill\0LicenseCddl\0LicenseCpl\0"
+    "LicenseCondor\0LicenseCopyrightOnly\0"
+    "LicenseCryptix\0LicenseCrystalStacker\0"
+    "LicenseDoc\0LicenseWtfpl\0LicenseEpl\0"
+    "LicenseEcos\0LicenseEfl2Dot0\0"
+    "LicenseEu_datagrid\0LicenseLgplv2WithExceptions\0"
+    "LicenseFtl\0LicenseGiftware\0LicenseGplv2\0"
+    "LicenseGplv2WithExceptions\0"
+    "LicenseGplv2PlusWithExceptions\0"
+    "LicenseGplv3\0LicenseGplv3WithExceptions\0"
+    "LicenseGplv3PlusWithExceptions\0"
+    "LicenseLgplv2\0LicenseLgplv3\0LicenseGnuplot\0"
+    "LicenseIbm\0LicenseImatix\0LicenseImagemagick\0"
+    "LicenseImlib2\0LicenseIjg\0LicenseIntel_acpi\0"
+    "LicenseInterbase\0LicenseIsc\0LicenseJabber\0"
+    "LicenseJasper\0LicenseLppl\0LicenseLibtiff\0"
+    "LicenseLpl\0LicenseMecabIpadic\0LicenseMit\0"
+    "LicenseMitWithAdvertising\0LicenseMplv1Dot0\0"
+    "LicenseMplv1Dot1\0LicenseNcsa\0LicenseNgpl\0"
+    "LicenseNosl\0LicenseNetcdf\0LicenseNetscape\0"
+    "LicenseNokia\0LicenseOpenldap\0"
+    "LicenseOpenpbs\0LicenseOsl1Dot0\0"
+    "LicenseOsl1Dot1\0LicenseOsl2Dot0\0"
+    "LicenseOsl3Dot0\0LicenseOpenssl\0"
+    "LicenseOreilly\0LicensePhorum\0LicensePhp\0"
+    "LicensePublicDomain\0LicensePython\0"
+    "LicenseQpl\0LicenseRpsl\0LicenseRuby\0"
+    "LicenseSendmail\0LicenseSleepycat\0"
+    "LicenseSlib\0LicenseSissl\0LicenseSpl\0"
+    "LicenseTcl\0LicenseUcd\0LicenseVim\0"
+    "LicenseVnlsl\0LicenseVsl\0LicenseW3c\0"
+    "LicenseWxwidgets\0LicenseXinetd\0"
+    "LicenseZend\0LicenseZplv1Dot0\0"
+    "LicenseZplv2Dot0\0LicenseZplv2Dot1\0"
+    "LicenseZlib\0LicenseZlibWithAck\0"
+    "LicenseCdl\0LicenseFbsddl\0LicenseGfdl\0"
+    "LicenseIeee\0LicenseOfsfdl\0"
+    "LicenseOpenPublication\0LicenseCcBy\0"
+    "LicenseCcBySa\0LicenseCcByNd\0LicenseDsl\0"
+    "LicenseFreeArt\0LicenseOfl\0LicenseUtopia\0"
+    "LicenseArphic\0LicenseBaekmuk\0"
+    "LicenseBitstreamVera\0LicenseLucida\0"
+    "LicenseMplus\0LicenseStix\0LicenseXano\0"
+    "LicenseVostrom\0LicenseXerox\0LicenseRicebsd\0"
+    "LicenseQhull\0LastLicense\0UnknownMediaType\0"
+    "MediaTypeCd\0MediaTypeDvd\0MediaTypeDisc\0"
+    "LastMediaType\0UnknownAuthorize\0"
+    "AuthorizeYes\0AuthorizeNo\0AuthorizeInteractive\0"
+    "LastAuthorize\0"
+};
+
+const QMetaObject PackageKit::Enum::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_PackageKit__Enum,
+      qt_meta_data_PackageKit__Enum, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &PackageKit::Enum::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *PackageKit::Enum::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *PackageKit::Enum::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_PackageKit__Enum))
+        return static_cast<void*>(const_cast< Enum*>(this));
+    return QObject::qt_metacast(_clname);
+}
+
+int PackageKit::Enum::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    return _id;
+}
+QT_END_MOC_NAMESPACE

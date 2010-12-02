@@ -1,0 +1,83 @@
+<!-- ##### SECTION Title ##### -->
+PkMessage
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT PkMessagePrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkMessage ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### ARG PkMessage:details ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkMessage:type ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkMessageClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_message_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_message_get_details ##### -->
+<para>
+
+</para>
+
+@message: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_message_get_kind ##### -->
+<para>
+
+</para>
+
+@message: 
+@Returns: 
+
+

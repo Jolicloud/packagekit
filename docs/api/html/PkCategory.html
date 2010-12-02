@@ -1,0 +1,434 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>PkCategory</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.0">
+<link rel="home" href="index.html" title="PackageKit Reference Manual">
+<link rel="up" href="libpackagekit-gobject.html" title="libpackagekit GObjects">
+<link rel="prev" href="PkCatalog.html" title="PkCatalog">
+<link rel="next" href="PkClient.html" title="PkClient">
+<meta name="generator" content="GTK-Doc V1.15 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="PkCatalog.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="libpackagekit-gobject.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">PackageKit Reference Manual</th>
+<td><a accesskey="n" href="PkClient.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#PkCategory.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#PkCategory.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#PkCategory.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#PkCategory.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry" title="PkCategory">
+<a name="PkCategory"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="PkCategory.top_of_page"></a>PkCategory</span></h2>
+<p>PkCategory — Category object</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv" title="Synopsis">
+<a name="PkCategory.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="PkCategory.html#PkCategoryPrivate" title="PkCategoryPrivate">PkCategoryPrivate</a>;
+                    <a class="link" href="PkCategory.html#PkCategory-struct" title="PkCategory">PkCategory</a>;
+                    <a class="link" href="PkCategory.html#PkCategoryClass" title="PkCategoryClass">PkCategoryClass</a>;
+<a class="link" href="PkCategory.html" title="PkCategory"><span class="returnvalue">PkCategory</span></a> *        <a class="link" href="PkCategory.html#pk-category-new" title="pk_category_new ()">pk_category_new</a>                     (<em class="parameter"><code><span class="type">void</span></code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkCategory.html#pk-category-get-parent-id" title="pk_category_get_parent_id ()">pk_category_get_parent_id</a>           (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkCategory.html#pk-category-set-parent-id" title="pk_category_set_parent_id ()">pk_category_set_parent_id</a>           (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *parent_id</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkCategory.html#pk-category-get-id" title="pk_category_get_id ()">pk_category_get_id</a>                  (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkCategory.html#pk-category-set-id" title="pk_category_set_id ()">pk_category_set_id</a>                  (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *cat_id</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkCategory.html#pk-category-get-name" title="pk_category_get_name ()">pk_category_get_name</a>                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkCategory.html#pk-category-set-name" title="pk_category_set_name ()">pk_category_set_name</a>                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkCategory.html#pk-category-get-summary" title="pk_category_get_summary ()">pk_category_get_summary</a>             (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkCategory.html#pk-category-set-summary" title="pk_category_set_summary ()">pk_category_set_summary</a>             (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *summary</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="PkCategory.html#pk-category-get-icon" title="pk_category_get_icon ()">pk_category_get_icon</a>                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PkCategory.html#pk-category-set-icon" title="pk_category_set_icon ()">pk_category_set_icon</a>                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *icon</code></em>);
+</pre>
+</div>
+<div class="refsect1" title="Object Hierarchy">
+<a name="PkCategory.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----PkSource
+         +----PkCategory
+</pre>
+</div>
+<div class="refsect1" title="Properties">
+<a name="PkCategory.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="PkCategory.html#PkCategory--cat-id" title='The "cat-id" property'>cat-id</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
+  "<a class="link" href="PkCategory.html#PkCategory--icon" title='The "icon" property'>icon</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
+  "<a class="link" href="PkCategory.html#PkCategory--name" title='The "name" property'>name</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
+  "<a class="link" href="PkCategory.html#PkCategory--parent-id" title='The "parent-id" property'>parent-id</a>"                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
+  "<a class="link" href="PkCategory.html#PkCategory--summary" title='The "summary" property'>summary</a>"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write
+</pre>
+</div>
+<div class="refsect1" title="Description">
+<a name="PkCategory.description"></a><h2>Description</h2>
+<p>
+This GObject represents a category in the group system.
+</p>
+</div>
+<div class="refsect1" title="Details">
+<a name="PkCategory.details"></a><h2>Details</h2>
+<div class="refsect2" title="PkCategoryPrivate">
+<a name="PkCategoryPrivate"></a><h3>PkCategoryPrivate</h3>
+<pre class="programlisting">typedef struct _PkCategoryPrivate PkCategoryPrivate;</pre>
+<p>
+Private <a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> data
+</p>
+</div>
+<hr>
+<div class="refsect2" title="PkCategory">
+<a name="PkCategory-struct"></a><h3>PkCategory</h3>
+<pre class="programlisting">typedef struct _PkCategory PkCategory;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="PkCategoryClass">
+<a name="PkCategoryClass"></a><h3>PkCategoryClass</h3>
+<pre class="programlisting">typedef struct {
+	PkSourceClass parent_class;
+	/* padding for future expansion */
+	void (*_pk_reserved1) (void);
+	void (*_pk_reserved2) (void);
+	void (*_pk_reserved3) (void);
+	void (*_pk_reserved4) (void);
+	void (*_pk_reserved5) (void);
+} PkCategoryClass;
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_new ()">
+<a name="pk-category-new"></a><h3>pk_category_new ()</h3>
+<pre class="programlisting"><a class="link" href="PkCategory.html" title="PkCategory"><span class="returnvalue">PkCategory</span></a> *        pk_category_new                     (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> a new PkCategory object.
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since 0.5.4</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_get_parent_id ()">
+<a name="pk-category-get-parent-id"></a><h3>pk_category_get_parent_id ()</h3>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_category_get_parent_id           (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);</pre>
+<p>
+Gets the parent category id.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> the string value, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for unset.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_set_parent_id ()">
+<a name="pk-category-set-parent-id"></a><h3>pk_category_set_parent_id ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_category_set_parent_id           (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *parent_id</code></em>);</pre>
+<p>
+Sets the parent category id.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>parent_id</code></em> :</span></p></td>
+<td>the new value
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_get_id ()">
+<a name="pk-category-get-id"></a><h3>pk_category_get_id ()</h3>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_category_get_id                  (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);</pre>
+<p>
+Gets the id specific to this category.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> the string value, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for unset.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_set_id ()">
+<a name="pk-category-set-id"></a><h3>pk_category_set_id ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_category_set_id                  (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *cat_id</code></em>);</pre>
+<p>
+Sets the id specific to this category.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cat_id</code></em> :</span></p></td>
+<td>the new value
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_get_name ()">
+<a name="pk-category-get-name"></a><h3>pk_category_get_name ()</h3>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_category_get_name                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);</pre>
+<p>
+Gets the name.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> the string value, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for unset.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_set_name ()">
+<a name="pk-category-set-name"></a><h3>pk_category_set_name ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_category_set_name                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>);</pre>
+<p>
+Sets the name.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>name</code></em> :</span></p></td>
+<td>the new value
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_get_summary ()">
+<a name="pk-category-get-summary"></a><h3>pk_category_get_summary ()</h3>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_category_get_summary             (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);</pre>
+<p>
+Gets the summary.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> the string value, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for unset.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_set_summary ()">
+<a name="pk-category-set-summary"></a><h3>pk_category_set_summary ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_category_set_summary             (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *summary</code></em>);</pre>
+<p>
+Sets the summary.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>summary</code></em> :</span></p></td>
+<td>the new value
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_get_icon ()">
+<a name="pk-category-get-icon"></a><h3>pk_category_get_icon ()</h3>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       pk_category_get_icon                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>);</pre>
+<p>
+Gets the icon filename.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> the string value, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for unset.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+<hr>
+<div class="refsect2" title="pk_category_set_icon ()">
+<a name="pk-category-set-icon"></a><h3>pk_category_set_icon ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                pk_category_set_icon                (<em class="parameter"><code><a class="link" href="PkCategory.html" title="PkCategory"><span class="type">PkCategory</span></a> *category</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *icon</code></em>);</pre>
+<p>
+Sets the icon filename.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>category</code></em> :</span></p></td>
+<td>The <a class="link" href="PkCategory.html" title="PkCategory"><code class="literal">PkCategory</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>icon</code></em> :</span></p></td>
+<td>the new value
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.6.2</p>
+</div>
+</div>
+<div class="refsect1" title="Property Details">
+<a name="PkCategory.property-details"></a><h2>Property Details</h2>
+<div class="refsect2" title='The "cat-id" property'>
+<a name="PkCategory--cat-id"></a><h3>The <code class="literal">"cat-id"</code> property</h3>
+<pre class="programlisting">  "cat-id"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<p></p>
+<p>Default value: NULL</p>
+<p class="since">Since 0.5.4</p>
+</div>
+<hr>
+<div class="refsect2" title='The "icon" property'>
+<a name="PkCategory--icon"></a><h3>The <code class="literal">"icon"</code> property</h3>
+<pre class="programlisting">  "icon"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<p></p>
+<p>Default value: NULL</p>
+<p class="since">Since 0.5.4</p>
+</div>
+<hr>
+<div class="refsect2" title='The "name" property'>
+<a name="PkCategory--name"></a><h3>The <code class="literal">"name"</code> property</h3>
+<pre class="programlisting">  "name"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<p></p>
+<p>Default value: NULL</p>
+<p class="since">Since 0.5.4</p>
+</div>
+<hr>
+<div class="refsect2" title='The "parent-id" property'>
+<a name="PkCategory--parent-id"></a><h3>The <code class="literal">"parent-id"</code> property</h3>
+<pre class="programlisting">  "parent-id"                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<p></p>
+<p>Default value: NULL</p>
+<p class="since">Since 0.5.4</p>
+</div>
+<hr>
+<div class="refsect2" title='The "summary" property'>
+<a name="PkCategory--summary"></a><h3>The <code class="literal">"summary"</code> property</h3>
+<pre class="programlisting">  "summary"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write</pre>
+<p></p>
+<p>Default value: NULL</p>
+<p class="since">Since 0.5.4</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.15</div>
+</body>
+</html>

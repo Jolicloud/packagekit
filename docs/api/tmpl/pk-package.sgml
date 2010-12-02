@@ -1,0 +1,275 @@
+<!-- ##### SECTION Title ##### -->
+PkPackage
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### MACRO PK_PACKAGE_TYPE_ERROR ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### STRUCT PkPackagePrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT PkPackage ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SIGNAL PkPackage::changed ##### -->
+<para>
+
+</para>
+
+@pkpackage: the object which received the signal.
+
+<!-- ##### ARG PkPackage:description ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:group ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:info ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:license ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:package-id ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:size ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:summary ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-bugzilla-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-changelog ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-cve-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-issued ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-obsoletes ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-restart ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-state ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-text ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-updated ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-updates ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:update-vendor-url ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PkPackage:url ##### -->
+<para>
+
+</para>
+
+<!-- ##### STRUCT PkPackageClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@changed: 
+@_pk_reserved1: 
+@_pk_reserved2: 
+@_pk_reserved3: 
+@_pk_reserved4: 
+@_pk_reserved5: 
+
+<!-- ##### FUNCTION pk_package_new ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_test ##### -->
+<para>
+
+</para>
+
+@user_data: 
+
+
+<!-- ##### FUNCTION pk_package_set_id ##### -->
+<para>
+
+</para>
+
+@package: 
+@package_id: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_print ##### -->
+<para>
+
+</para>
+
+@package: 
+
+
+<!-- ##### FUNCTION pk_package_equal ##### -->
+<para>
+
+</para>
+
+@package1: 
+@package2: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_equal_id ##### -->
+<para>
+
+</para>
+
+@package1: 
+@package2: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_id ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_info ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_summary ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_name ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_version ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_arch ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+
+<!-- ##### FUNCTION pk_package_get_data ##### -->
+<para>
+
+</para>
+
+@package: 
+@Returns: 
+
+

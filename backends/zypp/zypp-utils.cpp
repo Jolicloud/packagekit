@@ -100,7 +100,7 @@ get_zypp (PkBackend *backend)
 		        initialized = TRUE;
 	        }
         } catch (const zypp::Exception &ex) {
-		egg_error ("%s", ex.asUserString ().c_str ());
+		g_error ("%s", ex.asUserString ().c_str ());
         }
 
 	return zypp;
@@ -178,7 +178,7 @@ zypp_build_pool (PkBackend *backend, gboolean include_local)
 				continue;
                         // skip not cached repos
                         if (manager.isCached (repo) == false) {
-                                egg_warning ("%s is not cached! Do a refresh", repo.alias ().c_str ());
+                                g_warning ("%s is not cached! Do a refresh", repo.alias ().c_str ());
                                 continue;
                         }
                         //FIXME see above, skip already cached repos
@@ -186,11 +186,11 @@ zypp_build_pool (PkBackend *backend, gboolean include_local)
                                 manager.loadFromCache (repo);
 		}
 	} catch (const zypp::repo::RepoNoAliasException &ex) {
-                egg_error ("Can't figure an alias to look in cache");
+                g_error ("Can't figure an alias to look in cache");
         } catch (const zypp::repo::RepoNotCachedException &ex) {
-                egg_error ("The repo has to be cached at first: %s", ex.asUserString ().c_str ());
+                g_error ("The repo has to be cached at first: %s", ex.asUserString ().c_str ());
 	} catch (const zypp::Exception &ex) {
-                egg_error ("TODO: Handle exceptions: %s", ex.asUserString ().c_str ());
+                g_error ("TODO: Handle exceptions: %s", ex.asUserString ().c_str ());
 	}
 
 	return zypp->pool ();
@@ -242,7 +242,7 @@ zypp_build_local_pool (PkBackend *backend)
                 }
 
 	} catch (const zypp::Exception &ex) {
-		egg_error ("%s", ex.asUserString ().c_str ());
+		g_error ("%s", ex.asUserString ().c_str ());
 	}
 
         return zypp->pool ();
@@ -455,12 +455,21 @@ gboolean
 zypp_refresh_meta_and_cache (zypp::RepoManager &manager, zypp::RepoInfo &repo, bool force)
 {
 	try {
+		if (manager.checkIfToRefreshMetadata (repo, repo.url(), 
+					zypp::RepoManager::RefreshIfNeededIgnoreDelay)
+					!= zypp::RepoManager::REFRESH_NEEDED)
+			return TRUE;
+
+		zypp::sat::Pool pool = zypp::sat::Pool::instance ();
+		// Erase old solv file
+		pool.reposErase (repo.alias ());
 		manager.refreshMetadata (repo, force ?
 					 zypp::RepoManager::RefreshForced :
-					 zypp::RepoManager::RefreshIfNeeded);
+					 zypp::RepoManager::RefreshIfNeededIgnoreDelay);
 		manager.buildCache (repo, force ?
 				    zypp::RepoManager::BuildForced :
 				    zypp::RepoManager::BuildIfNeeded);
+		manager.loadFromCache (repo);
 		return TRUE;
 	} catch (const AbortTransactionException &ex) {
 		return FALSE;
@@ -906,7 +915,7 @@ zypp_perform_execution (PkBackend *backend, PerformType type, gboolean force)
 		if (simulate) {
 			ret = TRUE;
 
-			egg_debug ("simulating");
+			g_debug ("simulating");
 
 			for (zypp::ResPool::const_iterator it = pool.begin (); it != pool.end (); it++) {
 				if (!zypp_backend_pool_item_notify (backend, *it, TRUE))
@@ -1054,7 +1063,12 @@ gboolean
 zypp_refresh_cache (PkBackend *backend, gboolean force)
 {
 	// This call is needed as it calls initializeTarget which appears to properly setup the keyring
-	get_zypp (backend);
+	zypp::ZYpp::Ptr zypp = get_zypp (backend);
+	zypp::filesystem::Pathname pathname(pk_backend_get_root (backend));
+	// This call is needed to refresh system rpmdb status while refresh cache
+	zypp->finishTarget ();
+	zypp->initializeTarget (pathname);
+
 	if (!pk_backend_is_online (backend)) {
 		pk_backend_error_code (backend, PK_ERROR_ENUM_NO_NETWORK, "Cannot refresh cache whilst offline");
 		return FALSE;

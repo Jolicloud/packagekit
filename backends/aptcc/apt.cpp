@@ -31,8 +31,10 @@
 #include <apt-pkg/tagfile.h>
 #include <apt-pkg/algorithms.h>
 #include <apt-pkg/init.h>
-
 #include <apt-pkg/sptr.h>
+#include <apt-pkg/pkgsystem.h>
+#include <apt-pkg/version.h>
+
 #include <sys/statvfs.h>
 #include <sys/statfs.h>
 #include <sys/wait.h>
@@ -71,12 +73,6 @@ bool aptcc::init()
 
 	// Set PackageKit status
 	pk_backend_set_status(m_backend, PK_STATUS_ENUM_LOADING_CACHE);
-	
-	// Run dpkg --configure -a if needed
-	if (checkUpdates() == true) {
-		cout << "Aptcc: dpkg was interrupted, running dpkg --configure -a" << endl;
-		system("DEBIAN_FRONTEND=noninteractive dpkg --configure -a");
-	}
 
 	// set locale
 	if (locale = pk_backend_get_locale(m_backend)) {
@@ -149,25 +145,25 @@ aptcc::~aptcc()
 {
 	if (packageRecords)
 	{
-		egg_debug ("~apt_init packageRecords");
+		g_debug ("~apt_init packageRecords");
 		delete packageRecords;
 	}
 
 	if (packageCache)
 	{
-		egg_debug ("~apt_init packageCache");
+		g_debug ("~apt_init packageCache");
 		delete packageCache;
 	}
 
 	if (packageDepCache)
 	{
-		egg_debug ("~apt_init packageDepCache");
+		g_debug ("~apt_init packageDepCache");
 		delete packageDepCache;
 	}
 
 	if (Policy)
 	{
-		egg_debug ("~apt_init Policy");
+		g_debug ("~apt_init Policy");
 		delete Policy;
 	}
 
@@ -448,7 +444,7 @@ void aptcc::povidesCodec(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterato
 			    "\\((.*)\\)\\?";
 
 	if(regcomp(&pkre, pkreg, 0) != 0) {
-		egg_debug("Regex compilation error: ", pkreg);
+		g_debug("Regex compilation error: ", pkreg);
 		return;
 	}
 
@@ -497,11 +493,11 @@ void aptcc::povidesCodec(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterato
 			if(regcomp(&sre, itemreg, REG_NEWLINE | REG_NOSUB) == 0) {
 				search.push_back(pair<string, regex_t>(version, sre));
 			} else {
-				egg_debug("Search regex compilation error: ", itemreg);
+				g_debug("Search regex compilation error: ", itemreg);
 			}
 			g_free(itemreg);
 		} else {
-			egg_debug("Did not match: %s", value);
+			g_debug("Did not match: %s", value);
 		}
 	}
 	regfree(&pkre);
@@ -590,49 +586,261 @@ void aptcc::emit_details(const pkgCache::PkgIterator &pkg)
 // used to emit packages it collects all the needed info
 void aptcc::emit_update_detail(const pkgCache::PkgIterator &pkg)
 {
-	pkgCache::VerIterator candver = find_candidate_ver(pkg);
+    // Get the version of the current package
+    pkgCache::VerIterator     currver = find_ver(pkg);
+    pkgCache::VerFileIterator currvf  = currver.FileList();
+    // Build a package_id from the current version
+    gchar *current_package_id;
+    current_package_id = pk_package_id_build(pkg.Name(),
+                                             currver.VerStr(),
+                                             currver.Arch(),
+                                             currvf.File().Archive());
 
-	pkgCache::VerFileIterator vf = candver.FileList();
-	pkgRecords::Parser &rec = packageRecords->Lookup(vf);
-	string archive(vf.File().Archive());
-	gchar *package_id;
-	package_id = pk_package_id_build(pkg.Name(),
-					candver.VerStr(),
-					candver.Arch(),
-					archive.c_str());
+    // Get the update version
+    pkgCache::VerIterator candver = find_candidate_ver(pkg);
 
-	pkgCache::VerIterator currver = find_ver(pkg);
-	pkgCache::VerFileIterator currvf = currver.FileList();
-	gchar *current_package_id;
-	current_package_id = pk_package_id_build(pkg.Name(),
-						currver.VerStr(),
-						currver.Arch(),
-						currvf.File().Archive());
+    pkgCache::VerFileIterator vf = candver.FileList();
+    pkgCache::PkgFileIterator pkgFile = vf.File();
+    string origin = pkgFile.Origin();
+    pkgRecords::Parser &rec = packageRecords->Lookup(candver.FileList());
 
-	PkUpdateStateEnum updateState = PK_UPDATE_STATE_ENUM_UNKNOWN;
-	if (archive.compare("stable") == 0) {
-		updateState = PK_UPDATE_STATE_ENUM_STABLE;
-	} else if (archive.compare("testing") == 0) {
-		updateState = PK_UPDATE_STATE_ENUM_TESTING;
-	} else if (archive.compare("unstable")  == 0 ||
-		archive.compare("experimental") == 0)
-	{
-		updateState = PK_UPDATE_STATE_ENUM_UNSTABLE;
-	}
-	pk_backend_update_detail(m_backend,
-				 package_id,
-				 current_package_id,//const gchar *updates
-				 "",//const gchar *obsoletes
-				 "",//const gchar *vendor_url
-				 "",//const gchar *bugzilla_url
-				 "",//const gchar *cve_url
-				 PK_RESTART_ENUM_NONE,//PkRestartEnum restart
-				 "",//const gchar *update_text
-				 "",//const gchar *changelog
-				 updateState,//PkUpdateStateEnum state
-				 "",//const gchar *issued_text
-				 ""//const gchar *updated_text
-				 );
+    // Build the changelogURI
+    char uri[512];
+    string srcpkg;
+    string verstr;
+
+    if (rec.SourcePkg().empty()) {
+        srcpkg = pkg.Name();
+    } else {
+        srcpkg = rec.SourcePkg();
+    }
+    if (origin.compare("Debian") == 0 || origin.compare("Ubuntu") == 0) {
+        string prefix;
+
+        string src_section = candver.Section();
+        if(src_section.find('/') != src_section.npos) {
+            src_section = string(src_section, 0, src_section.find('/'));
+        } else {
+            src_section = "main";
+        }
+
+        prefix += srcpkg[0];
+        if(srcpkg.size() > 3 && srcpkg[0] == 'l' && srcpkg[1] == 'i' && srcpkg[2] == 'b') {
+            prefix = string("lib") + srcpkg[3];
+        }
+
+        if(candver.VerStr() != NULL) {
+            verstr = candver.VerStr();
+        }
+
+        if(verstr.find(':') != verstr.npos) {
+            verstr = string(verstr, verstr.find(':') + 1);
+        }
+
+        if (origin.compare("Debian") == 0) {
+            snprintf(uri,
+                        512,
+                        "http://packages.debian.org/changelogs/pool/%s/%s/%s/%s_%s/changelog",                                    src_section.c_str(),
+                        prefix.c_str(),
+                        srcpkg.c_str(),
+                        srcpkg.c_str(),
+                        verstr.c_str());
+        } else {
+            snprintf(uri,
+                        512,
+                        "http://changelogs.ubuntu.com/changelogs/pool/%s/%s/%s/%s_%s/changelog",                                    src_section.c_str(),
+                        prefix.c_str(),
+                        srcpkg.c_str(),
+                        srcpkg.c_str(),
+                        verstr.c_str());
+        }
+    } else {
+        string pkgfilename;
+        const char *start, *stop;
+        pkgTagSection sec;
+        unsigned long len;
+
+        rec.GetRec(start, stop);
+        len = stop - start;
+        // add +1 to ensure we have the double lineline in the buffer
+        if (start && sec.Scan(start, len + 1)) {
+            pkgfilename = sec.FindS("Filename");
+        }
+
+        string cadidateOriginSiteUrl;
+        if(!vf.end() && vf.File() && vf.File().Site()) {
+            cadidateOriginSiteUrl = vf.File().Site();
+        }
+
+        pkgfilename = pkgfilename.substr(0, pkgfilename.find_last_of('.')) + ".changelog";
+        snprintf(uri,512,"http://%s/%s",
+                cadidateOriginSiteUrl.c_str(),
+                pkgfilename.c_str());
+    }
+    // Create the download object
+    AcqPackageKitStatus Stat(this, m_backend, _cancel);
+
+    // get a fetcher
+    pkgAcquire fetcher;
+    fetcher.Setup(&Stat);
+
+    // fetch the changelog
+    pk_backend_set_status(m_backend, PK_STATUS_ENUM_DOWNLOAD_CHANGELOG);
+    string filename = getChangelogFile(pkg.Name(), origin, verstr, srcpkg, uri, &fetcher);
+
+    string changelog;
+    string update_text;
+    ifstream in(filename.c_str());
+    string line;
+    GRegex *regexVer;
+    regexVer = g_regex_new("(?'source'.+) \\((?'version'.*)\\) "
+                           "(?'dist'.+); urgency=(?'urgency'.+)",
+                           G_REGEX_CASELESS,
+                           G_REGEX_MATCH_ANCHORED,
+                           0);
+    GRegex *regexDate;
+    regexDate = g_regex_new("^ -- (?'maintainer'.+) (?'mail'<.+>)  (?'dayname'\\w+,) "
+"(?'d'\\d+) (?'m'\\w+) (?'y'\\d+) (?'H'\\d+):(?'M'\\d+):(?'s'\\d+) (?'offset'[-\\+]\\d+)$",
+                            G_REGEX_CASELESS,
+                            G_REGEX_MATCH_ANCHORED,
+                            0);
+    string updated;
+    string issued;
+    while (getline(in, line)) {
+        // no need to free str later, it is allocated in a static buffer
+        const char *str = utf8(line.c_str());
+        if (strcmp(str, "") == 0) {
+            changelog.append("\n");
+            continue;
+        } else {
+            changelog.append(str);
+            changelog.append("\n");
+        }
+
+        if (starts_with(str, srcpkg.c_str())) {
+            // Check to see if the the text isn't about the current package,
+            // otherwise add a == version ==
+            GMatchInfo *match_info;
+            if (g_regex_match(regexVer, str, G_REGEX_MATCH_ANCHORED, &match_info)) {
+                gchar *version;
+                version = g_match_info_fetch_named(match_info, "version");
+
+                // Compare if the current version is shown in the changelog, to not
+                // display old changelog information
+                if (_system != 0  &&
+                    _system->VS->DoCmpVersion(version, version + strlen(version),
+                                              currver.VerStr(), currver.VerStr() + strlen(currver.VerStr())) <= 0) {
+                    g_free (version);
+                    break;
+                } else {
+                    if (!update_text.empty()) {
+                        update_text.append("\n\n");
+                    }
+                    update_text.append(" == ");
+                    update_text.append(version);
+                    update_text.append(" ==");
+                    g_free (version);
+                }
+            }
+            g_match_info_free (match_info);
+        } else if (starts_with(str, "  ")) {
+            // update descritption
+            update_text.append("\n");
+            update_text.append(str);
+        } else if (starts_with(str, " --")) {
+            // Parse the text to know when the update was issued,
+            // and when it got updated
+            GMatchInfo *match_info;
+            if (g_regex_match(regexDate, str, G_REGEX_MATCH_ANCHORED, &match_info)) {
+                gchar *tz;
+                gchar *year;
+                gchar *month;
+                gchar *day;
+                gchar *hour;
+                gchar *minute;
+                gchar *seconds;
+                tz = g_match_info_fetch_named(match_info, "offset");
+                year = g_match_info_fetch_named(match_info, "y");
+                month = g_match_info_fetch_named(match_info, "m");
+                day = g_match_info_fetch_named(match_info, "d");
+                hour = g_match_info_fetch_named(match_info, "H");
+                minute = g_match_info_fetch_named(match_info, "M");
+                seconds = g_match_info_fetch_named(match_info, "s");
+                GDateTime *dateTime;
+                dateTime = dateFromString(tz,
+                                          year,
+                                          month,
+                                          day,
+                                          hour,
+                                          minute,
+                                          seconds);
+                g_free(tz);
+                g_free(year);
+                g_free(month);
+                g_free(day);
+                g_free(hour);
+                g_free(minute);
+                g_free(seconds);
+
+                issued = g_date_time_format(dateTime, "%FT%R:%S");
+                if (updated.empty()) {
+                    updated = g_date_time_format(dateTime, "%FT%R:%S");
+                }
+            }
+            g_match_info_free(match_info);
+        }
+    }
+    // Clean structures
+    g_regex_unref(regexVer);
+    g_regex_unref(regexDate);
+    unlink(filename.c_str());
+
+    // Check if the update was updates since it was issued
+    if (issued.compare(updated) == 0) {
+        updated = "";
+    }
+
+    // Build a package_id from the update version
+    string archive(vf.File().Archive());
+    gchar *package_id;
+    package_id = pk_package_id_build(pkg.Name(),
+                    candver.VerStr(),
+                    candver.Arch(),
+                    archive.c_str());
+
+    PkUpdateStateEnum updateState = PK_UPDATE_STATE_ENUM_UNKNOWN;
+    if (archive.compare("stable") == 0) {
+        updateState = PK_UPDATE_STATE_ENUM_STABLE;
+    } else if (archive.compare("testing") == 0) {
+        updateState = PK_UPDATE_STATE_ENUM_TESTING;
+    } else if (archive.compare("unstable")  == 0 ||
+        archive.compare("experimental") == 0)
+    {
+        updateState = PK_UPDATE_STATE_ENUM_UNSTABLE;
+    }
+
+    PkRestartEnum restart = PK_RESTART_ENUM_NONE;
+    if (starts_with(pkg.Name(), "linux-image-") ||
+        starts_with(pkg.Name(), "nvidia-") ||
+        strcmp(pkg.Name(), "libc6") == 0 ||
+        strcmp(pkg.Name(), "dbus") == 0) {
+        restart = PK_RESTART_ENUM_SYSTEM;
+    }
+
+    pk_backend_update_detail(m_backend,
+                             package_id,
+                             current_package_id,//const gchar *updates
+                             "",//const gchar *obsoletes
+                             "",//const gchar *vendor_url
+                             getBugzillaUrls(changelog).c_str(),//const gchar *bugzilla_url
+                             getCVEUrls(changelog).c_str(),//const gchar *cve_url
+                             restart,//PkRestartEnum restart
+                             update_text.c_str(),//const gchar *update_text
+                             changelog.c_str(),//const gchar *changelog
+                             updateState,//PkUpdateStateEnum state
+                             issued.c_str(), //const gchar *issued_text
+                             updated.c_str() //const gchar *updated_text
+                             );
 }
 
 void aptcc::get_depends(vector<pair<pkgCache::PkgIterator, pkgCache::VerIterator> > &output,
@@ -714,7 +922,7 @@ vector<string> search_files (PkBackend *backend, gchar **values, bool &_cancel)
 				 values_str);
 	g_free(values_str);
 	if(regcomp(&re, search, REG_NOSUB) != 0) {
-		egg_debug("Regex compilation error");
+		g_debug("Regex compilation error");
 		g_free(search);
 		return vector<string>();
 	}
@@ -723,7 +931,7 @@ vector<string> search_files (PkBackend *backend, gchar **values, bool &_cancel)
 	DIR *dp;
 	struct dirent *dirp;
 	if (!(dp = opendir("/var/lib/dpkg/info/"))) {
-		egg_debug ("Error opening /var/lib/dpkg/info/\n");
+		g_debug ("Error opening /var/lib/dpkg/info/\n");
 		regfree(&re);
 		return vector<string>();
 	}
@@ -768,7 +976,7 @@ vector<string> searchMimeType (PkBackend *backend, gchar **values, bool &error, 
 	g_free(values_str);
 
 	if(regcomp(&re, value, REG_NOSUB) != 0) {
-		egg_debug("Regex compilation error");
+		g_debug("Regex compilation error");
 		g_free(value);
 		return vector<string>();
 	}
@@ -777,7 +985,7 @@ vector<string> searchMimeType (PkBackend *backend, gchar **values, bool &error, 
 	DIR *dp;
 	struct dirent *dirp;
 	if (!(dp = opendir("/usr/share/app-install/desktop/"))) {
-		egg_debug ("Error opening /usr/share/app-install/desktop/\n");
+		g_debug ("Error opening /usr/share/app-install/desktop/\n");
 		regfree(&re);
 		error = true;
 		return vector<string>();
@@ -833,7 +1041,7 @@ vector<string> searchMimeType (PkBackend *backend, gchar **values, bool &error, 
 // 	g_free(values_str);
 //
 // 	if(regcomp(&re, value, REG_NOSUB) != 0) {
-// 		egg_debug("Regex compilation error");
+// 		g_debug("Regex compilation error");
 // 		g_free(value);
 // 		return vector<string>();
 // 	}
@@ -842,7 +1050,7 @@ vector<string> searchMimeType (PkBackend *backend, gchar **values, bool &error, 
 // 	DIR *dp;
 // 	struct dirent *dirp;
 // 	if (!(dp = opendir("/usr/share/app-install/desktop/"))) {
-// 		egg_debug ("Error opening /usr/share/app-install/desktop/\n");
+// 		g_debug ("Error opening /usr/share/app-install/desktop/\n");
 // 		regfree(&re);
 // 		error = true;
 // 		return vector<string>();
@@ -939,7 +1147,7 @@ static bool checkTrusted(pkgAcquire &fetcher, PkBackend *backend)
 	if (pk_backend_get_bool(backend, "only_trusted") == false ||
 	    _config->FindB("APT::Get::AllowUnauthenticated", false) == true)
 	{
-		egg_debug ("Authentication warning overridden.\n");
+		g_debug ("Authentication warning overridden.\n");
 		return true;
 	}
 
@@ -1214,7 +1422,6 @@ void aptcc::updateInterface(int fd, int writeFd)
 
 			// major problem here, we got unexpected input. should _never_ happen
 			if(!(pkg && status)) {
-				egg_debug("Got unexpected input from dpkg");
 				continue;
 			}
 
@@ -1260,7 +1467,7 @@ void aptcc::updateInterface(int fd, int writeFd)
 						   confmsg);
 				if (write(writeFd, "N\n", 2) != 2) {
 					// TODO we need a DPKG patch to use debconf
-					egg_debug("Failed to write");
+					g_debug("Failed to write");
 				}
 			} else if (strstr(status, "pmstatus") != NULL) {
 				// INSTALL & UPDATE
@@ -1293,34 +1500,34 @@ void aptcc::updateInterface(int fd, int writeFd)
 				// Let's start parsing the status:
 				if (starts_with(str, "Preparing to configure")) {
 					// Preparing to Install/configure
-					cout << "Found Preparing to configure! " << line << endl;
+// 					cout << "Found Preparing to configure! " << line << endl;
 					// The next item might be Configuring so better it be 100
 					m_lastSubProgress = 100;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_PREPARING);
 					pk_backend_set_sub_percentage(m_backend, 75);
 				} else if (starts_with(str, "Preparing for removal")) {
 					// Preparing to Install/configure
-					cout << "Found Preparing for removal! " << line << endl;
+// 					cout << "Found Preparing for removal! " << line << endl;
 					m_lastSubProgress = 50;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_REMOVING);
 					pk_backend_set_sub_percentage(m_backend, m_lastSubProgress);
 				} else if (starts_with(str, "Preparing")) {
 					// Preparing to Install/configure
-					cout << "Found Preparing! " << line << endl;
+// 					cout << "Found Preparing! " << line << endl;
 					// if last package is different then finish it
 					if (!m_lastPackage.empty() && m_lastPackage.compare(pkg) != 0) {
-						cout << "FINISH the last package: " << m_lastPackage << endl;
+// 						cout << "FINISH the last package: " << m_lastPackage << endl;
 						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
 					}
 					emitTransactionPackage(pkg, PK_INFO_ENUM_PREPARING);
 					pk_backend_set_sub_percentage(m_backend, 25);
 				} else if (starts_with(str, "Unpacking")) {
-					cout << "Found Unpacking! " << line << endl;
+// 					cout << "Found Unpacking! " << line << endl;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_DECOMPRESSING);
 					pk_backend_set_sub_percentage(m_backend, 50);
 				} else if (starts_with(str, "Configuring")) {
 					// Installing Package
-					cout << "Found Configuring! " << line << endl;
+// 					cout << "Found Configuring! " << line << endl;
 					if (m_lastSubProgress >= 100 && !m_lastPackage.empty()) {
 						cout << "FINISH the last package: " << m_lastPackage << endl;
 						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
@@ -1330,26 +1537,24 @@ void aptcc::updateInterface(int fd, int writeFd)
 					pk_backend_set_sub_percentage(m_backend, m_lastSubProgress);
 					m_lastSubProgress += 25;
 				} else if (starts_with(str, "Running dpkg")) {
-					cout << "Found Running dpkg! " << line << endl;
-				} else if (starts_with(str, "Running post-installation trigger")) {
-					cout << "Found Running post-installation trigger! " << line << endl;
+// 					cout << "Found Running dpkg! " << line << endl;
 				} else if (starts_with(str, "Running")) {
-					cout << "Found Running! " << line << endl;
+// 					cout << "Found Running! " << line << endl;
 					pk_backend_set_status (m_backend, PK_STATUS_ENUM_COMMIT);
 				} else if (starts_with(str, "Installing")) {
-					cout << "Found Installing! " << line << endl;
+// 					cout << "Found Installing! " << line << endl;
 					// FINISH the last package
 					if (!m_lastPackage.empty()) {
-						cout << "FINISH the last package: " << m_lastPackage << endl;
+// 						cout << "FINISH the last package: " << m_lastPackage << endl;
 						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
 					}
 					m_lastSubProgress = 0;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_INSTALLING);
 					pk_backend_set_sub_percentage(m_backend, 0);
 				} else if (starts_with(str, "Removing")) {
-					cout << "Found Removing! " << line << endl;
+// 					cout << "Found Removing! " << line << endl;
 					if (m_lastSubProgress >= 100 && !m_lastPackage.empty()) {
-						cout << "FINISH the last package: " << m_lastPackage << endl;
+// 						cout << "FINISH the last package: " << m_lastPackage << endl;
 						emitTransactionPackage(m_lastPackage, PK_INFO_ENUM_FINISHED);
 					}
 					m_lastSubProgress += 25;
@@ -1357,7 +1562,7 @@ void aptcc::updateInterface(int fd, int writeFd)
 					pk_backend_set_sub_percentage(m_backend, m_lastSubProgress);
 				} else if (starts_with(str, "Installed") ||
 					       starts_with(str, "Removed")) {
-					cout << "Found FINISHED! " << line << endl;
+// 					cout << "Found FINISHED! " << line << endl;
 					m_lastSubProgress = 100;
 					emitTransactionPackage(pkg, PK_INFO_ENUM_FINISHED);
 				} else {
@@ -1459,7 +1664,7 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 	OpTextProgress Prog(*_config);
 	int timeout = 10;
 	// TODO test this
-	while (Cache.Open(Prog, WithLock) == false) {
+	while (Cache.Open(&Prog, WithLock) == false) {
 		// failed to open cache, try checkDeps then..
 		// || Cache.CheckDeps(CmdL.FileSize() != 1) == false
 		if (WithLock == false || (timeout <= 0)) {
@@ -1544,41 +1749,7 @@ bool aptcc::runTransaction(vector<pair<pkgCache::PkgIterator, pkgCache::VerItera
 }
 
 									/*}}}*/
-// System::checkUpdates - Check if the updates dir is dirty		/*{{{*/
-// ---------------------------------------------------------------------
-/* This does a check of the updates directory (dpkg journal) to see if it has 
-   any entries in it. */
-bool aptcc::checkUpdates()
-{
-   // Check for updates.. (dirty)
-   string File = flNotFile(_config->Find("Dir::State::status")) + "updates/";
-   DIR *DirP = opendir(File.c_str());
-   if (DirP == 0)
-      return false;
-   
-   /* We ignore any files that are not all digits, this skips .,.. and 
-      some tmp files dpkg will leave behind.. */
-   bool Damaged = false;
-   for (struct dirent *Ent = readdir(DirP); Ent != 0; Ent = readdir(DirP))
-   {
-      Damaged = true;
-      for (unsigned int I = 0; Ent->d_name[I] != 0; I++)
-      {
-	 // Check if its not a digit..
-	 if (isdigit(Ent->d_name[I]) == 0)
-	 {
-	    Damaged = false;
-	    break;
-	 }
-      }
-      if (Damaged == true)
-	 break;
-   }
-   closedir(DirP);
 
-   return Damaged;
-}
-									/*}}}*/
 // InstallPackages - Actually download and install the packages		/*{{{*/
 // ---------------------------------------------------------------------
 /* This displays the informative messages describing what is going to
@@ -1644,7 +1815,8 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	AcqPackageKitStatus Stat(this, m_backend, _cancel);
 
 	// get a fetcher
-	pkgAcquire fetcher(&Stat);
+	pkgAcquire fetcher;
+	fetcher.Setup(&Stat);
 
 	// Create the package manager and prepare to download
 	SPtr<pkgPackageManager> PM= _system->CreatePM(Cache);
@@ -1683,8 +1855,8 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	if (DebBytes != Cache->DebSize())
 	{
  	    cout << DebBytes << ',' << Cache->DebSize() << endl;
-	    cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
-	    _error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");
+cout << "How odd.. The sizes didn't match, email apt@packages.debian.org";
+/*		_error->Warning("How odd.. The sizes didn't match, email apt@packages.debian.org");*/
 	}
 
 	// Number of bytes
@@ -1735,6 +1907,7 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	}
 
 	pk_backend_set_status (m_backend, PK_STATUS_ENUM_DOWNLOAD);
+	pk_backend_set_simultaneous_mode(m_backend, true);
 	// Download and check if we can continue
 	if (fetcher.Run() != pkgAcquire::Continue
 	    && _cancel == false)
@@ -1743,6 +1916,7 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 		show_errors(m_backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
 		return false;
 	}
+	pk_backend_set_simultaneous_mode(m_backend, false);
 
 	if (_error->PendingError() == true) {
 		cout << "PendingError download" << endl;
@@ -1770,7 +1944,7 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	pkgPackageManager::OrderResult res;
 	res = PM->DoInstallPreFork();
 	if (res == pkgPackageManager::Failed) {
-		egg_warning ("Failed to prepare installation");
+		g_warning ("Failed to prepare installation");
 		show_errors(m_backend, PK_ERROR_ENUM_PACKAGE_DOWNLOAD_FAILED);
 		return false;
 	}
@@ -1828,7 +2002,7 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 
 		// dump errors into cerr (pass it to the parent process)
 		_error->DumpErrors();
-		
+
 		close(readFromChildFD[0]);
 		close(writeToChildFD[1]);
 		close(readFromChildFD[1]);
@@ -1860,5 +2034,4 @@ bool aptcc::installPackages(pkgCacheFile &Cache)
 	cout << "Parent finished..." << endl;
 	return true;
 }
-
 

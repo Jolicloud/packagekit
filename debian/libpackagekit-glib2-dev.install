@@ -1,4 +1,0 @@
-debian/tmp/usr/include/PackageKit/packagekit-glib2
-debian/tmp/usr/lib/libpackagekit-glib2.la
-debian/tmp/usr/lib/libpackagekit-glib2.so
-debian/tmp/usr/lib/pkgconfig/packagekit-glib2.pc

@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*-
  *
- * Copyright (C) 2008 Richard Hughes <richard@hughsie.com>
+ * Copyright (C) 2008-2010 Richard Hughes <richard@hughsie.com>
  *
  * Licensed under the GNU General Public License Version 2
  *
@@ -35,13 +35,11 @@
 #include <packagekit-glib2/pk-results.h>
 #include <packagekit-glib2/pk-common.h>
 
-#include "egg-debug.h"
 #include "egg-string.h"
 
 #include "pk-conf.h"
 #include "pk-network.h"
 #include "pk-marshal.h"
-#include "pk-backend-internal.h"
 #include "pk-backend.h"
 #include "pk-conf.h"
 #include "pk-store.h"
@@ -79,7 +77,6 @@
  */
 #define PK_BACKEND_FINISHED_TIMEOUT_GRACE	10 /* ms */
 
-
 /**
  * PK_BACKEND_CANCEL_ACTION_TIMEOUT:
  *
@@ -89,7 +86,7 @@
  */
 #define PK_BACKEND_CANCEL_ACTION_TIMEOUT	2000 /* ms */
 
-struct _PkBackendPrivate
+struct PkBackendPrivate
 {
 	gboolean		 during_initialize;
 	gboolean		 finished;
@@ -104,6 +101,7 @@ struct _PkBackendPrivate
 	gchar			*transaction_id;
 	gchar			*locale;
 	gchar			*frontend_socket;
+	guint			 cache_age;
 	gchar			*name;
 	gchar			*proxy_ftp;
 	gchar			*proxy_http;
@@ -480,7 +478,7 @@ pk_backend_build_library_path (PkBackend *backend, const gchar *name)
 	/* prefer the local version */
 	path = g_build_filename ("..", "backends", directory, ".libs", filename, NULL);
 	if (g_file_test (path, G_FILE_TEST_EXISTS) == FALSE) {
-		egg_debug ("local backend not found '%s'", path);
+		g_debug ("local backend not found '%s'", path);
 		g_free (path);
 		path = g_build_filename (LIBDIR, "packagekit-backend", filename, NULL);
 	}
@@ -488,7 +486,7 @@ pk_backend_build_library_path (PkBackend *backend, const gchar *name)
 	path = g_build_filename (LIBDIR, "packagekit-backend", filename, NULL);
 #endif
 	g_free (filename);
-	egg_debug ("dlopening '%s'", path);
+	g_debug ("dlopening '%s'", path);
 
 	return path;
 }
@@ -497,37 +495,101 @@ pk_backend_build_library_path (PkBackend *backend, const gchar *name)
  * pk_backend_set_name:
  **/
 gboolean
-pk_backend_set_name (PkBackend *backend, const gchar *backend_name)
+pk_backend_set_name (PkBackend *backend, const gchar *backend_name, GError **error)
 {
 	GModule *handle;
 	gchar *path = NULL;
-	gboolean ret = TRUE;
+	gboolean ret = FALSE;
+	gpointer func = NULL;
 
 	g_return_val_if_fail (PK_IS_BACKEND (backend), FALSE);
 	g_return_val_if_fail (backend_name != NULL, FALSE);
 
 	/* have we already been set? */
 	if (backend->priv->name != NULL) {
-		egg_warning ("pk_backend_set_name called multiple times");
-		ret = FALSE;
+		g_set_error (error, 1, 0, "already set name to %s", backend->priv->name);
 		goto out;
 	}
 
 	/* can we load it? */
-	egg_debug ("Trying to load : %s", backend_name);
+	g_debug ("Trying to load : %s", backend_name);
 	path = pk_backend_build_library_path (backend, backend_name);
 	handle = g_module_open (path, 0);
 	if (handle == NULL) {
-		egg_warning ("opening module %s failed : %s", backend_name, g_module_error ());
-		ret = FALSE;
+		g_set_error (error, 1, 0, "opening module %s failed : %s", backend_name, g_module_error ());
 		goto out;
 	}
 
-	/* is is correctly formed? */
-	if (!g_module_symbol (handle, "pk_backend_desc", (gpointer) &backend->priv->desc)) {
+	/* first check for the table of vfuncs */
+	ret = g_module_symbol (handle, "pk_backend_desc", (gpointer) &func);
+	if (ret) {
+		g_warning ("using table-of-vfuncs compatibility mode");
+		backend->priv->desc = func;
+	} else {
+		/* then check for the new style exported functions */
+		ret = g_module_symbol (handle, "pk_backend_get_description", (gpointer *)&func);
+		if (ret) {
+			PkBackendDesc *desc;
+			PkBackendGetCompatStringFunc backend_vfunc;
+			desc = g_new0 (PkBackendDesc, 1);
+
+			/* connect up exported methods */
+			g_module_symbol (handle, "pk_backend_cancel", (gpointer *)&desc->cancel);
+			g_module_symbol (handle, "pk_backend_destroy", (gpointer *)&desc->destroy);
+			g_module_symbol (handle, "pk_backend_download_packages", (gpointer *)&desc->download_packages);
+			g_module_symbol (handle, "pk_backend_get_categories", (gpointer *)&desc->get_categories);
+			g_module_symbol (handle, "pk_backend_get_depends", (gpointer *)&desc->get_depends);
+			g_module_symbol (handle, "pk_backend_get_details", (gpointer *)&desc->get_details);
+			g_module_symbol (handle, "pk_backend_get_distro_upgrades", (gpointer *)&desc->get_distro_upgrades);
+			g_module_symbol (handle, "pk_backend_get_files", (gpointer *)&desc->get_files);
+			g_module_symbol (handle, "pk_backend_get_filters", (gpointer *)&desc->get_filters);
+			g_module_symbol (handle, "pk_backend_get_groups", (gpointer *)&desc->get_groups);
+			g_module_symbol (handle, "pk_backend_get_mime_types", (gpointer *)&desc->get_mime_types);
+			g_module_symbol (handle, "pk_backend_get_packages", (gpointer *)&desc->get_packages);
+			g_module_symbol (handle, "pk_backend_get_repo_list", (gpointer *)&desc->get_repo_list);
+			g_module_symbol (handle, "pk_backend_get_requires", (gpointer *)&desc->get_requires);
+			g_module_symbol (handle, "pk_backend_get_roles", (gpointer *)&desc->get_roles);
+			g_module_symbol (handle, "pk_backend_get_update_detail", (gpointer *)&desc->get_update_detail);
+			g_module_symbol (handle, "pk_backend_get_updates", (gpointer *)&desc->get_updates);
+			g_module_symbol (handle, "pk_backend_initialize", (gpointer *)&desc->initialize);
+			g_module_symbol (handle, "pk_backend_install_files", (gpointer *)&desc->install_files);
+			g_module_symbol (handle, "pk_backend_install_packages", (gpointer *)&desc->install_packages);
+			g_module_symbol (handle, "pk_backend_install_signature", (gpointer *)&desc->install_signature);
+			g_module_symbol (handle, "pk_backend_refresh_cache", (gpointer *)&desc->refresh_cache);
+			g_module_symbol (handle, "pk_backend_remove_packages", (gpointer *)&desc->remove_packages);
+			g_module_symbol (handle, "pk_backend_repo_enable", (gpointer *)&desc->repo_enable);
+			g_module_symbol (handle, "pk_backend_repo_set_data", (gpointer *)&desc->repo_set_data);
+			g_module_symbol (handle, "pk_backend_resolve", (gpointer *)&desc->resolve);
+			g_module_symbol (handle, "pk_backend_rollback", (gpointer *)&desc->rollback);
+			g_module_symbol (handle, "pk_backend_search_details", (gpointer *)&desc->search_details);
+			g_module_symbol (handle, "pk_backend_search_files", (gpointer *)&desc->search_files);
+			g_module_symbol (handle, "pk_backend_search_groups", (gpointer *)&desc->search_groups);
+			g_module_symbol (handle, "pk_backend_search_names", (gpointer *)&desc->search_names);
+			g_module_symbol (handle, "pk_backend_simulate_install_files", (gpointer *)&desc->simulate_install_files);
+			g_module_symbol (handle, "pk_backend_simulate_install_packages", (gpointer *)&desc->simulate_install_packages);
+			g_module_symbol (handle, "pk_backend_simulate_remove_packages", (gpointer *)&desc->simulate_remove_packages);
+			g_module_symbol (handle, "pk_backend_simulate_update_packages", (gpointer *)&desc->simulate_update_packages);
+			g_module_symbol (handle, "pk_backend_transaction_start", (gpointer *)&desc->transaction_start);
+			g_module_symbol (handle, "pk_backend_transaction_stop", (gpointer *)&desc->transaction_stop);
+			g_module_symbol (handle, "pk_backend_update_packages", (gpointer *)&desc->update_packages);
+			g_module_symbol (handle, "pk_backend_update_system", (gpointer *)&desc->update_system);
+			g_module_symbol (handle, "pk_backend_what_provides", (gpointer *)&desc->what_provides);
+
+			/* get old static string data */
+			ret = g_module_symbol (handle, "pk_backend_get_author", (gpointer *)&backend_vfunc);
+			if (ret)
+				desc->author = backend_vfunc (backend);
+			ret = g_module_symbol (handle, "pk_backend_get_description", (gpointer *)&backend_vfunc);
+			if (ret)
+				desc->description = backend_vfunc (backend);
+
+			/* make available */
+			backend->priv->desc = desc;
+		}
+	}
+	if (!ret) {
 		g_module_close (handle);
-		egg_warning ("could not find description in plugin %s, not loading", backend_name);
-		ret = FALSE;
+		g_set_error (error, 1, 0, "could not find description in plugin %s, not loading", backend_name);
 		goto out;
 	}
 
@@ -592,7 +654,7 @@ pk_backend_set_root (PkBackend	*backend, const gchar *root)
 
 	g_free (backend->priv->root);
 	backend->priv->root = g_strdup (root);
-	egg_debug ("install root now %s", backend->priv->root);
+	g_debug ("install root now %s", backend->priv->root);
 	return TRUE;
 }
 
@@ -625,7 +687,7 @@ pk_backend_lock (PkBackend *backend)
 	g_return_val_if_fail (backend->priv->desc != NULL, FALSE);
 
 	if (backend->priv->locked) {
-		egg_warning ("already locked");
+		g_debug ("already locked (nonfatal)");
 		/* we don't return FALSE here, as the action didn't fail */
 		return TRUE;
 	}
@@ -653,12 +715,12 @@ pk_backend_unlock (PkBackend *backend)
 	g_return_val_if_fail (PK_IS_BACKEND (backend), FALSE);
 
 	if (backend->priv->locked == FALSE) {
-		egg_warning ("already unlocked");
+		g_debug ("already unlocked (nonfatal)");
 		/* we don't return FALSE here, as the action didn't fail */
 		return TRUE;
 	}
 	if (backend->priv->desc == NULL) {
-		egg_warning ("not yet loaded backend, try pk_backend_lock()");
+		g_warning ("not yet loaded backend, try pk_backend_lock()");
 		return FALSE;
 	}
 	if (backend->priv->desc->destroy != NULL)
@@ -708,13 +770,13 @@ pk_backend_set_percentage (PkBackend *backend, guint percentage)
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: percentage %i", percentage);
+		g_warning ("already set error, cannot process: percentage %i", percentage);
 		return FALSE;
 	}
 
 	/* set the same twice? */
 	if (backend->priv->last_percentage == percentage) {
-		egg_debug ("duplicate set of %i", percentage);
+		g_debug ("duplicate set of %i", percentage);
 		return FALSE;
 	}
 
@@ -745,7 +807,7 @@ pk_backend_set_percentage (PkBackend *backend, guint percentage)
 
 		/* lets try this and print as debug */
 		remaining = pk_time_get_remaining (backend->priv->time);
-		egg_debug ("this will now take ~%i seconds", remaining);
+		g_debug ("this will now take ~%i seconds", remaining);
 
 		/* value cached from config file */
 		if (backend->priv->use_time)
@@ -768,13 +830,13 @@ pk_backend_set_speed (PkBackend *backend, guint speed)
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: speed %i", speed);
+		g_warning ("already set error, cannot process: speed %i", speed);
 		return FALSE;
 	}
 
 	/* set the same twice? */
 	if (backend->priv->speed == speed) {
-		egg_debug ("duplicate set of %i", speed);
+		g_debug ("duplicate set of %i", speed);
 		return FALSE;
 	}
 
@@ -808,19 +870,19 @@ pk_backend_set_sub_percentage (PkBackend *backend, guint percentage)
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: sub-percentage %i", percentage);
+		g_warning ("already set error, cannot process: sub-percentage %i", percentage);
 		return FALSE;
 	}
 
 	/* set the same twice? */
 	if (backend->priv->last_subpercentage == percentage) {
-		egg_debug ("duplicate set of %i", percentage);
+		g_debug ("duplicate set of %i", percentage);
 		return FALSE;
 	}
 
 	/* invalid number? */
 	if (percentage > 100 && percentage != PK_BACKEND_PERCENTAGE_INVALID) {
-		egg_debug ("invalid number %i", percentage);
+		g_debug ("invalid number %i", percentage);
 		return FALSE;
 	}
 
@@ -843,29 +905,21 @@ pk_backend_set_status (PkBackend *backend, PkStatusEnum status)
 
 	/* already this? */
 	if (backend->priv->status == status) {
-		egg_debug ("already set same status");
+		g_debug ("already set same status");
 		return TRUE;
 	}
 
 	/* have we already set an error? */
 	if (backend->priv->set_error && status != PK_STATUS_ENUM_FINISHED) {
-		egg_warning ("already set error, cannot process: status %s", pk_status_enum_to_string (status));
+		g_warning ("already set error, cannot process: status %s", pk_status_enum_to_string (status));
 		return FALSE;
 	}
 
 	/* backends don't do this */
 	if (status == PK_STATUS_ENUM_WAIT) {
-		egg_warning ("backend tried to WAIT, only the runner should set this value");
+		g_warning ("backend tried to WAIT, only the runner should set this value");
 		pk_backend_message (backend, PK_MESSAGE_ENUM_BACKEND_ERROR,
 				    "%s shouldn't use STATUS_WAIT", pk_role_enum_to_string (backend->priv->role));
-		return FALSE;
-	}
-
-	/* sanity check */
-	if (status == PK_STATUS_ENUM_SETUP && backend->priv->status != PK_STATUS_ENUM_WAIT) {
-		egg_warning ("backend tried to SETUP, but should be in WAIT");
-		pk_backend_message (backend, PK_MESSAGE_ENUM_BACKEND_ERROR,
-				    "%s to SETUP when not in WAIT", pk_role_enum_to_string (backend->priv->role));
 		return FALSE;
 	}
 
@@ -904,7 +958,6 @@ pk_backend_package_emulate_finished (PkBackend *backend)
 	item = backend->priv->last_package;
 	if (item == NULL)
 		goto out;
-
 
 	/* get data */
 	g_object_get (item,
@@ -945,19 +998,19 @@ pk_backend_package_emulate_finished_for_package (PkBackend *backend, PkPackage *
 
 	/* simultaneous handles this on it's own */
 	if (backend->priv->simultaneous) {
-		egg_debug ("backend handling finished");
+		g_debug ("backend handling finished");
 		goto out;
 	}
 
 	/* first package in transaction */
 	if (backend->priv->last_package == NULL) {
-		egg_debug ("first package, so no finished");
+		g_debug ("first package, so no finished");
 		goto out;
 	}
 
 	/* same package, just info change */
 	if (pk_package_equal_id (backend->priv->last_package, item)) {
-		egg_debug ("same package_id, ignoring");
+		g_debug ("same package_id, ignoring");
 		goto out;
 	}
 
@@ -990,7 +1043,7 @@ pk_backend_strsafe (const gchar *text)
 	/* is valid UTF8? */
 	ret = g_utf8_validate (text, -1, NULL);
 	if (!ret) {
-		egg_warning ("text '%s' was not valid UTF8!", text);
+		g_warning ("text '%s' was not valid UTF8!", text);
 		return NULL;
 	}
 
@@ -1018,7 +1071,7 @@ pk_backend_package (PkBackend *backend, PkInfoEnum info, const gchar *package_id
 	/* check we are valid */
 	ret = pk_package_id_check (package_id);
 	if (!ret) {
-		egg_warning ("package_id invalid and cannot be processed: %s", package_id);
+		g_warning ("package_id invalid and cannot be processed: %s", package_id);
 		goto out;
 	}
 
@@ -1047,7 +1100,7 @@ pk_backend_package (PkBackend *backend, PkInfoEnum info, const gchar *package_id
 	/* is it the same? */
 	ret = (backend->priv->last_package != NULL && pk_package_equal (backend->priv->last_package, item));
 	if (ret) {
-		egg_debug ("skipping duplicate %s", package_id);
+		g_debug ("skipping duplicate %s", package_id);
 		ret = FALSE;
 		goto out;
 	}
@@ -1063,7 +1116,7 @@ pk_backend_package (PkBackend *backend, PkInfoEnum info, const gchar *package_id
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: package %s", package_id);
+		g_warning ("already set error, cannot process: package %s", package_id);
 		ret = FALSE;
 		goto out;
 	}
@@ -1071,7 +1124,7 @@ pk_backend_package (PkBackend *backend, PkInfoEnum info, const gchar *package_id
 	/* we automatically set the transaction status for some PkInfoEnums if running
 	 * in non-simultaneous transaction mode */
 	if (!backend->priv->simultaneous) {
-		egg_debug ("auto-setting status based on info %s", pk_info_enum_to_string (info));
+		g_debug ("auto-setting status based on info %s", pk_info_enum_to_string (info));
 		if (info == PK_INFO_ENUM_DOWNLOADING)
 			pk_backend_set_status (backend, PK_STATUS_ENUM_DOWNLOAD);
 		else if (info == PK_INFO_ENUM_UPDATING)
@@ -1091,7 +1144,10 @@ pk_backend_package (PkBackend *backend, PkInfoEnum info, const gchar *package_id
 
 	/* emit */
 	g_signal_emit (backend, signals[SIGNAL_PACKAGE], 0, item);
-	pk_results_add_package (backend->priv->results, item);
+
+	/* add to results if meaningful */
+	if (info != PK_INFO_ENUM_FINISHED)
+		pk_results_add_package (backend->priv->results, item);
 
 	/* success */
 	ret = TRUE;
@@ -1125,7 +1181,7 @@ pk_backend_update_detail (PkBackend *backend, const gchar *package_id,
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: update_detail %s", package_id);
+		g_warning ("already set error, cannot process: update_detail %s", package_id);
 		goto out;
 	}
 
@@ -1138,17 +1194,13 @@ pk_backend_update_detail (PkBackend *backend, const gchar *package_id,
 	/* check the issued dates are valid */
 	if (issued_text != NULL) {
 		ret = g_time_val_from_iso8601 (issued_text, &timeval);
-		if (!ret) {
-			egg_warning ("failed to parse '%s'", issued_text);
-			goto out;
-		}
+		if (!ret)
+			g_warning ("failed to parse issued '%s'", issued_text);
 	}
 	if (updated_text != NULL) {
 		ret = g_time_val_from_iso8601 (updated_text, &timeval);
-		if (!ret) {
-			egg_warning ("failed to parse '%s'", updated_text);
-			goto out;
-		}
+		if (!ret)
+			g_warning ("failed to parse updated '%s'", updated_text);
 	}
 
 	/* replace unsafe chars */
@@ -1220,14 +1272,14 @@ pk_backend_require_restart (PkBackend *backend, PkRestartEnum restart, const gch
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: require-restart %s", pk_restart_enum_to_string (restart));
+		g_warning ("already set error, cannot process: require-restart %s", pk_restart_enum_to_string (restart));
 		goto out;
 	}
 
 	/* check we are valid */
 	ret = pk_package_id_check (package_id);
 	if (!ret) {
-		egg_warning ("package_id invalid and cannot be processed: %s", package_id);
+		g_warning ("package_id invalid and cannot be processed: %s", package_id);
 		goto out;
 	}
 
@@ -1266,7 +1318,7 @@ pk_backend_message (PkBackend *backend, PkMessageEnum message, const gchar *form
 
 	/* have we already set an error? */
 	if (backend->priv->set_error && message != PK_MESSAGE_ENUM_BACKEND_ERROR) {
-		egg_warning ("already set error, cannot process: message %s", pk_message_enum_to_string (message));
+		g_warning ("already set error, cannot process: message %s", pk_message_enum_to_string (message));
 		goto out;
 	}
 
@@ -1305,7 +1357,7 @@ pk_backend_set_transaction_data (PkBackend *backend, const gchar *data)
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process");
+		g_warning ("already set error, cannot process");
 		return FALSE;
 	}
 
@@ -1325,7 +1377,7 @@ pk_backend_set_simultaneous_mode (PkBackend *backend, gboolean simultaneous)
 
 	backend->priv->simultaneous = simultaneous;
 	if (simultaneous)
-		egg_warning ("simultaneous mode is not well tested, use with caution");
+		g_warning ("simultaneous mode is not well tested, use with caution");
 	return TRUE;
 }
 
@@ -1351,7 +1403,7 @@ pk_backend_set_locale (PkBackend *backend, const gchar *code)
 	g_return_val_if_fail (code != NULL, FALSE);
 	g_return_val_if_fail (backend->priv->locked != FALSE, FALSE);
 
-	egg_debug ("locale changed to %s", code);
+	g_debug ("locale changed to %s", code);
 	g_free (backend->priv->locale);
 	backend->priv->locale = g_strdup (code);
 
@@ -1379,11 +1431,38 @@ pk_backend_set_frontend_socket (PkBackend *backend, const gchar *frontend_socket
 	g_return_val_if_fail (PK_IS_BACKEND (backend), FALSE);
 	g_return_val_if_fail (backend->priv->locked != FALSE, FALSE);
 
-	egg_debug ("frontend_socket changed to %s", frontend_socket);
+	g_debug ("frontend_socket changed to %s", frontend_socket);
 	g_free (backend->priv->frontend_socket);
 	backend->priv->frontend_socket = g_strdup (frontend_socket);
 
 	return TRUE;
+}
+
+/**
+ * pk_backend_get_cache_age:
+ *
+ * Gets the maximum cache age in seconds.
+ *
+ * Return value: the cache age in seconds, or 0 for unset or %G_MAXUINT for 'infinity'
+ **/
+guint
+pk_backend_get_cache_age (PkBackend *backend)
+{
+	g_return_val_if_fail (PK_IS_BACKEND (backend), 0);
+	return backend->priv->cache_age;
+}
+
+/**
+ * pk_backend_set_cache_age:
+ **/
+void
+pk_backend_set_cache_age (PkBackend *backend, guint cache_age)
+{
+	g_return_if_fail (PK_IS_BACKEND (backend));
+	g_return_if_fail (backend->priv->locked != FALSE);
+
+	g_debug ("cache-age changed to %i", cache_age);
+	backend->priv->cache_age = cache_age;
 }
 
 /**
@@ -1404,7 +1483,7 @@ pk_backend_details (PkBackend *backend, const gchar *package_id,
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: details %s", package_id);
+		g_warning ("already set error, cannot process: details %s", package_id);
 		goto out;
 	}
 
@@ -1453,14 +1532,14 @@ pk_backend_files (PkBackend *backend, const gchar *package_id, const gchar *file
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: files %s", package_id);
+		g_warning ("already set error, cannot process: files %s", package_id);
 		return FALSE;
 	}
 
 	/* check we are valid */
 	ret = pk_package_id_check (package_id);
 	if (!ret) {
-		egg_warning ("package_id invalid and cannot be processed: %s", package_id);
+		g_warning ("package_id invalid and cannot be processed: %s", package_id);
 		goto out;
 	}
 
@@ -1505,7 +1584,7 @@ pk_backend_distro_upgrade (PkBackend *backend, PkDistroUpgradeEnum state, const 
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: distro-upgrade");
+		g_warning ("already set error, cannot process: distro-upgrade");
 		goto out;
 	}
 
@@ -1553,13 +1632,13 @@ pk_backend_repo_signature_required (PkBackend *backend, const gchar *package_id,
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: repo-sig-reqd");
+		g_warning ("already set error, cannot process: repo-sig-reqd");
 		goto out;
 	}
 
 	/* check we don't do this more than once */
 	if (backend->priv->set_signature) {
-		egg_warning ("already asked for a signature, cannot process");
+		g_warning ("already asked for a signature, cannot process");
 		goto out;
 	}
 
@@ -1608,13 +1687,13 @@ pk_backend_eula_required (PkBackend *backend, const gchar *eula_id, const gchar 
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: eula required");
+		g_warning ("already set error, cannot process: eula required");
 		goto out;
 	}
 
 	/* check we don't do this more than once */
 	if (backend->priv->set_eula) {
-		egg_warning ("already asked for a signature, cannot process");
+		g_warning ("already asked for a signature, cannot process");
 		goto out;
 	}
 
@@ -1659,7 +1738,7 @@ pk_backend_media_change_required (PkBackend *backend,
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: media change required");
+		g_warning ("already set error, cannot process: media change required");
 		goto out;
 	}
 
@@ -1700,7 +1779,7 @@ pk_backend_repo_detail (PkBackend *backend, const gchar *repo_id,
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: repo-detail %s", repo_id);
+		g_warning ("already set error, cannot process: repo-detail %s", repo_id);
 		goto out;
 	}
 
@@ -1744,7 +1823,7 @@ pk_backend_category (PkBackend *backend, const gchar *parent_id, const gchar *ca
 
 	/* have we already set an error? */
 	if (backend->priv->set_error) {
-		egg_warning ("already set error, cannot process: category %s", cat_id);
+		g_warning ("already set error, cannot process: category %s", cat_id);
 		goto out;
 	}
 
@@ -1823,8 +1902,7 @@ pk_backend_error_timeout_delay_cb (gpointer data)
 
 	/* check we have not already finished */
 	if (backend->priv->finished) {
-		egg_warning ("consistency error");
-		egg_debug_backtrace ();
+		g_warning ("consistency error");
 		goto out;
 	}
 
@@ -1892,14 +1970,14 @@ pk_backend_error_code (PkBackend *backend, PkErrorEnum error_code, const gchar *
 
 	/* check we are not doing Init() */
 	if (backend->priv->during_initialize) {
-		egg_warning ("set during init: %s", buffer);
+		g_warning ("set during init: %s", buffer);
 		ret = FALSE;
 		goto out;
 	}
 
 	/* did we set a duplicate error? */
 	if (backend->priv->set_error) {
-		egg_warning ("More than one error emitted! You tried to set '%s'", buffer);
+		g_warning ("More than one error emitted! You tried to set '%s'", buffer);
 		ret = FALSE;
 		goto out;
 	}
@@ -1960,13 +2038,13 @@ pk_backend_set_allow_cancel (PkBackend *backend, gboolean allow_cancel)
 
 	/* have we already set an error? */
 	if (backend->priv->set_error && allow_cancel) {
-		egg_warning ("already set error, cannot process: allow-cancel %i", allow_cancel);
+		g_warning ("already set error, cannot process: allow-cancel %i", allow_cancel);
 		return FALSE;
 	}
 
 	/* same as last state? */
 	if (backend->priv->allow_cancel == (PkHintEnum) allow_cancel) {
-		egg_debug ("ignoring same allow-cancel state");
+		g_debug ("ignoring same allow-cancel state");
 		return FALSE;
 	}
 
@@ -2001,8 +2079,9 @@ static gboolean
 pk_backend_set_role_internal (PkBackend *backend, PkRoleEnum role)
 {
 	/* Should only be called once... */
-	if (backend->priv->role != PK_ROLE_ENUM_UNKNOWN) {
-		egg_warning ("cannot set role to %s, already %s",
+	if (backend->priv->role != PK_ROLE_ENUM_UNKNOWN &&
+	    backend->priv->role != role) {
+		g_warning ("cannot set role to %s, already %s",
 			     pk_role_enum_to_string (role),
 			     pk_role_enum_to_string (backend->priv->role));
 		return FALSE;
@@ -2011,7 +2090,7 @@ pk_backend_set_role_internal (PkBackend *backend, PkRoleEnum role)
 	/* reset the timer */
 	pk_time_reset (backend->priv->time);
 
-	egg_debug ("setting role to %s", pk_role_enum_to_string (role));
+	g_debug ("setting role to %s", pk_role_enum_to_string (role));
 	backend->priv->role = role;
 	backend->priv->status = PK_STATUS_ENUM_WAIT;
 	g_signal_emit (backend, signals[SIGNAL_STATUS_CHANGED], 0, backend->priv->status);
@@ -2030,7 +2109,7 @@ pk_backend_set_role (PkBackend *backend, PkRoleEnum role)
 	/* the role of the transaction can be different to the role of the backend if:
 	 * - we reuse the backend for instance searching for files before UpdatePackages
 	 * - we are simulating the SimulateInstallPackages with a GetDepends call */
-	egg_debug ("setting transaction role to %s", pk_role_enum_to_string (role));
+	g_debug ("setting transaction role to %s", pk_role_enum_to_string (role));
 	backend->priv->transaction_role = role;
 	return pk_backend_set_role_internal (backend, role);
 }
@@ -2047,7 +2126,7 @@ pk_backend_set_exit_code (PkBackend *backend, PkExitEnum exit_enum)
 	g_return_val_if_fail (backend->priv->locked != FALSE, FALSE);
 
 	if (backend->priv->exit != PK_EXIT_ENUM_UNKNOWN) {
-		egg_warning ("already set exit status: old=%s, new=%s",
+		g_warning ("already set exit status: old=%s, new=%s",
 			    pk_exit_enum_to_string (backend->priv->exit),
 			    pk_exit_enum_to_string (exit_enum));
 		return FALSE;
@@ -2056,6 +2135,80 @@ pk_backend_set_exit_code (PkBackend *backend, PkExitEnum exit_enum)
 	/* new value */
 	backend->priv->exit = exit_enum;
 	return TRUE;
+}
+
+/**
+ * pk_backend_transaction_start:
+ *
+ * This is called just before the threaded transaction method, and in
+ * the newly created thread context. e.g.
+ *
+ * >>> desc->transaction_start(backend)
+ *     (locked backend)
+ * >>> desc->backend_method_we_want_to_run(backend)
+ * <<< ::Package(PK_INFO_ENUM_INSTALLING,"hal;0.1.1;i386;fedora","Hardware Stuff")
+ * >>> desc->transaction_stop(backend)
+ *     (unlocked backend)
+ * <<< ::Finished()
+ *
+ * or in the case of backend_method_we_want_to_run() failure:
+ * >>> desc->transaction_start(backend)
+ *     (locked backend)
+ * >>> desc->backend_method_we_want_to_run(backend)
+ * <<< ::ErrorCode(PK_ERROR_ENUM_FAILED_TO_FIND,"no package")
+ * >>> desc->transaction_stop(backend)
+ *     (unlocked backend)
+ * <<< ::Finished()
+ *
+ * or in the case of transaction_start() failure:
+ * >>> desc->transaction_start(backend)
+ *     (failed to lock backend)
+ * <<< ::ErrorCode(PK_ERROR_ENUM_FAILED_TO_LOCK,"no pid file")
+ * >>> desc->transaction_stop(backend)
+ * <<< ::Finished()
+ *
+ * It is *not* called for non-threaded backends, as multiple processes
+ * would be inherently racy.
+ */
+void
+pk_backend_transaction_start (PkBackend *backend)
+{
+	g_return_if_fail (PK_IS_BACKEND (backend));
+
+	/* no transaction setup is perfectly fine */
+	if (backend->priv->desc->transaction_start == NULL) {
+		g_debug ("no transaction start vfunc");
+		return;
+	}
+
+	/* run the transaction setup */
+	backend->priv->desc->transaction_start (backend);
+}
+
+/**
+ * pk_backend_transaction_stop:
+ *
+ * Always run for each transaction, *even* when the transaction_start()
+ * vfunc fails.
+ *
+ * This method has no return value as the ErrorCode should have already
+ * been set.
+ */
+void
+pk_backend_transaction_stop (PkBackend *backend)
+{
+	g_return_if_fail (PK_IS_BACKEND (backend));
+
+	/* no transaction setup is perfectly fine */
+	if (backend->priv->desc->transaction_stop == NULL) {
+		g_debug ("no transaction stop vfunc");
+		goto out;
+	}
+
+	/* run the transaction setup */
+	backend->priv->desc->transaction_stop (backend);
+out:
+	return;
 }
 
 /**
@@ -2090,7 +2243,7 @@ pk_backend_finished (PkBackend *backend)
 
 	/* check we are not doing Init() */
 	if (backend->priv->during_initialize) {
-		egg_warning ("finished during init");
+		g_warning ("finished during init");
 		return FALSE;
 	}
 
@@ -2105,7 +2258,7 @@ pk_backend_finished (PkBackend *backend)
 
 	/* find out what we just did */
 	role_text = pk_role_enum_to_string (backend->priv->role);
-	egg_debug ("finished role %s", role_text);
+	g_debug ("finished role %s", role_text);
 
 	/* are we trying to finish in init? */
 	if (backend->priv->during_initialize) {
@@ -2116,9 +2269,13 @@ pk_backend_finished (PkBackend *backend)
 
 	/* check we have not already finished */
 	if (backend->priv->finished) {
-		egg_warning ("already finished");
+		g_warning ("already finished");
 		return FALSE;
 	}
+
+	/* ensure threaded backends get stop vfuncs fired */
+	if (backend->priv->thread != NULL)
+		pk_backend_transaction_stop (backend);
 
 	/* check we got a Package() else the UI will suck */
 	if (!backend->priv->set_error &&
@@ -2149,7 +2306,7 @@ pk_backend_finished (PkBackend *backend)
 	    backend->priv->status == PK_STATUS_ENUM_SETUP) {
 		pk_backend_message (backend, PK_MESSAGE_ENUM_BACKEND_ERROR,
 				    "Backends should send status <value> signals for %s!", role_text);
-		egg_warning ("GUI will remain unchanged!");
+		g_warning ("GUI will remain unchanged!");
 	}
 
 	/* emulate the last finished package if not done already */
@@ -2166,7 +2323,7 @@ pk_backend_finished (PkBackend *backend)
 
 	/* we have to run this idle as the command may finish before the transaction
 	 * has been sent to the client. I love async... */
-	egg_debug ("adding finished %p to timeout loop", backend);
+	g_debug ("adding finished %p to timeout loop", backend);
 	backend->priv->signal_finished = g_timeout_add (PK_BACKEND_FINISHED_TIMEOUT_GRACE,
 							pk_backend_finished_delay, backend);
 #if GLIB_CHECK_VERSION(2,25,8)
@@ -2221,7 +2378,7 @@ pk_backend_not_implemented_yet (PkBackend *backend, const gchar *method)
 
 	/* this function is only valid when we have a running transaction */
 	if (backend->priv->transaction_id != NULL)
-		egg_warning ("only valid when we have a running transaction");
+		g_warning ("only valid when we have a running transaction");
 	pk_backend_error_code (backend, PK_ERROR_ENUM_NOT_SUPPORTED, "the method '%s' is not implemented yet", method);
 	/* don't wait, do this now */
 	pk_backend_finished_delay (backend);
@@ -2275,6 +2432,39 @@ pk_backend_use_background (PkBackend *backend)
 	return FALSE;
 }
 
+/* simple helper to work around the GThread one pointer limit */
+typedef struct {
+	PkBackend		*backend;
+	PkBackendThreadFunc	 func;
+} PkBackendThreadHelper;
+
+/**
+ * pk_backend_thread_setup:
+ **/
+static gpointer
+pk_backend_thread_setup (gpointer thread_data)
+{
+	gboolean ret;
+	PkBackendThreadHelper *helper = (PkBackendThreadHelper *) thread_data;
+
+	/* call setup */
+	pk_backend_transaction_start (helper->backend);
+
+	/* run original function */
+	ret = helper->func (helper->backend);
+	if (!ret) {
+		g_debug ("transaction setup failed, going straight to finished");
+		pk_backend_transaction_stop (helper->backend);
+	}
+
+	/* destroy helper */
+	g_object_unref (helper->backend);
+	g_free (helper);
+
+	/* no return value */
+	return NULL;
+}
+
 /**
  * pk_backend_thread_create:
  **/
@@ -2282,27 +2472,32 @@ gboolean
 pk_backend_thread_create (PkBackend *backend, PkBackendThreadFunc func)
 {
 	gboolean ret = TRUE;
+	PkBackendThreadHelper *helper = NULL;
 
 	g_return_val_if_fail (PK_IS_BACKEND (backend), FALSE);
 	g_return_val_if_fail (func != NULL, FALSE);
 
 	if (backend->priv->thread != NULL) {
-		egg_warning ("already has thread");
+		g_warning ("already has thread");
 		return FALSE;
 	}
 
 	/* DBus-Glib isn't threadsafe */
 	if (!backend->priv->use_threads) {
-		egg_warning ("not using threads, so daemon will block");
+		g_warning ("not using threads, so daemon will block");
 		ret = func (backend);
 		goto out;
 	}
 
+	/* create a helper object to allow us to call a _setup() function */
+	helper = g_new0 (PkBackendThreadHelper, 1);
+	helper->backend = g_object_ref (backend);
+	helper->func = func;
+
 	/* create a thread */
-	egg_warning ("using threads, so daemon may crash");
-	backend->priv->thread = g_thread_create ((GThreadFunc) func, backend, FALSE, NULL);
+	backend->priv->thread = g_thread_create (pk_backend_thread_setup, helper, FALSE, NULL);
 	if (backend->priv->thread == NULL) {
-		egg_warning ("failed to create thread");
+		g_warning ("failed to create thread");
 		ret = FALSE;
 		goto out;
 	}
@@ -2317,7 +2512,6 @@ gchar *
 pk_backend_get_name (PkBackend *backend)
 {
 	g_return_val_if_fail (PK_IS_BACKEND (backend), NULL);
-	g_return_val_if_fail (backend->priv->desc != NULL, NULL);
 	g_return_val_if_fail (backend->priv->locked != FALSE, NULL);
 	return g_strdup (backend->priv->name);
 }
@@ -2357,10 +2551,10 @@ pk_backend_accept_eula (PkBackend *backend, const gchar *eula_id)
 	g_return_val_if_fail (PK_IS_BACKEND (backend), FALSE);
 	g_return_val_if_fail (eula_id != NULL, FALSE);
 
-	egg_debug ("eula_id %s", eula_id);
+	g_debug ("eula_id %s", eula_id);
 	present = g_hash_table_lookup (backend->priv->eulas, eula_id);
 	if (present != NULL) {
-		egg_debug ("already added %s to accepted list", eula_id);
+		g_debug ("already added %s to accepted list", eula_id);
 		return FALSE;
 	}
 	g_hash_table_insert (backend->priv->eulas, g_strdup (eula_id), GINT_TO_POINTER (1));
@@ -2428,7 +2622,7 @@ pk_backend_watch_file (PkBackend *backend, const gchar *filename, PkBackendFileC
 	g_return_val_if_fail (func != NULL, FALSE);
 
 	if (backend->priv->file_changed_func != NULL) {
-		egg_warning ("already set");
+		g_warning ("already set");
 		return FALSE;
 	}
 	ret = pk_file_monitor_set_file (backend->priv->file_monitor, filename);;
@@ -2448,7 +2642,7 @@ static void
 pk_backend_file_monitor_changed_cb (PkFileMonitor *file_monitor, PkBackend *backend)
 {
 	g_return_if_fail (PK_IS_BACKEND (backend));
-	egg_debug ("config file changed");
+	g_debug ("config file changed");
 	backend->priv->file_changed_func (backend, backend->priv->file_changed_data);
 }
 
@@ -2511,7 +2705,7 @@ pk_backend_set_property (GObject *object, guint prop_id, const GValue *value, GP
 	case PROP_TRANSACTION_ID:
 		g_free (priv->transaction_id);
 		priv->transaction_id = g_value_dup_string (value);
-		egg_debug ("setting backend tid as %s", priv->transaction_id);
+		g_debug ("setting backend tid as %s", priv->transaction_id);
 		break;
 	case PROP_SPEED:
 		priv->speed = g_value_get_uint (value);
@@ -2552,7 +2746,7 @@ pk_backend_finalize (GObject *object)
 
 	if (backend->priv->handle != NULL)
 		g_module_close (backend->priv->handle);
-	egg_debug ("parent_class->finalize");
+	g_debug ("parent_class->finalize");
 	G_OBJECT_CLASS (pk_backend_parent_class)->finalize (object);
 }
 
@@ -2722,14 +2916,14 @@ pk_backend_reset (PkBackend *backend)
 
 	/* we can't reset when we are running */
 	if (backend->priv->status == PK_STATUS_ENUM_RUNNING) {
-		egg_warning ("cannot reset %s when running", backend->priv->transaction_id);
+		g_warning ("cannot reset %s when running", backend->priv->transaction_id);
 		return FALSE;
 	}
 
 	/* do finish now, as we might be unreffing quickly */
 	if (backend->priv->signal_finished != 0) {
 		g_source_remove (backend->priv->signal_finished);
-		egg_debug ("doing unref quickly delay");
+		g_debug ("doing unref quickly delay");
 		pk_backend_finished_delay (backend);
 	}
 
@@ -2779,7 +2973,7 @@ pk_backend_cancel_cb (PkBackend *backend)
 {
 	/* set an error if the backend didn't do it for us */
 	if (!backend->priv->set_error) {
-		egg_warning ("backend failed to exit in %ims, cancelling ourselves", PK_BACKEND_CANCEL_ACTION_TIMEOUT);
+		g_warning ("backend failed to exit in %ims, cancelling ourselves", PK_BACKEND_CANCEL_ACTION_TIMEOUT);
 		pk_backend_error_code (backend, PK_ERROR_ENUM_TRANSACTION_CANCELLED, "transaction was cancelled");
 		pk_backend_finished (backend);
 	}
@@ -3220,6 +3414,7 @@ pk_backend_init (PkBackend *backend)
 	backend->priv->name = NULL;
 	backend->priv->locale = NULL;
 	backend->priv->frontend_socket = NULL;
+	backend->priv->cache_age = 0;
 	backend->priv->transaction_id = NULL;
 	backend->priv->proxy_http = NULL;
 	backend->priv->proxy_ftp = NULL;
