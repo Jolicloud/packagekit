@@ -38,8 +38,10 @@ Build-Depends: debhelper (>= 5),
 Standards-Version: 3.8.3
 XS-Python-Version: current
 Homepage: http://www.packagekit.org
-Vcs-Bzr: https://code.launchpad.net/~packagekit/packagekit/ubuntu-lucid
-Vcs-Browser: http://bazaar.launchpad.net/~packagekit/packagekit/ubuntu-lucid/files
+XS-Ubuntu-Vcs-Bzr: https://code.launchpad.net/~packagekit/packagekit/ubuntu-lucid
+XS-Ubuntu-Vcs-Browser: http://bazaar.launchpad.net/~packagekit/packagekit/ubuntu-lucid/files
+Vcs-Git: git://github.com/jolicloud/packagekit.git
+Vcs-Browser: https://github.com/jolicloud/packagekit
 
 Package: packagekit
 Architecture: any
